@@ -60,6 +60,8 @@ graph TD
     I -->|Mint NFT| I
     I -->|Event: nft.minted| J[NEAR Indexer]
     J -->|Update State| K[Credit Service]
+    K -->|Sync State| L[Registry Adapters]
+    L -->|External API| M((External Registry: Verra/Puro))
 ```
 
 ---
