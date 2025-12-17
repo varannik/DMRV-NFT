@@ -1,74 +1,245 @@
-# Enterprise DMRV-NFT Platform - Project Structure
+# DMRV SaaS Platform - Enterprise Folder Structure
 
-## Overview
-This document defines the folder and file structure for the cloud-native, microservices-based DMRV platform.
+## overview
+This document defines the comprehensive directory structure for the separate Digital MRV SaaS platform. It follows a **Monorepo** architecture (managed via TurboRepo or similar) to ensure consistency across services, shared libraries, and frontend applications while maintaining clean boundaries.
 
-## Directory Tree
+## Top-Level Hierarchy
 
 ```text
-.
-├── .github/                            # [Domain 12] Governance & CI/CD
-│   ├── ISSUE_TEMPLATE/                 # Standardization for issue reporting
-│   └── workflows/                      # CI/CD pipeline definitions
-├── apps/                               # [Domain 5] Frontend Applications
-│   ├── admin-console/                  # Admin dashboard for platform management
-│   ├── marketplace-ui/                 # User-facing marketplace interface
-│   ├── registry-viewer/                # Public view for carbon registries
-│   └── verifier-portal/                # Dedicated portal for verification auditors
-├── contracts/                          # [Domain 1] Smart Contracts (NEAR Protocol)
-│   ├── .scripts/                       # Deployment and maintenance scripts
-│   ├── nft-core/                       # Core NFT logic (issuance, lifecycle)
-│   ├── marketplace/                    # Marketplace contract logic
-│   ├── registry/                       # Registry integration contracts
-│   ├── tests/                          # Contract-specific unit & simulation tests
-│   └── migrations/                     # Smart contract upgrade paths
-├── data/                               # [Domain 6] Data Layer
-│   ├── migrations/                     # Database schema migrations (SQL/NoSQL)
-│   ├── schemas/                        # Canonical data models (Protobuf/JSON-Schema)
-│   └── seeds/                          # Data seeding for dev/staging environments
-├── docs/                               # [Domain 11] Documentation Hub
-│   ├── adr/                            # [Domain 12] Architecture Decision Records
-│   ├── architecture/                   # High-level architecture & diagrams
-│   ├── api/                            # OpenAPI/Swagger specs
-│   ├── compliance/                     # [Domain 8] ISO/SOC2 compliance artifacts
-│   └── runbooks/                       # Operational guides and playbooks
-├── infrastructure/                     # [Domain 7] Cloud & DevOps
-│   ├── k8s/                            # Kubernetes manifests (Helm/Kustomize)
-│   ├── terraform/                      # Infrastructure as Code (AWS/GCP/Azure)
-│   │   ├── environments/               # Env-specific configs (dev, stage, prod)
-│   │   └── modules/                    # Reusable infrastructure modules
-│   └── secrets/                        # Secret management configuration (Vault/KMS)
-├── ops/                                # [Domain 9] Observability & Operations
-│   ├── alerting/                       # Alert manager rules
-│   ├── dashboards/                     # Grafana/Monitoring dashboard exports
-│   └── logging/                        # Log aggregation configs (Fluentd/Vector)
-├── security/                           # [Domain 8] Security & Audit
-│   ├── audit-logs/                     # Audit trail definitions & schema
-│   ├── policies/                       # OPA (Open Policy Agent) definitions
-│   └── threat-modeling/                # STRIDE models and security reports
-├── services/                           # [Domain 2, 3, 4] Backend Microservices
-│   ├── api-gateway/                    # [Domain 4] Unified public API entry point
-│   ├── auth-service/                   # [Domain 4] Enterprise AuthN/AuthZ
-│   ├── mrv-ingestion/                  # [Domain 2] IoT & Oracle data intake
-│   ├── mrv-pipeline/                   # [Domain 2] Computation & AI validation engine
-│   ├── proof-service/                  # [Domain 2] Data integrity & creating ZK proofs
-│   ├── registry-connector/             # [Domain 3] External registry adapter/sync
-│   └── verification-workflow/          # [Domain 3] Managing verification state transitions
-├── tests/                              # [Domain 10] Cross-Service Testing
-│   ├── chaos/                          # Chaos engineering experiments
-│   ├── e2e/                            # End-to-end integration suites
-│   └── performance/                    # Load testing (k6/JMeter) scripts
-├── tools/                              # Project Tooling
-│   ├── dev/                            # Local development utilities
-│   └── scripts/                        # Global repository maintenance scripts
-├── .gitignore                          # Git ignore rules
-├── .tool-versions                      # Version pinning (asdf/rbenv etc)
-├── ADR_TEMPLATE.md                     # Template for new Architecture Decision Records
-├── CHANGELOG.md                        # [Domain 12] Version history
-├── CONTRIBUTING.md                     # [Domain 12] Governance guidelines
-├── docker-compose.yml                  # Local development orchestration
-├── LICENSE                             # License definition
-├── Makefile                            # Top-level command shortcuts
-├── README.md                           # Main project entry point
-└── SECURITY.md                         # Security reporting policy
+dmrv-platform/
+├── .github/                   # GitHub Actions (CI/CD)
+├── .husky/                    # Git hooks (pre-commit, commit-msg)
+├── apps/                      # Frontend applications / Gateways
+├── contracts/                 # NEAR Smart Contracts (Rust)
+├── docs/                      # Global documentation & ADRs
+├── infrastructure/            # IaC, K8s, Terraform
+├── libs/                      # Shared internal libraries (TS)
+├── scripts/                   # Ops & dev scripts
+├── services/                  # Backend Microservices (NestJS)
+├── tools/                     # Build tools, generators, configs
+├── .env.example               # Root environment template
+├── .gitignore
+├── docker-compose.yml         # Local dev environment
+├── package.json               # Root dependencies (DevOps, linting)
+├── pnpm-workspace.yaml        # Workspace definition
+├── README.md                  # Project entry point
+└── turbo.json                 # TurboRepo pipeline config
 ```
+
+---
+
+## Detailed Structure
+
+### 1. Services (`services/*`)
+*Backend microservices. Stack: NestJS + TypeScript.*
+
+```text
+services/
+├── project-service/           # Project Management
+│   ├── src/
+│   │   ├── domain/            # Domain entities & logic (DDD)
+│   │   ├── application/       # Use cases, command handlers
+│   │   ├── infrastructure/    # DB adapters, external APIs
+│   │   └── interface/         # Controllers, Resolvers
+│   ├── Dockerfile
+│   ├── package.json
+│   └── test/                  # Service-level integration tests
+├── mrv-engine/                # MRV Processing & Verification
+│   ├── src/
+│   │   ├── calculation/       # Methodology engines
+│   │   ├── ingestion/         # IoT/Satellite data handlers
+│   │   └── reports/           # PDF/Excel generation
+│   └── ...
+├── registry-adapter/          # Registry Sync Service
+│   ├── src/
+│   │   ├── adapters/          # IRegistryAdapter implementations
+│   │   │   ├── verra/
+│   │   │   ├── puro/
+│   │   │   └── isometric/
+│   │   ├── mapping/           # Data transformers
+│   │   └── sync/              # Cron/Event listeners
+│   └── ...
+├── credit-service/            # Issuance & Retirement
+│   ├── src/
+│   │   ├── issuance/          # Credit minting logic
+│   │   └── lifecycle/         # Transfer/Retire workflows
+│   └── ...
+├── marketplace/               # Trading & Listings
+│   ├── src/
+│   │   ├── orderbook/
+│   │   └── settlement/
+│   └── ...
+├── blockchain-service/        # NEAR Integration & Events
+│   ├── src/
+│   │   ├── listeners/         # Indexer/Event subscribers
+│   │   └── transactions/      # Transaction queue/signer
+│   └── ...
+└── auth-service/              # Identity & Access (or Keycloak wrapper)
+    └── ...
+```
+
+### 2. Contracts (`contracts/`)
+*NEAR Smart Contracts. Stack: Rust.*
+
+```text
+contracts/
+├── Cargo.toml                 # Workspace manifest
+├── nft-credit/                # Core Credit Token (NEP-171/177+)
+│   ├── src/
+│   │   ├── lib.rs
+│   │   ├── metadata.rs
+│   │   ├── minting.rs
+│   │   └── royalty.rs
+│   └── Cargo.toml
+├── registry-core/             # Registry Logic & Authority
+│   ├── src/
+│   │   ├── lib.rs
+│   │   └── storage.rs         # Organization mapping
+│   └── Cargo.toml
+├── market-contract/           # On-chain Marketplace
+│   ├── src/
+│   └── Cargo.toml
+└── tests/                     # Integration/Simulation tests
+    ├── workspaces/            # NEAR Workspaces-rs tests
+    └── fuzzing/
+```
+
+### 3. Frontend Apps (`apps/`)
+*User-facing applications. Stack: Next.js / React.*
+
+```text
+apps/
+├── admin-dashboard/           # Platform Admin
+│   ├── src/
+│   │   ├── app/               # App Router
+│   │   ├── features/          # Feature-based folders
+│   │   └── components/
+│   └── next.config.js
+├── project-portal/            # Project Developer UI
+│   ├── src/
+│   │   ├── forms/             # Complex wizard forms
+│   │   └── dashboard/         # Analytics views
+│   └── ...
+├── verifier-dashboard/        # 3rd Party Verifier UI
+│   └── ...
+├── marketplace-ui/            # Public Trading Interface
+│   └── ...
+└── api-gateway/               # BFF / Gateway (NestJS or Apollo Fed)
+    ├── src/
+    │   ├── rovers/            # GraphQL Federation
+    │   └── proxy/             # REST Routing
+    └── ...
+```
+
+### 4. Shared Libraries (`libs/`)
+*Reusable internal packages.*
+
+```text
+libs/
+├── api-interfaces/            # Shared DTOs, Types, Enums
+│   └── src/
+│       ├── project/
+│       └── credit/
+├── common-backend/            # NestJS shared modules
+│   └── src/
+│       ├── auth/              # Guards, Strategies
+│       ├── database/          # TypeORM/Prisma base
+│       ├── logging/           # Logger wrappers
+│       └── filters/           # Exception filters
+├── common-frontend/           # React Component Library
+│   ├── src/
+│   │   ├── components/        # Buttons, Inputs, Tables
+│   │   ├── hooks/
+│   │   └── theme/
+│   └── package.json
+├── domain-core/               # Pure domain logic (Platform Agnostic)
+│   └── src/
+│       ├── value-objects/
+│       └── algorithms/        # Hashing/Merkle tree utils
+└── events/                    # Event Bus Schemas (RabbitMQ/Kafka)
+    └── src/
+        ├── schemas/
+        └── topics.ts
+```
+
+### 5. Infrastructure (`infrastructure/`)
+*DevOps and Cloud resources.*
+
+```text
+infrastructure/
+├── k8s/                       # Kubernetes Manifests
+│   ├── base/
+│   └── overlays/
+│       ├── dev/
+│       ├── staging/
+│       └── prod/
+├── terraform/                 # IaC (AWS/GCP)
+│   ├── modules/
+│   │   ├── vpc/
+│   │   ├── rds/
+│   │   └── eks/
+│   └── environments/
+│       └── prod/
+└── helm/                      # Helm Charts
+    └── dmrv-platform/
+```
+
+### 6. Docs (`docs/`)
+*Project documentation.*
+
+```text
+docs/
+├── adr/                       # Architecture Decision Records
+│   ├── 001-monorepo.md
+│   └── 002-near-protocol.md
+├── api/                       # OpenAPI / Swagger specs
+├── compliance/                # Audit & Reg docs
+└── user-guides/
+```
+
+## Naming Conventions & Rules
+
+- **Files**: `kebab-case` (e.g., `user-profile.service.ts`, `mint-credit.rs`)
+- **Classes**: `PascalCase` (e.g., `userProfileService`)
+- **Interfaces**: `I` prefix + `PascalCase` (e.g., `IRegistryAdapter`)
+- **Directories**: `kebab-case`
+- **Tests**: `*.spec.ts` (unit), `*.test.ts` (integration)
+
+## Environment Configuration
+
+Configuration is managed via `dotenv` and strictly typed config services.
+
+- `.env` (gitignored): Local secrets
+- `.env.example`: Template for required variables
+- `config/`: Default configurations per environment (yaml/json) mapped in generic service loaders.
+
+### Key Environment Variables Structure
+
+```bash
+# GLOBAL
+NODE_ENV=development
+LOG_LEVEL=debug
+
+# DATABASE
+DB_HOST=localhost
+DB_PORT=5432
+
+# BLOCKCHAIN
+NEAR_NETWORK=testnet
+NEAR_MASTER_ACCOUNT=dmrv.testnet
+
+# SERVICES
+RABBITMQ_URI=amqp://guest:guest@localhost
+AUTH0_DOMAIN=...
+```
+
+## Recommended Tech Stack
+
+- **Monorepo Manager**: TurboRepo or Nx
+- **Package Manager**: pnpm
+- **Backend Framework**: NestJS (Node.js)
+- **Frontend Framework**: Next.js (React)
+- **Blockchain**: Rust (Contracts) + near-api-js (Integration)
+- **Database**: PostgreSQL (Relational) + MongoDB (Audit/Logs)
+- **Messaging**: RabbitMQ
+- **DevOps**: Docker, K8s, GitHub Actions
