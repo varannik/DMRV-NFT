@@ -1,100 +1,144 @@
-# DMRV SaaS Platform
+# Enterprise DMRV SaaS Platform
 
-**Digital Monitoring, Reporting, and Verification (DMRV) for Carbon Credits**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
+[![NEAR Protocol](https://img.shields.io/badge/blockchain-NEAR-blue)](https://near.org)
 
-This repository contains the source code for the DMRV SaaS platform, an enterprise-grade solution for transparent and automated carbon credit lifecycle management. It integrates IoT data ingestion, verifiable methodology engines, and blockchain-based credit issuance.
-
-## Architecture
-
-This project is structured as a **Monorepo** to ensure consistency across backend services, frontend applications, and shared libraries.
-
--   **Backend**: NestJS (Microservices)
--   **Frontend**: Next.js (React)
--   **Blockchain**: NEAR Protocol (Rust Smart Contracts)
--   **Infrastructure**: Kubernetes, Terraform
--   **Monorepo Tools**: TurboRepo, pnpm
-
-## Getting Started
-
-### Prerequisites
-
-Ensure you have the following installed:
-
--   **Node.js** (v18+)
--   **pnpm** (v8+)
--   **Docker & Docker Compose**
--   **Rust & Cargo** (for Smart Contract development)
--   **NEAR CLI** (`npm install -g near-cli`)
-
-### Installation
-
-1.  Clone the repository:
-    ```bash
-    git clone <repo-url>
-    cd dmrv-platform
-    ```
-
-2.  Install dependencies:
-    ```bash
-    pnpm install
-    ```
-
-3.  Set up environment variables:
-    ```bash
-    cp .env.example .env
-    # Update .env with your local credentials
-    ```
-
-### Running Locally
-
-Start the development environment (databases, queues) using Docker:
-
-```bash
-docker-compose up -d
-```
-
-Start all applications and services in development mode:
-
-```bash
-pnpm dev
-```
-
-## Project Structure
-
-```text
-dmrv-platform/
-├── apps/               # Frontend applications (Admin, Portal, Marketplace)
-├── services/           # Backend microservices (Project, Credit, MRV Engine)
-├── contracts/          # NEAR smart contracts (Rust)
-├── libs/               # Shared libraries (DTOs, Common logic)
-├── infrastructure/     # Terraform, K8s manifests
-├── docs/               # Architecture docs & ADRs
-└── tools/              # Build configurations
-```
-
-For a detailed breakdown of the folder structure, see [docs/adr/001-monorepo.md](./docs/adr/001-monorepo.md) (coming soon) or refer to the project structure documentation.
-
-## Development Workflow
-
-We follow strict version control guidelines to ensure code quality and history cleanliness.
-
-👉 **Can't push code?** Read our **[Git Best Practices & Workflow](./GIT_BEST_PRACTICES.md)** before contributing.
-
-### Key Rules
-1.  **Branching**: `feat/feature-name`, `fix/bug-name`. Never push to `main` directly.
-2.  **Commits**: Use [Conventional Commits](https://www.conventionalcommits.org/). Example: `feat(auth): login endpoint`.
-3.  **PRs**: All changes must go through a Pull Request.
-
-## Key Commands
-
-| Command | Description |
-| :--- | :--- |
-| `pnpm dev` | Start all apps/services in watch mode |
-| `pnpm build` | Build all projects |
-| `pnpm test` | Run unit tests across the workspace |
-| `pnpm lint` | Lint all files |
-| `pnpm clean` | Remove `node_modules` and build artifacts |
+**A comprehensive, multi-tenant Digital MRV (Monitoring, Reporting, Verification) SaaS Platform for issuing and managing carbon credit NFTs on the NEAR blockchain.**
 
 ---
 
-*Copyright © 2025 DMRV Platform. All rights reserved.*
+## 🚀 Project Overview
+
+The Enterprise DMRV Platform is an event-driven microservices system designed to automate the lifecycle of carbon credits. From IoT sensor ingestion to blockchain serialization, it provides a transparent, auditable, and scalable solution for the voluntary and compliance carbon markets.
+
+### Key Features
+*   **Multi-Tenancy**: Built from the ground up to support multiple organizations with strict data isolation.
+*   **Event-Driven Architecture**: Asynchronous communication using Kafka/NATS for high throughput and reliability.
+*   **Blockchain Integration**: Native integration with NEAR Protocol for low-cost, high-speed NFT minting and retirement.
+*   **Multi-Registry Support**: Adapters for Verra, Puro, Isometric, and EU ETS.
+*   **Auditability**: Immutable audit logs and cryptographic proofs for all MRV data.
+
+---
+
+## 🏗️ Architecture
+
+The platform is composed of **16+ microservices** organized into core business logic and external adapters.
+
+### Core Services
+*   **`api-gateway`**: Unified entry point for all client requests.
+*   **`mrv-ingestion-service`**: High-volume ingestion from sensors and satellites.
+*   **`mrv-engine`**: Computation engine for methodology application (e.g., VM0007).
+*   **`blockchain-submitter`**: Manages nonces and transaction submission to NEAR.
+*   **`verifier-service`**: Workflow management for third-party verification bodies (VVBs).
+
+### Technology Stack
+*   **Backend**: Node.js (TypeScript) / Go
+*   **Smart Contracts**: Rust (NEAR SDK)
+*   **Messaging**: Kafka / NATS JetStream
+*   **Database**: PostgreSQL (TimescaleDB for time-series), Redis
+*   **Infrastructure**: Kubernetes, Terraform, Docker
+
+---
+
+## � System Workflow
+
+The following diagram illustrates the high-level data flow from sensor ingestion to on-chain credit issuance:
+
+```mermaid
+graph TD
+    A[IoT/Sensors/Satellites] -->|Raw Payload| B(MRV Ingestion Service)
+    B -->|Event: mrv.received.v1| C{MRV Engine}
+    C -->|Calculate & Normalize| C
+    C -->|Event: mrv.computed.v1| D[Verifier Service]
+    D -->|VVB Review| E{Decision}
+    E -->|Approved| F(Hashing Service)
+    E -->|Rejected| G[Notification Service]
+    G -->|Alert Project Developer| A
+    F -->|Generate Canonical Hash| H[Blockchain Submitter]
+    H -->|Submit Tx| I((NEAR Protocol))
+    I -->|Mint NFT| I
+    I -->|Event: nft.minted| J[NEAR Indexer]
+    J -->|Update State| K[Credit Service]
+```
+
+---
+
+## �📂 Repository Structure
+
+This is a **monorepo** containing all services, infrastructure code, and smart contracts.
+
+```text
+dmrv-saas-platform/
+├── services/               # Microservices source code
+│   ├── api-gateway/        # Authentication & Routing
+│   ├── project-service/    # Project Metadata Management
+│   ├── mrv-engine/         # Calculation Engine
+│   └── ...                 # (See /services/README.md for full list)
+├── smart-contracts/        # NEAR Rust contracts (NFT, Registry)
+├── shared/                 # Shared libraries (Auth, Events, Types)
+├── infrastructure/         # K8s manifest, Terraform, Helm charts
+├── docs/                   # Architecture decision records & API specs
+└── scripts/                # CI/CD and utility scripts
+```
+
+---
+
+## 🛠️ Getting Started
+
+### Prerequisites
+*   [Docker](https://www.docker.com/) & Docker Compose
+*   [Node.js](https://nodejs.org/) (v18+)
+*   [Rust](https://www.rust-lang.org/) (for smart contracts)
+*   [NEAR CLI](https://docs.near.org/tools/near-cli)
+
+### Local Development Setup
+
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/your-org/dmrv-saas-platform.git
+    cd dmrv-saas-platform
+    ```
+
+2.  **Install Dependencies**
+    ```bash
+    # Install root and service dependencies (assuming npm workspaces)
+    npm install
+    ```
+
+3.  **Start Infrastructure (DB, Redis, Kafka)**
+    ```bash
+    cd infrastructure/docker-compose
+    docker-compose up -d
+    ```
+
+4.  **Run Microservices**
+    ```bash
+    # Start all services in development mode
+    npm run dev
+    ```
+
+---
+
+## 🧪 Testing
+
+*   **Unit Tests**: Run `npm test` in any service directory.
+*   **E2E Tests**: located in `tests/e2e`.
+*   **Contract Tests**: Run `cargo test` in `smart-contracts/`.
+
+---
+
+## 🤝 Contribution
+
+1.  Create a feature branch (`git checkout -b feature/amazing-feature`).
+2.  Commit your changes following [Conventional Commits](https://www.conventionalcommits.org/).
+3.  Push to the branch (`git push origin feature/amazing-feature`).
+4.  Open a Pull Request.
+
+Please refer to `docs/CONTRIBUTING.md` for detailed guidelines.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -1,0 +1,3 @@
+# Monitoring
+
+Centralized monitoring configuration.
