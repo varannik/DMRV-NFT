@@ -47,21 +47,26 @@ The following diagram illustrates the high-level data flow from sensor ingestion
 
 ```mermaid
 graph TD
-    A[IoT/Sensors/Satellites] -->|Raw Payload| B(MRV Ingestion Service)
-    B -->|Event: mrv.received.v1| C{MRV Engine}
-    C -->|Calculate & Normalize| C
+    A[IoT / Sensors / Satellites] -->|Raw Data| B[MRV Ingestion Service]
+
+    B -->|Event: mrv.received.v1| C[MRV Engine]
+    C -->|Compute & Normalize| C
     C -->|Event: mrv.computed.v1| D[Verifier Service]
-    D -->|VVB Review| E{Decision}
-    E -->|Approved| F(Hashing Service)
-    E -->|Rejected| G[Notification Service]
-    G -->|Alert Project Developer| A
-    F -->|Generate Canonical Hash| H[Blockchain Submitter]
-    H -->|Submit Tx| I((NEAR Protocol))
-    I -->|Mint NFT| I
+
+    D -->|Approve / Reject| D
+
+    D -->|Event: mrv.approved.v1| F[Hashing Service]
+    D -->|Event: mrv.rejected.v1| G[Notification Service]
+
+    F -->|Canonical MRV + Hash| L[Registry Adapter]
+    L -->|Issuance Request| M((Registry API))
+
+    M -->|Approved| H[Blockchain Submitter]
+    M -->|Rejected| G
+
+    H -->|Mint NFT| I((NEAR Protocol))
     I -->|Event: nft.minted| J[NEAR Indexer]
-    J -->|Update State| K[Credit Service]
-    K -->|Sync State| L[Registry Adapters]
-    L -->|External API| M((External Registry: Verra/Puro))
+    J -->|Project State| K[Credit Service]
 ```
 
 ---
