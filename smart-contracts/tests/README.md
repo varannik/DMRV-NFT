@@ -1,3 +1,10 @@
-# tests
+# `smart-contracts/tests/`
 
-Rust-based simulation and unit tests for smart contracts.
+Smart contract tests.
+
+Put here:
+- Rust simulation/unit tests
+- Integration tests using NEAR sandbox tooling
+- Regression tests for mint/retire/split/merge invariants
+
+

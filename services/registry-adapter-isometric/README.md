@@ -1,3 +1,10 @@
-# registry-adapter-isometric
+# `services/registry-adapter-isometric/`
 
-Adapter for the Isometric registry.
+Integration adapter for Isometric.
+
+Responsibilities:
+- Submit canonical MRV hash payload for registry approval
+- Emit `registry.approved.v1` / `registry.rejected.v1`
+- Handle retirement confirmations and reconciliation
+
+

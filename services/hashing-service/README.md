@@ -1,3 +1,10 @@
-# hashing-service
+# `services/hashing-service/`
 
-Generates canonical payloads and hashes for blockchain submission.
+Canonical payload construction and hashing.
+
+Responsibilities:
+- Construct deterministic canonical MRV payload
+- Generate `mrv_hash` (SHA-256)
+- Emit `mrv.hash.created.v1`
+
+

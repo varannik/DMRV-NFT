@@ -1,3 +1,10 @@
-# notification-service
+# `services/notification-service/`
 
-Handles email and webhook notifications.
+User-facing notifications.
+
+Responsibilities:
+- Send emails, webhooks, and alerts for key events
+- Template management and rate limiting
+- Delivery tracking and retries
+
+

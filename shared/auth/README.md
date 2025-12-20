@@ -1,3 +1,10 @@
-# auth
+# `shared/auth/`
 
-Authentication utilities and JWT middleware.
+Authentication and authorization primitives.
+
+Put here:
+- JWT claim definitions (including `tenant_id`, roles/scopes)
+- RBAC/ABAC helpers
+- SSO helpers (SAML/OIDC) interfaces (implementation usually in services)
+
+

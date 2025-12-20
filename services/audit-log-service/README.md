@@ -1,3 +1,10 @@
-# audit-log-service
+# `services/audit-log-service/`
 
-Stores immutable audit logs for compliance.
+Immutable audit trail for compliance and forensic analysis.
+
+Responsibilities:
+- Subscribe to all domain events
+- Persist tamper-evident audit logs (append-only)
+- Provide query/export interfaces for audits (role-restricted)
+
+
