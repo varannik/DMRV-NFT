@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMRV Platform - MRV Submissions</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">DMRV</span>
+            </div>
+            <div class="tenant-badge">
+                <span class="tenant-name">CarbonCorp Inc.</span>
+                <span class="tenant-plan">Enterprise</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="projects.html" class="nav-item">
+                <span class="nav-icon">🏭</span>
+                <span class="nav-text">Projects</span>
+            </a>
+            <a href="mrv.html" class="nav-item active">
+                <span class="nav-icon">📥</span>
+                <span class="nav-text">MRV Submissions</span>
+            </a>
+            <a href="verification.html" class="nav-item">
+                <span class="nav-icon">✅</span>
+                <span class="nav-text">Verification</span>
+            </a>
+            <a href="credits.html" class="nav-item">
+                <span class="nav-icon">🎫</span>
+                <span class="nav-text">Credits (NFTs)</span>
+            </a>
+            <a href="processes.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Processes</span>
+            </a>
+            <a href="billing.html" class="nav-item">
+                <span class="nav-icon">💳</span>
+                <span class="nav-text">Billing</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-menu">
+                <div class="user-avatar">JD</div>
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <span class="user-role">Tenant Admin</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1>MRV Submissions</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary">Filter</button>
+                <button class="btn btn-primary">
+                    <span>+</span> New Submission
+                </button>
+            </div>
+        </header>
+
+        <section class="section">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Submission ID</th>
+                            <th>Project</th>
+                            <th>Methodology</th>
+                            <th>Monitoring Period</th>
+                            <th>Computed Tonnage</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">MRV-2024-001</div>
+                                <div class="table-cell-secondary">Submitted: 2024-03-15</div>
+                            </td>
+                            <td>Amazon Reforestation</td>
+                            <td>VM0007 v3.0</td>
+                            <td>2024-01-01 to 2024-03-31</td>
+                            <td>1,200 tCO2e</td>
+                            <td><span class="badge badge-warning">Pending Verification</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">MRV-2024-002</div>
+                                <div class="table-cell-secondary">Submitted: 2024-03-10</div>
+                            </td>
+                            <td>DAC Facility - Texas</td>
+                            <td>VM0042 v1.2</td>
+                            <td>2024-02-01 to 2024-02-29</td>
+                            <td>850 tCO2e</td>
+                            <td><span class="badge badge-success">Approved</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">MRV-2024-003</div>
+                                <div class="table-cell-secondary">Submitted: 2024-03-05</div>
+                            </td>
+                            <td>Amazon Reforestation</td>
+                            <td>VM0007 v3.0</td>
+                            <td>2023-10-01 to 2023-12-31</td>
+                            <td>980 tCO2e</td>
+                            <td><span class="badge badge-error">Rejected</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- New Submission Form -->
+        <section class="section">
+            <h2 style="margin-bottom: 1.5rem;">New MRV Submission</h2>
+            <form>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Project *</label>
+                        <select class="form-select">
+                            <option>Select a project...</option>
+                            <option>Amazon Reforestation Project</option>
+                            <option>DAC Facility - Texas</option>
+                            <option>Soil Carbon - Midwest</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Monitoring Period Start *</label>
+                        <input type="date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Methodology *</label>
+                        <input type="text" class="form-input" value="VM0007 v3.0" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Monitoring Period End *</label>
+                        <input type="date" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">MRV Data (JSON) *</label>
+                    <textarea class="form-textarea" placeholder='{"sensor_readings": [...], "measurements": [...]}'></textarea>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Upload JSON file or paste data directly
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Supporting Documents</label>
+                    <input type="file" class="form-input" multiple>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        PDF, images, or data files
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">Submit MRV Data</button>
+                    <button type="button" class="btn btn-secondary">Save as Draft</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
+

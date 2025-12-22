@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMRV Platform - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">DMRV</span>
+            </div>
+            <div class="tenant-badge">
+                <span class="tenant-name">CarbonCorp Inc.</span>
+                <span class="tenant-plan">Enterprise</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item active">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="projects.html" class="nav-item">
+                <span class="nav-icon">🏭</span>
+                <span class="nav-text">Projects</span>
+            </a>
+            <a href="mrv.html" class="nav-item">
+                <span class="nav-icon">📥</span>
+                <span class="nav-text">MRV Submissions</span>
+            </a>
+            <a href="verification.html" class="nav-item">
+                <span class="nav-icon">✅</span>
+                <span class="nav-text">Verification</span>
+            </a>
+            <a href="credits.html" class="nav-item">
+                <span class="nav-icon">🎫</span>
+                <span class="nav-text">Credits (NFTs)</span>
+            </a>
+            <a href="processes.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Processes</span>
+            </a>
+            <a href="billing.html" class="nav-item">
+                <span class="nav-icon">💳</span>
+                <span class="nav-text">Billing</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-menu">
+                <div class="user-avatar">JD</div>
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <span class="user-role">Tenant Admin</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="page-header">
+            <h1>Dashboard</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary">
+                    <span>+</span> New Project
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e3f2fd;">🏭</div>
+                <div class="stat-content">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Active Projects</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e8f5e9;">🎫</div>
+                <div class="stat-content">
+                    <div class="stat-value">45,230</div>
+                    <div class="stat-label">Credits Issued (tCO2e)</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #fff3e0;">📊</div>
+                <div class="stat-content">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Pending Verifications</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #f3e5f5;">⏳</div>
+                <div class="stat-content">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Active Processes</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Credit Lifecycle Overview -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Credit Issuance Pipeline</h2>
+                <a href="processes.html" class="link">View All</a>
+            </div>
+            <div class="pipeline">
+                <div class="pipeline-step completed">
+                    <div class="step-icon">📥</div>
+                    <div class="step-label">MRV Ingestion</div>
+                    <div class="step-count">24</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step completed">
+                    <div class="step-icon">🧮</div>
+                    <div class="step-label">Computation</div>
+                    <div class="step-count">18</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step active">
+                    <div class="step-icon">✅</div>
+                    <div class="step-label">Verification</div>
+                    <div class="step-count">8</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="step-icon">🔐</div>
+                    <div class="step-label">Hashing</div>
+                    <div class="step-count">5</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="step-icon">📋</div>
+                    <div class="step-label">Registry</div>
+                    <div class="step-count">3</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="step-icon">⛓️</div>
+                    <div class="step-label">NEAR NFT</div>
+                    <div class="step-count">2</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <div class="grid-2">
+            <section class="section">
+                <div class="section-header">
+                    <h2>Recent Projects</h2>
+                    <a href="projects.html" class="link">View All</a>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Type</th>
+                                <th>Methodology</th>
+                                <th>Status</th>
+                                <th>Credits</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="table-cell-primary">Amazon Reforestation Project</div>
+                                    <div class="table-cell-secondary">PRJ-2024-001</div>
+                                </td>
+                                <td>Forestry</td>
+                                <td>VM0007</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>12,450 tCO2e</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="table-cell-primary">DAC Facility - Texas</div>
+                                    <div class="table-cell-secondary">PRJ-2024-002</div>
+                                </td>
+                                <td>DAC</td>
+                                <td>VM0042</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>8,920 tCO2e</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="table-cell-primary">Soil Carbon - Midwest</div>
+                                    <div class="table-cell-secondary">PRJ-2024-003</div>
+                                </td>
+                                <td>Soil Carbon</td>
+                                <td>VM0044</td>
+                                <td><span class="badge badge-warning">Pending</span></td>
+                                <td>—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <h2>Active Processes</h2>
+                    <a href="processes.html" class="link">View All</a>
+                </div>
+                <div class="process-list">
+                    <div class="process-item">
+                        <div class="process-header">
+                            <span class="process-type">Credit Issuance</span>
+                            <span class="process-status processing">Processing</span>
+                        </div>
+                        <div class="process-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 60%"></div>
+                            </div>
+                            <span class="progress-text">Step 3 of 6: Verification</span>
+                        </div>
+                        <div class="process-meta">
+                            <span>Project: Amazon Reforestation</span>
+                            <span>Started: 2 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="process-item">
+                        <div class="process-header">
+                            <span class="process-type">Batch Minting</span>
+                            <span class="process-status processing">Processing</span>
+                        </div>
+                        <div class="process-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 85%"></div>
+                            </div>
+                            <span class="progress-text">Step 5 of 6: Registry Submission</span>
+                        </div>
+                        <div class="process-meta">
+                            <span>Batch: 50 credits</span>
+                            <span>Started: 5 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="process-item">
+                        <div class="process-header">
+                            <span class="process-type">Credit Retirement</span>
+                            <span class="process-status completed">Completed</span>
+                        </div>
+                        <div class="process-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 100%"></div>
+                            </div>
+                            <span class="progress-text">Completed: 1 hour ago</span>
+                        </div>
+                        <div class="process-meta">
+                            <span>Credits: 1,000 tCO2e</span>
+                            <span>Beneficiary: Climate Action Corp</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Registry Status -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Registry Connections</h2>
+            </div>
+            <div class="registry-grid">
+                <div class="registry-card">
+                    <div class="registry-logo">Verra</div>
+                    <div class="registry-status">
+                        <span class="status-dot active"></span>
+                        <span>Connected</span>
+                    </div>
+                    <div class="registry-stats">
+                        <div>12 Credits</div>
+                        <div>Last sync: 5 min ago</div>
+                    </div>
+                </div>
+                <div class="registry-card">
+                    <div class="registry-logo">Puro.earth</div>
+                    <div class="registry-status">
+                        <span class="status-dot active"></span>
+                        <span>Connected</span>
+                    </div>
+                    <div class="registry-stats">
+                        <div>8 Credits</div>
+                        <div>Last sync: 2 min ago</div>
+                    </div>
+                </div>
+                <div class="registry-card">
+                    <div class="registry-logo">Isometric</div>
+                    <div class="registry-status">
+                        <span class="status-dot inactive"></span>
+                        <span>Not Connected</span>
+                    </div>
+                    <div class="registry-stats">
+                        <div>—</div>
+                        <div>—</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
+

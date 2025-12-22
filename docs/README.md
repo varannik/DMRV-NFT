@@ -7,7 +7,8 @@ Primary references:
 - `../ARCHITECTURE_GAPS_ANALYSIS.md`
 
 Subfolders:
-- `architecture/`: C4/system diagrams, architecture extensions, threat models.
+- `development/`: Development setup, implementation roadmap, coding guidelines, and best practices.
+- `architecture/`: C4/system diagrams, comprehensive workflows, architecture extensions, threat models.
 - `adr/`: Architecture Decision Records.
 - `api/`: OpenAPI/AsyncAPI schemas and API governance.
 - `events/`: Event catalog, event schemas, routing patterns, consumer contracts.

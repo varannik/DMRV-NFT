@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMRV Platform - Projects</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">DMRV</span>
+            </div>
+            <div class="tenant-badge">
+                <span class="tenant-name">CarbonCorp Inc.</span>
+                <span class="tenant-plan">Enterprise</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="projects.html" class="nav-item active">
+                <span class="nav-icon">🏭</span>
+                <span class="nav-text">Projects</span>
+            </a>
+            <a href="mrv.html" class="nav-item">
+                <span class="nav-icon">📥</span>
+                <span class="nav-text">MRV Submissions</span>
+            </a>
+            <a href="verification.html" class="nav-item">
+                <span class="nav-icon">✅</span>
+                <span class="nav-text">Verification</span>
+            </a>
+            <a href="credits.html" class="nav-item">
+                <span class="nav-icon">🎫</span>
+                <span class="nav-text">Credits (NFTs)</span>
+            </a>
+            <a href="processes.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Processes</span>
+            </a>
+            <a href="billing.html" class="nav-item">
+                <span class="nav-icon">💳</span>
+                <span class="nav-text">Billing</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-menu">
+                <div class="user-avatar">JD</div>
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <span class="user-role">Tenant Admin</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1>Projects</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary">Filter</button>
+                <button class="btn btn-primary">
+                    <span>+</span> New Project
+                </button>
+            </div>
+        </header>
+
+        <section class="section">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>Type</th>
+                            <th>Methodology</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Credits Issued</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">Amazon Reforestation Project</div>
+                                <div class="table-cell-secondary">PRJ-2024-001</div>
+                            </td>
+                            <td>Forestry</td>
+                            <td>VM0007 v3.0</td>
+                            <td>Brazil, Amazonas</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                            <td>12,450 tCO2e</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">DAC Facility - Texas</div>
+                                <div class="table-cell-secondary">PRJ-2024-002</div>
+                            </td>
+                            <td>DAC</td>
+                            <td>VM0042 v1.2</td>
+                            <td>Texas, USA</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                            <td>8,920 tCO2e</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">Soil Carbon - Midwest</div>
+                                <div class="table-cell-secondary">PRJ-2024-003</div>
+                            </td>
+                            <td>Soil Carbon</td>
+                            <td>VM0044 v2.1</td>
+                            <td>Iowa, USA</td>
+                            <td><span class="badge badge-warning">Pending Setup</span></td>
+                            <td>—</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">Ocean Alkalinity Enhancement</div>
+                                <div class="table-cell-secondary">PRJ-2024-004</div>
+                            </td>
+                            <td>Ocean CDR</td>
+                            <td>VM0045 v1.0</td>
+                            <td>Pacific Ocean</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                            <td>5,230 tCO2e</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Project Detail Modal (Example) -->
+        <section class="section">
+            <h2 style="margin-bottom: 1.5rem;">Project Details: Amazon Reforestation Project</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Project Information</h3>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">Project ID</div>
+                        <div>PRJ-2024-001</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">Project Type</div>
+                        <div>Forestry - Reforestation</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">Methodology</div>
+                        <div>VM0007 v3.0 - Afforestation, Reforestation and Revegetation</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">Location</div>
+                        <div>Brazil, Amazonas State<br>Coordinates: -3.4653° S, -62.2159° W</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">Crediting Period</div>
+                        <div>2024-01-01 to 2033-12-31 (10 years)</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Project Metrics</h3>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">Total Credits Issued</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">12,450 tCO2e</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">Buffer Pool Contribution</div>
+                        <div>1,867 tCO2e (15%)</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">Net Issuance</div>
+                        <div>10,583 tCO2e</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">MRV Submissions</div>
+                        <div>24 submissions</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">Registry</div>
+                        <div>Verra VCS - Connected</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
+

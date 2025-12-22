@@ -237,27 +237,36 @@ A **Tenant** represents a company/organization using the platform.
 │              CREDIT ISSUANCE LIFECYCLE                          │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  PHASE 1: DATA INGESTION                                        │
+│  PHASE 0: REGISTRY SELECTION + REQUIREMENTS GAP CHECK            │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │ Tenant selects target registry (Verra/Puro/Isometric/..) │    │
+│  │ Load registry + methodology requirements                 │    │
+│  │ Gap analysis: what evidence/data is missing?             │    │
+│  │ Event: mrv.registry.selected.v1                          │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                          │                                      │
+│                          ▼                                      │
+│  PHASE 1: DATA INGESTION (REGISTRY-GUIDED)                       │
 │  ┌─────────────────────────────────────────────────────────┐    │
 │  │ External MRV data received (sensors, labs, satellite)   │    │
-│  │ Data validated against methodology schema               │    │
+│  │ Data validated against registry+methodology schema      │    │
 │  │ Stored with tenant/project association                  │    │
 │  └─────────────────────────────────────────────────────────┘    │
 │                          │                                      │
 │                          ▼                                      │
-│  PHASE 2: MRV COMPUTATION                                       │
+│  PHASE 2: MRV COMPUTATION (REGISTRY-SPECIFIC)                    │
 │  ┌─────────────────────────────────────────────────────────┐    │
-│  │ MRV Engine applies methodology calculations             │    │
-│  │ Baseline comparison, leakage adjustments                │    │
-│  │ Tonnage (tCO2e) computed                                │    │
+│  │ MRV Engine applies registry+methodology calculations     │    │
+│  │ Evidence requirements can change formulas/outputs        │    │
+│  │ Tonnage (tCO2e) computed for the selected registry       │    │
 │  │ Event: mrv.computed.v1                                  │    │
 │  └─────────────────────────────────────────────────────────┘    │
 │                          │                                      │
 │                          ▼                                      │
-│  PHASE 3: VERIFICATION                                          │
+│  PHASE 3: VERIFICATION (REGISTRY CHECKLIST)                      │
 │  ┌─────────────────────────────────────────────────────────┐    │
 │  │ Independent verifier reviews MRV results                │    │
-│  │ Checks methodology compliance                           │    │
+│  │ Checks registry-specific evidence + methodology          │    │
 │  │ Approves or rejects with comments                       │    │
 │  │ Event: mrv.approved.v1 or mrv.rejected.v1               │    │
 │  └─────────────────────────────────────────────────────────┘    │
@@ -265,9 +274,11 @@ A **Tenant** represents a company/organization using the platform.
 │                          ▼                                      │
 │  PHASE 4: CANONICAL HASHING                                     │
 │  ┌─────────────────────────────────────────────────────────┐    │
-│  │ Deterministic JSON payload constructed                  │    │
-│  │ SHA-256 hash (mrv_hash) generated                       │    │
-│  │ This hash = permanent identity of the credit            │    │
+│  │ Deterministic canonical claim payload constructed        │    │
+│  │ Includes: registry_id, methodology, computed results,    │    │
+│  │ and evidence references (URIs + sha256)                  │    │
+│  │ SHA-256 hash generated: mrv_hash (claim hash)            │    │
+│  │ This hash = permanent identity of the credit claim       │    │
 │  │ Event: mrv.hash.created.v1                              │    │
 │  └─────────────────────────────────────────────────────────┘    │
 │                          │                                      │
@@ -310,9 +321,33 @@ A **Tenant** represents a company/organization using the platform.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### 6.1.1 Registry Requirements & Gap Analysis (What’s Missing?)
+
+Registries often require **different evidence** and may impose **different computation rules** (inputs, formulas, uncertainty handling, reporting artifacts). Therefore, the platform treats registry selection as an explicit step **before** computation and verification.
+
+**Approach**:
+
+- **Requirements Catalog**: For each registry + methodology version, maintain a machine-readable requirements definition (e.g., JSON Schema + checklist template).
+- **Gap Analysis**: Given an MRV submission (raw data + attached evidence), compute a per-registry report of:
+  - Missing required fields (by JSON path)
+  - Missing required evidence artifacts (e.g., calibration certificates, QA/QC procedures)
+  - Validation errors (field present but invalid)
+  - Conditional requirements (required only if project type/monitoring method matches)
+
+**Outcome**:
+
+- UI and API can show “you’re 78% complete for Verra, missing X/Y/Z”, and guide data collection.
+- Computation and verification run using the selected registry’s requirements/checklists.
+
 ### 6.2 Hash Integrity Model
 
-**Critical Principle**: The same `mrv_hash` flows through the entire system.
+**Critical Principle**: For a given registry + methodology + evidence set, the same canonical payload produces the same `mrv_hash`, and that `mrv_hash` flows through the entire issuance lifecycle.
+
+**Important nuance**: If you change **registry selection**, **methodology version**, **inputs**, or **evidence**, the canonical payload changes and therefore the `mrv_hash` changes. This is expected: the `mrv_hash` is the identity of the *registry-specific credit claim*.
+
+**Optional (recommended) for cross-registry deduplication**:
+
+- Maintain a separate **evidence/source hash** (e.g., `evidence_hash`) computed from the *registry-agnostic* evidence bundle (raw measurements + immutable evidence artifacts). This lets you detect “same underlying MRV/evidence being issued in multiple registries” even when `mrv_hash` differs by registry.
 
 ```
 MRV Data → Computation → Verification → Hash Creation
@@ -847,7 +882,7 @@ Net Credits = Gross Removal × (1 - Leakage Factor)
 
 | Domain | Events |
 |--------|--------|
-| **MRV** | `mrv.computed.v1`, `mrv.approved.v1`, `mrv.rejected.v1` |
+| **MRV** | `mrv.registry.selected.v1`, `mrv.computed.v1`, `mrv.approved.v1`, `mrv.rejected.v1` |
 | **Verification** | `verification.started.v1`, `verification.category.completed.v1`, `verification.clarification.requested.v1`, `verification.completed.v1` |
 | **Hashing** | `mrv.hash.created.v1` |
 | **Registry** | `registry.approved.v1`, `registry.rejected.v1`, `registry.retired.v1` |
@@ -892,6 +927,21 @@ Net Credits = Gross Removal × (1 - Leakage Factor)
 | **EU ETS** | Compliance | Government portal | Limited (manual steps) |
 | **California ARB** | Compliance | Government portal | Limited (manual steps) |
 
+### 12.1.1 Registry Requirements Catalog (and Gap Checks)
+
+Because registries can require different evidence and sometimes different computation inputs/outputs, the platform maintains a **Registry Requirements Catalog** per:
+
+- `registry_id` (e.g., verra, puro, isometric)
+- `methodology_code` + `methodology_version`
+- `project_type` (optional dimension)
+
+The catalog drives:
+
+- **Ingestion validation** (schema + required evidence presence)
+- **Gap analysis** (“what’s missing to submit to this registry?”)
+- **Verification checklist templates** (registry-specific requirements)
+- **Registry adapter transformations** (field mapping + required attachments)
+
 ### 12.2 Registry Adapter Pattern
 
 Each registry has an independent adapter service:
@@ -927,13 +977,16 @@ Each registry has an independent adapter service:
 
 **Problem**: Same MRV data could be submitted to multiple registries.
 
-**Solution**: Global Hash Registry (on-chain or centralized)
+**Solution**: Global “source/evidence” deduplication + registry-specific claim hashing.
+
+- **Claim hash**: `mrv_hash` (registry-specific). Different registries may legitimately produce different claim payloads/hashes.
+- **Source/evidence identity** (recommended): a registry-agnostic hash of the evidence bundle (e.g., `evidence_hash`), used to prevent issuing the *same underlying MRV* in multiple registries.
 
 | Check | Action |
 |-------|--------|
-| Hash exists with different registry | REJECT (double-counting) |
-| Hash exists with same registry | REJECT (duplicate) |
-| Hash is new | LOCK, proceed with submission |
+| Evidence/source hash exists with different registry | REJECT (double-counting) |
+| Evidence/source hash exists with same registry | REJECT (duplicate) |
+| Evidence/source hash is new | LOCK, proceed with submission |
 
 ---
 
@@ -1247,6 +1300,8 @@ All actions are logged with:
 | **Tenants** | `/tenants`, `/tenants/{id}` |
 | **Users** | `/users`, `/users/{id}`, `/users/{id}/roles` |
 | **Projects** | `/projects`, `/projects/{id}`, `/projects/{id}/mrv` |
+| **Registries** | `/registries`, `/registries/{registry_id}/requirements` |
+| **MRV (Gap Analysis)** | `/mrv/gap-analysis`, `/projects/{id}/mrv/gap-analysis` |
 | **Credits** | `/credits`, `/credits/{id}`, `/credits/{id}/retire` |
 | **Batches** | `/batches`, `/batches/{id}` |
 | **Verification** | `/verifications`, `/verifications/{id}/approve` |

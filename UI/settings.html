@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMRV Platform - Settings</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">DMRV</span>
+            </div>
+            <div class="tenant-badge">
+                <span class="tenant-name">CarbonCorp Inc.</span>
+                <span class="tenant-plan">Enterprise</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="projects.html" class="nav-item">
+                <span class="nav-icon">🏭</span>
+                <span class="nav-text">Projects</span>
+            </a>
+            <a href="mrv.html" class="nav-item">
+                <span class="nav-icon">📥</span>
+                <span class="nav-text">MRV Submissions</span>
+            </a>
+            <a href="verification.html" class="nav-item">
+                <span class="nav-icon">✅</span>
+                <span class="nav-text">Verification</span>
+            </a>
+            <a href="credits.html" class="nav-item">
+                <span class="nav-icon">🎫</span>
+                <span class="nav-text">Credits (NFTs)</span>
+            </a>
+            <a href="processes.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Processes</span>
+            </a>
+            <a href="billing.html" class="nav-item">
+                <span class="nav-icon">💳</span>
+                <span class="nav-text">Billing</span>
+            </a>
+            <a href="settings.html" class="nav-item active">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-menu">
+                <div class="user-avatar">JD</div>
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <span class="user-role">Tenant Admin</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1>Settings</h1>
+        </header>
+
+        <!-- Tenant Settings -->
+        <section class="section">
+            <h2 style="margin-bottom: 1.5rem;">Tenant Information</h2>
+            <form>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Company Name</label>
+                        <input type="text" class="form-input" value="CarbonCorp Inc.">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tenant Slug</label>
+                        <input type="text" class="form-input" value="carboncorp" readonly>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">Cannot be changed</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Region</label>
+                        <select class="form-select">
+                            <option>us-east-1</option>
+                            <option>eu-west-1</option>
+                            <option>ap-southeast-1</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-select">
+                            <option>Active</option>
+                            <option>Grace Period</option>
+                            <option>Restricted</option>
+                            <option>Suspended</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Registry Connections -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Registry Connections</h2>
+            </div>
+            <div class="registry-grid">
+                <div class="registry-card">
+                    <div class="registry-logo">Verra VCS</div>
+                    <div class="registry-status">
+                        <span class="status-dot active"></span>
+                        <span>Connected</span>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-secondary" style="width: 100%;">Configure</button>
+                    </div>
+                </div>
+                <div class="registry-card">
+                    <div class="registry-logo">Puro.earth</div>
+                    <div class="registry-status">
+                        <span class="status-dot active"></span>
+                        <span>Connected</span>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-secondary" style="width: 100%;">Configure</button>
+                    </div>
+                </div>
+                <div class="registry-card">
+                    <div class="registry-logo">Isometric</div>
+                    <div class="registry-status">
+                        <span class="status-dot inactive"></span>
+                        <span>Not Connected</span>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" style="width: 100%;">Connect</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Keys -->
+        <section class="section">
+            <div class="section-header">
+                <h2>API Keys</h2>
+                <button class="btn btn-primary">+ New API Key</button>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Key Name</th>
+                            <th>Created</th>
+                            <th>Last Used</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">Production API Key</div>
+                                <div class="table-cell-secondary">dmrv_live_***</div>
+                            </td>
+                            <td>2024-01-15</td>
+                            <td>2 hours ago</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Revoke</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">Development Key</div>
+                                <div class="table-cell-secondary">dmrv_test_***</div>
+                            </td>
+                            <td>2024-02-01</td>
+                            <td>5 days ago</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Revoke</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Webhooks -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Webhooks</h2>
+                <button class="btn btn-primary">+ New Webhook</button>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Endpoint URL</th>
+                            <th>Events</th>
+                            <th>Status</th>
+                            <th>Last Delivery</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">https://api.carboncorp.com/webhooks/dmrv</div>
+                            </td>
+                            <td>All events</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                            <td>5 minutes ago</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Edit</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
+

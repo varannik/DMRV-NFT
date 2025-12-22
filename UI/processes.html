@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMRV Platform - Processes</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">DMRV</span>
+            </div>
+            <div class="tenant-badge">
+                <span class="tenant-name">CarbonCorp Inc.</span>
+                <span class="tenant-plan">Enterprise</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="projects.html" class="nav-item">
+                <span class="nav-icon">🏭</span>
+                <span class="nav-text">Projects</span>
+            </a>
+            <a href="mrv.html" class="nav-item">
+                <span class="nav-icon">📥</span>
+                <span class="nav-text">MRV Submissions</span>
+            </a>
+            <a href="verification.html" class="nav-item">
+                <span class="nav-icon">✅</span>
+                <span class="nav-text">Verification</span>
+            </a>
+            <a href="credits.html" class="nav-item">
+                <span class="nav-icon">🎫</span>
+                <span class="nav-text">Credits (NFTs)</span>
+            </a>
+            <a href="processes.html" class="nav-item active">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Processes</span>
+            </a>
+            <a href="billing.html" class="nav-item">
+                <span class="nav-icon">💳</span>
+                <span class="nav-text">Billing</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-menu">
+                <div class="user-avatar">JD</div>
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <span class="user-role">Tenant Admin</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1>Long-Running Processes</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary">Filter</button>
+            </div>
+        </header>
+
+        <section class="section">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Process ID</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                            <th>Current Step</th>
+                            <th>Started</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">PROC-2024-001</div>
+                                <div class="table-cell-secondary">Credit Issuance</div>
+                            </td>
+                            <td>Credit Issuance</td>
+                            <td><span class="badge badge-info">Processing</span></td>
+                            <td>
+                                <div class="progress-bar" style="width: 150px; display: inline-block;">
+                                    <div class="progress-fill" style="width: 50%"></div>
+                                </div>
+                                <span style="font-size: 0.75rem; margin-left: 0.5rem;">50%</span>
+                            </td>
+                            <td>Step 3: Verification</td>
+                            <td>2 hours ago</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">PROC-2024-002</div>
+                                <div class="table-cell-secondary">Batch Minting</div>
+                            </td>
+                            <td>Batch Minting</td>
+                            <td><span class="badge badge-info">Processing</span></td>
+                            <td>
+                                <div class="progress-bar" style="width: 150px; display: inline-block;">
+                                    <div class="progress-fill" style="width: 85%"></div>
+                                </div>
+                                <span style="font-size: 0.75rem; margin-left: 0.5rem;">85%</span>
+                            </td>
+                            <td>Step 5: Registry Submission</td>
+                            <td>5 hours ago</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">PROC-2024-003</div>
+                                <div class="table-cell-secondary">Credit Retirement</div>
+                            </td>
+                            <td>Credit Retirement</td>
+                            <td><span class="badge badge-success">Completed</span></td>
+                            <td>
+                                <div class="progress-bar" style="width: 150px; display: inline-block;">
+                                    <div class="progress-fill" style="width: 100%"></div>
+                                </div>
+                                <span style="font-size: 0.75rem; margin-left: 0.5rem;">100%</span>
+                            </td>
+                            <td>Completed</td>
+                            <td>1 hour ago</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Process Detail View -->
+        <section class="section">
+            <h2 style="margin-bottom: 1.5rem;">Process Details: PROC-2024-001 (Credit Issuance)</h2>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Process Steps</h3>
+                </div>
+                <div class="process-steps">
+                    <div class="process-step-item completed">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">MRV Approval</div>
+                            <div class="step-status">Completed</div>
+                            <div class="step-time">2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="process-step-item completed">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">Hash Creation</div>
+                            <div class="step-status">Completed</div>
+                            <div class="step-time">1 hour ago</div>
+                        </div>
+                    </div>
+                    <div class="process-step-item active">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Registry Submission</div>
+                            <div class="step-status">In Progress</div>
+                            <div class="step-time">In progress...</div>
+                        </div>
+                    </div>
+                    <div class="process-step-item pending">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-title">NFT Minting</div>
+                            <div class="step-status">Pending</div>
+                            <div class="step-time">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
+<style>
+.process-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.process-step-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.process-step-item.completed {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: var(--success);
+}
+
+.process-step-item.active {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: var(--info);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.process-step-item.pending {
+    background: var(--background);
+    opacity: 0.6;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.process-step-item.completed .step-number {
+    background: var(--success);
+    color: white;
+}
+
+.process-step-item.active .step-number {
+    background: var(--info);
+    color: white;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.step-status {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.step-time {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+</style>
+

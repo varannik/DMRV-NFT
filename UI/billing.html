@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMRV Platform - Billing</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">DMRV</span>
+            </div>
+            <div class="tenant-badge">
+                <span class="tenant-name">CarbonCorp Inc.</span>
+                <span class="tenant-plan">Enterprise</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="projects.html" class="nav-item">
+                <span class="nav-icon">🏭</span>
+                <span class="nav-text">Projects</span>
+            </a>
+            <a href="mrv.html" class="nav-item">
+                <span class="nav-icon">📥</span>
+                <span class="nav-text">MRV Submissions</span>
+            </a>
+            <a href="verification.html" class="nav-item">
+                <span class="nav-icon">✅</span>
+                <span class="nav-text">Verification</span>
+            </a>
+            <a href="credits.html" class="nav-item">
+                <span class="nav-icon">🎫</span>
+                <span class="nav-text">Credits (NFTs)</span>
+            </a>
+            <a href="processes.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Processes</span>
+            </a>
+            <a href="billing.html" class="nav-item active">
+                <span class="nav-icon">💳</span>
+                <span class="nav-text">Billing</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-menu">
+                <div class="user-avatar">JD</div>
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <span class="user-role">Tenant Admin</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1>Billing & Subscription</h1>
+        </header>
+
+        <!-- Subscription Overview -->
+        <section class="section">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Current Plan</h3>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color); margin-bottom: 0.5rem;">Enterprise</div>
+                        <div style="color: var(--text-secondary);">Unlimited credits, all registries, SSO, SLA</div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-primary">Upgrade Plan</button>
+                        <button class="btn btn-secondary">Manage Plan</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Usage This Month</h3>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">Credits Minted</div>
+                        <div style="font-size: 1.25rem; font-weight: 600;">12,450 / Unlimited</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">API Calls</div>
+                        <div style="font-size: 1.25rem; font-weight: 600;">45,230 / Unlimited</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">Storage</div>
+                        <div style="font-size: 1.25rem; font-weight: 600;">2.3 GB / Unlimited</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Invoices -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Invoices</h2>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Period</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Due Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">INV-2024-003</div>
+                            </td>
+                            <td>March 2024</td>
+                            <td>$12,450.00</td>
+                            <td><span class="badge badge-success">Paid</span></td>
+                            <td>2024-04-15</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Download</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">INV-2024-002</div>
+                            </td>
+                            <td>February 2024</td>
+                            <td>$8,920.00</td>
+                            <td><span class="badge badge-success">Paid</span></td>
+                            <td>2024-03-15</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Download</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">INV-2024-001</div>
+                            </td>
+                            <td>January 2024</td>
+                            <td>$5,230.00</td>
+                            <td><span class="badge badge-success">Paid</span></td>
+                            <td>2024-02-15</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Download</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Payment Method -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Payment Method</h2>
+            </div>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 0.25rem;">Visa •••• 4242</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">Expires 12/2025</div>
+                    </div>
+                    <button class="btn btn-secondary">Update</button>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
+

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMRV Platform - Verification</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">DMRV</span>
+            </div>
+            <div class="tenant-badge">
+                <span class="tenant-name">CarbonCorp Inc.</span>
+                <span class="tenant-plan">Enterprise</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="projects.html" class="nav-item">
+                <span class="nav-icon">🏭</span>
+                <span class="nav-text">Projects</span>
+            </a>
+            <a href="mrv.html" class="nav-item">
+                <span class="nav-icon">📥</span>
+                <span class="nav-text">MRV Submissions</span>
+            </a>
+            <a href="verification.html" class="nav-item active">
+                <span class="nav-icon">✅</span>
+                <span class="nav-text">Verification</span>
+            </a>
+            <a href="credits.html" class="nav-item">
+                <span class="nav-icon">🎫</span>
+                <span class="nav-text">Credits (NFTs)</span>
+            </a>
+            <a href="processes.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Processes</span>
+            </a>
+            <a href="billing.html" class="nav-item">
+                <span class="nav-icon">💳</span>
+                <span class="nav-text">Billing</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-menu">
+                <div class="user-avatar">JD</div>
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <span class="user-role">Tenant Admin</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1>MRV Verification</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary">Filter</button>
+            </div>
+        </header>
+
+        <!-- Verification Status Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #fff3e0;">⏳</div>
+                <div class="stat-content">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Pending Verification</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e8f5e9;">✅</div>
+                <div class="stat-content">
+                    <div class="stat-value">24</div>
+                    <div class="stat-label">Approved This Month</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #ffebee;">❌</div>
+                <div class="stat-content">
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">Rejected This Month</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e3f2fd;">👤</div>
+                <div class="stat-content">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Active Verifiers</div>
+                </div>
+            </div>
+        </div>
+
+        <section class="section">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Verification ID</th>
+                            <th>MRV Submission</th>
+                            <th>Project</th>
+                            <th>Verifier</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">VR-2024-001</div>
+                                <div class="table-cell-secondary">Started: 2024-03-15</div>
+                            </td>
+                            <td>MRV-2024-001</td>
+                            <td>Amazon Reforestation</td>
+                            <td>Dr. Jane Smith</td>
+                            <td><span class="badge badge-warning">In Progress</span></td>
+                            <td>
+                                <div class="progress-bar" style="width: 100px; display: inline-block;">
+                                    <div class="progress-fill" style="width: 60%"></div>
+                                </div>
+                                <span style="font-size: 0.75rem; margin-left: 0.5rem;">6/9 categories</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Review</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">VR-2024-002</div>
+                                <div class="table-cell-secondary">Started: 2024-03-14</div>
+                            </td>
+                            <td>MRV-2024-002</td>
+                            <td>DAC Facility - Texas</td>
+                            <td>Dr. John Williams</td>
+                            <td><span class="badge badge-success">Approved</span></td>
+                            <td>
+                                <div class="progress-bar" style="width: 100px; display: inline-block;">
+                                    <div class="progress-fill" style="width: 100%"></div>
+                                </div>
+                                <span style="font-size: 0.75rem; margin-left: 0.5rem;">9/9 categories</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View Report</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="table-cell-primary">VR-2024-003</div>
+                                <div class="table-cell-secondary">Started: 2024-03-12</div>
+                            </td>
+                            <td>MRV-2024-003</td>
+                            <td>Amazon Reforestation</td>
+                            <td>Dr. Sarah Johnson</td>
+                            <td><span class="badge badge-error">Rejected</span></td>
+                            <td>
+                                <div class="progress-bar" style="width: 100px; display: inline-block;">
+                                    <div class="progress-fill" style="width: 100%; background: var(--error);"></div>
+                                </div>
+                                <span style="font-size: 0.75rem; margin-left: 0.5rem;">9/9 categories</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">View Report</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 9-Category Verification Detail -->
+        <section class="section">
+            <h2 style="margin-bottom: 1.5rem;">Verification: VR-2024-001</h2>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">9-Category Verification Checklist</h3>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div class="verification-category">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600;">1. Project Setup</h4>
+                            <span class="badge badge-success">PASSED</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">All mandatory fields complete</div>
+                    </div>
+                    <div class="verification-category">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600;">2. General</h4>
+                            <span class="badge badge-success">PASSED</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Additionality demonstrated</div>
+                    </div>
+                    <div class="verification-category">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600;">3. Project Design</h4>
+                            <span class="badge badge-warning">CLARIFICATION</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Update monitoring plan</div>
+                    </div>
+                    <div class="verification-category">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600;">4. Facilities</h4>
+                            <span class="badge badge-success">PASSED</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Site verified</div>
+                    </div>
+                    <div class="verification-category">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600;">5. Carbon Accounting</h4>
+                            <span class="badge badge-success">PASSED</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Calculations verified</div>
+                    </div>
+                    <div class="verification-category">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600;">6. LCA</h4>
+                            <span class="badge badge-success">PASSED</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Lifecycle assessed</div>
+                    </div>
+                    <div class="verification-category">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600;">7. Project Emissions</h4>
+                            <span class="badge badge-success">PASSED</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">All sources identified</div>
+                    </div>
+                    <div class="verification-category">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600;">8. GHG Statements</h4>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Pending review</div>
+                    </div>
+                    <div class="verification-category">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600;">9. Removal Data</h4>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Pending review</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
+
