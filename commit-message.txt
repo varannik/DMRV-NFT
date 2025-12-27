@@ -1,27 +1,58 @@
-feat(docs): add comprehensive development guide and registry-first workflow documentation
+feat(docs): add comprehensive workflow documentation with registry flexibility and double-counting prevention
 
-This commit introduces major documentation enhancements to support the DMRV platform
-development and architecture understanding.
+This commit introduces major documentation enhancements including development roadmap,
+end-to-end workflows, registry change management, and strict double-counting prevention
+policies.
 
 **New Documentation:**
-- docs/development/README.md: Comprehensive 40-week development roadmap with:
-  - Development setup and prerequisites
-  - 10-phase implementation plan (Weeks 1-40)
-  - Step-by-step workflows for each phase
-  - Best practices for code, database, events, and security
-  - Testing strategy and code standards
-  - Troubleshooting guide
 
-- docs/architecture/COMPREHENSIVE_WORKFLOWS.md: End-to-end workflow documentation:
-  - Complete 8-phase credit issuance workflow
-  - Registry-first approach with gap analysis
-  - 9-category verification process
-  - Blockchain integration workflows
-  - Error handling and recovery scenarios
-  - Multi-registry scenarios
-  - Decision trees and presentation outline
+1. docs/development/README.md - Comprehensive 40-week development roadmap:
+   - Development setup and prerequisites
+   - 10-phase implementation plan (Weeks 1-40)
+   - Step-by-step workflows for each phase
+   - Best practices for code, database, events, and security
+   - Testing strategy and code standards
+   - Troubleshooting guide
+
+2. docs/architecture/COMPREHENSIVE_WORKFLOWS.md - Complete platform workflows:
+   - Complete 8-phase credit issuance workflow (4-8 weeks typical)
+   - Detailed step-by-step breakdowns for each phase
+   - Registry-first approach with gap analysis
+   - 9-category verification process
+   - Blockchain integration workflows (NEAR NFT minting)
+   - Error handling and recovery scenarios with Saga pattern
+   - Decision trees for registry selection and verification
+   - Presentation outline for stakeholders
+
+**NEW: Registry Change Management (Section 10):**
+   - Stage-by-stage impact analysis for registry changes
+   - Stage 1 (Before Computation): ✅ Low impact (< 1 day)
+   - Stage 2 (After Computation): ⚠️ Medium impact (1-2 days)
+   - Stage 3 (After Verification): ⚠️ High impact (2-4 weeks)
+   - Stage 4 (After Hash): ❌ Very high impact (4-6 weeks, requires new submission)
+   - Stage 5 (After Registry Submission): ❌ Blocked (cannot change existing)
+   - Comprehensive registry change API with impact assessment
+   - UI/UX mockups for registry change workflow
+   - Multi-registry parallel strategy (with caveats)
+   - Registry change events and audit trail
+   - Decision matrix for change scenarios
+
+**NEW: Double-Counting Prevention (Section 8 - Rewritten):**
+   - ⚠️ Critical compliance rules: Multi-registry issuance = fraud
+   - Clear definition of double-counting violations
+   - Registry policies from Verra, Puro, Isometric, Gold Standard, EU ETS
+   - ❌ PROHIBITED: Simultaneous multi-registry active credits
+   - ✅ PERMITTED: Compare registries, then select ONE for issuance
+   - ✅ PERMITTED: Sequential retirement (issue → retire → reissue elsewhere)
+   - ✅ PERMITTED: Registry migration (void in A → reissue in B)
+   - Platform policy: Strict single-registry enforcement
+   - evidence_hash duplication detection system
+   - Database schema with triggers to prevent double-counting
+   - Enforcement logic and compliance workflows
+   - Cross-tenant fraud detection
 
 **Architecture Updates:**
+
 - dmrv_saa_s_architecture_near_nft_design.md: Enhanced with:
   - Registry-first approach (registry selection before computation)
   - Gap analysis system for identifying missing registry requirements
@@ -30,15 +61,58 @@ development and architecture understanding.
   - New event: mrv.registry.selected.v1
   - Registry requirements catalog and gap check APIs
 
-**Documentation Structure:**
 - docs/README.md: Updated to reference new development and architecture folders
 
-**Key Architectural Changes:**
-- Registry selection now happens BEFORE computation (Phase 0)
-- Computation is registry-specific (different methodologies per registry)
-- Gap analysis enables proactive data collection guidance
-- Evidence hash enables cross-registry deduplication while allowing
-  registry-specific claim hashes
+**Key Architectural Decisions:**
+
+1. Registry Flexibility:
+   - Users can change target registry at any workflow stage
+   - Clear impact assessment shown before confirmation
+   - System automatically invalidates dependent work (computation, verification, hash)
+   - Audit trail maintained for all registry changes
+   - Support for exploratory gap analysis across multiple registries
+
+2. Double-Counting Prevention:
+   - evidence_hash tracks raw evidence globally across all registries
+   - Automatic blocking when same evidence used for multiple active credits
+   - Manual compliance review required for exceptions
+   - Support for legitimate use cases (comparison, migration, retirement)
+   - Database constraints enforce single-active-credit-per-evidence rule
+
+3. Registry-First Workflow:
+   - Registry selection happens BEFORE computation (Phase 0)
+   - Computation is registry-specific (different methodologies per registry)
+   - Gap analysis enables proactive data collection guidance
+   - Evidence hash enables cross-registry deduplication while allowing
+     registry-specific claim hashes
+
+4. User Experience:
+   - Compare multiple registries before committing (gap analysis for all)
+   - Clear warnings about work loss when changing registries
+   - Cost and timeline estimates for registry changes
+   - Support for "what-if" scenarios without commitment
+
+**Events Added:**
+- project.registry.changed.v1: Registry change initiated
+- computation.invalidated.v1: Computation invalidated due to registry change
+- verification.invalidated.v1: Verification invalidated due to registry change
+- submission.parallel.created.v1: Parallel registry submission created
+
+**Database Changes (Documented):**
+- hashing.evidence_registry: Global evidence tracking table
+- Unique constraint on evidence_hash
+- Trigger: enforce_single_active_credit (prevents double-counting)
+- registry_submissions JSONB array tracking all registry submissions per evidence
+
+**Compliance & Security:**
+- Strict enforcement of single-registry issuance by default
+- Cross-tenant fraud detection via evidence_hash
+- Audit trail for all registry changes and evidence usage
+- Manual approval required for multi-registry scenarios
+- Alignment with Verra VCS Standard §3.14, Puro methodology, Isometric protocol
 
 Breaking Changes: None (documentation only)
+
+Impact: This documentation enables flexible registry selection while maintaining
+strict compliance with double-counting prevention regulations.
 
