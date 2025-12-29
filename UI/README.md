@@ -4,6 +4,19 @@ HTML/CSS mockup of the DMRV SaaS platform based on the architecture document.
 
 ## Quick Start
 
+### 🚀 Fastest Way: Run Script
+
+```bash
+cd DMRV-NFT/UI
+./run.sh
+```
+
+This script automatically detects and uses the best available server (Python, Node.js, or PHP).
+
+Then open your browser to: **http://localhost:8000**
+
+---
+
 ### Option 1: Open Directly in Browser (Simplest)
 
 1. Navigate to the `UI` directory:
@@ -16,38 +29,42 @@ HTML/CSS mockup of the DMRV SaaS platform based on the architecture document.
    - **Linux**: `xdg-open index.html`
    - **Windows**: Double-click `index.html` or right-click → "Open with" → Browser
 
-### Option 2: Local Development Server (Recommended)
+**Note**: Opening directly may have CORS issues with some browsers. Use a local server for best results.
 
-Using Python (if installed):
+---
 
+### Option 2: Manual Server Commands
+
+**Using Python 3** (most common):
 ```bash
-# Python 3
 cd DMRV-NFT/UI
 python3 -m http.server 8000
-
-# Then open in browser:
-# http://localhost:8000
+# Open: http://localhost:8000
 ```
 
-Using Node.js (if installed):
-
+**Using Node.js**:
 ```bash
-# Install http-server globally (one time)
+# One-time install
 npm install -g http-server
 
 # Run server
 cd DMRV-NFT/UI
 http-server -p 8000
-
-# Then open in browser:
-# http://localhost:8000
+# Open: http://localhost:8000
 ```
 
-Using PHP (if installed):
-
+**Using PHP**:
 ```bash
 cd DMRV-NFT/UI
 php -S localhost:8000
+# Open: http://localhost:8000
+```
+
+**Using npx** (no install needed):
+```bash
+cd DMRV-NFT/UI
+npx http-server -p 8000
+# Open: http://localhost:8000
 ```
 
 ## Pages Available

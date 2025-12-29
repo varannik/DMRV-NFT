@@ -7,6 +7,8 @@ This repository is the implementation scaffold for the architecture described in
 
 ## What lives where
 
+- `apps/`: Frontend applications
+  - `dashboard/`: Next.js user dashboard for DMRV platform
 - `docs/`: Architecture, ADRs, API specs, event catalog, runbooks, and operational playbooks.
 - `infrastructure/`: Terraform, Kubernetes, Helm, Docker Compose, and monitoring config.
 - `services/`: Microservices (TypeScript/Node) following an event-driven architecture.
@@ -14,6 +16,7 @@ This repository is the implementation scaffold for the architecture described in
 - `smart-contracts/`: NEAR smart contracts (Rust) and related tooling/tests.
 - `tests/`: End-to-end and load tests across the full platform.
 - `scripts/`: Helper scripts for local dev, migrations, ops workflows.
+- `UI/`: Static HTML/CSS mockups and prototypes
 - `.github/`: CI/CD workflows and repo automation.
 
 ## Conventions
