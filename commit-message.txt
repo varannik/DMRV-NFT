@@ -1,8 +1,85 @@
-feat(dashboard): comprehensive state management specification v4.1
+feat(dashboard): comprehensive data schema v2.0 (83% coverage) + gap analysis
 
-This commit significantly expands the dashboard state management specification
-from 25 to 44 categories, adding complete coverage for backend operations,
-event-driven architecture, governance, and notification delivery tracking.
+This commit significantly expands the dashboard data schema documentation from
+20 to 43 entities (38% → 83% coverage), adding all Phase 1 (Critical) and
+Phase 2 (High Priority) database tables. Includes comprehensive gap analysis
+and executive summary documenting remaining 9 operational tables.
+
+**Major Update: DATA_SCHEMA.md v2.0**
+
+Coverage Improvement:
+- **Before**: 20 entities (38% of 52 total tables)
+- **After**: 43 entities (83% of 52 total tables)
+- **Added**: 23 new entities (Phase 1: 14 tables, Phase 2: 9 tables)
+
+1. **Updated Data Schema (apps/dashboard/DATA_SCHEMA.md)**
+   - Version upgraded from 1.0 → 2.0
+   - Now documents 43 of 52 database entities with complete TypeScript interfaces
+   
+   **Phase 1 - Critical Tables Added (14 entities):**
+   - Subscription & Billing (5): subscription_plans, tenant_plan_assignments, features, 
+     plan_entitlements, tenant_feature_overrides
+   - IAM & Authentication (6): roles, user_roles, invitations, mfa_factors, sessions, 
+     tenant_api_keys
+   - Project & Methodology (2): methodologies, project_members
+   - Registry Integration (1): tenant_registry_connections
+
+   **Phase 2 - High Priority Tables Added (9 entities):**
+   - Carbon Science (5): credit_transfers, credit_lineage, buffer_pools, 
+     reversal_events, reversal_affected_credits
+   - Verification Workflow (2): verification_clarifications, verification_reports
+   - MRV Evidence (1): mrv_artifacts
+   - Billing (1): invoices
+
+   **Complete Coverage:**
+   - 43 database entities with TypeScript interfaces, indexes, RLS policies
+   - 15+ Redis cache patterns with namespace strategy
+   - 5 browser storage schemas (localStorage + sessionStorage)
+   - 6 API response schema categories
+   - Data access patterns (cache-aside, write-through, batch, paginated)
+   - Cache strategy with TTL guidelines (30s-24h) and 3 invalidation patterns
+   - Data validation using Zod schemas with examples
+
+2. **Check Summary (apps/dashboard/DATA_SCHEMA_CHECK_SUMMARY.md)**
+   - Executive summary: 38% database coverage (20/52 tables)
+   - Critical gaps: Subscription (5 tables), IAM (6 tables), Carbon science (5 tables)
+   - 4-phase implementation roadmap (8-10 weeks to 100%)
+   - State management impact: 26/44 categories blocked
+   - Status: ⚠️ NOT READY FOR PRODUCTION
+
+3. **Gap Analysis (apps/dashboard/DATA_SCHEMA_GAP_ANALYSIS.md)**
+   - Comprehensive gap analysis vs. 52 database tables in migration
+   - Originally identified 32 missing tables (now 23 added, 9 remaining)
+   - 4-phase priority implementation roadmap with estimated timelines
+   - 18 additional operational entities for monitoring & governance (Phase 3-4)
+   - State management coverage analysis (now 82% of 44 categories have schema docs)
+   - Cache schema gaps (9 missing patterns) and API response schema gaps (10 missing types)
+
+**Impact:**
+
+Unblocked State Management Categories:
+- ✅ #1: Authentication State (RBAC, sessions, MFA, API keys)
+- ✅ #2: Project State (methodologies, project members)
+- ✅ #7: Credit State (transfers, lineage)
+- ✅ #18: Carbon Science Integrity (buffer pools, reversals)
+- ✅ #21: Feature Flags & Entitlements (plans, features)
+- ✅ #34: Methodology State
+- 🔓 Unblocked 26 of 44 state management categories (59% → 82%)
+
+Ready for Implementation:
+- Multi-tenant subscription management ✅
+- Role-based access control (RBAC) ✅
+- Carbon credit transfers & lineage tracking ✅
+- Buffer pool management (15% permanence reserve) ✅
+- Reversal event handling (fire, disease, policy) ✅
+- Verification clarifications workflow ✅
+- MRV evidence artifact tracking ✅
+- Feature flag enforcement per plan ✅
+
+Remaining Work (9 tables, Phase 3-4):
+- Enterprise features: SSO configurations, SCIM provisioning
+- Event processing: Processed events, outbox events, audit events
+- Operational monitoring: Circuit breakers, DLQ, consumer groups, adapter health
 
 **State Management Updates (apps/dashboard/STATE_MANAGEMENT.md):**
 

@@ -302,7 +302,12 @@ docker run -p 3000:3000 dmrv-dashboard
 
 ## Related Documentation
 
-- **State Management**: `./STATE_MANAGEMENT.md` - Complete state management requirements and architecture (41 categories)
+- **Data Schema**: `./DATA_SCHEMA.md` - **v2.0** - Comprehensive data schema specification (43 entities, 83% coverage)
+  - ✅ **Phase 1 (Critical)**: Subscription, IAM, Projects, Registry - 14 tables
+  - ✅ **Phase 2 (High Priority)**: Carbon Science, Verification, MRV - 9 tables
+  - **CHECK SUMMARY**: `./DATA_SCHEMA_CHECK_SUMMARY.md` - Executive summary & priority roadmap
+  - **Gap Analysis**: `./DATA_SCHEMA_GAP_ANALYSIS.md` - Complete analysis with remaining 9 table schemas
+- **State Management**: `./STATE_MANAGEMENT.md` - Complete state management requirements and architecture (44 categories)
   - **NEW v4.0**: Added 16 backend operations & event-driven architecture state categories
   - **Summary**: `./STATE_MANAGEMENT_V4_SUMMARY.md` - What's new in v4.0
   - **v3.0 Summary**: `./STATE_MANAGEMENT_V3_SUMMARY.md` - Advanced patterns (v3.0)
