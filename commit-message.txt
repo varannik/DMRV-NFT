@@ -1,99 +1,113 @@
-feat(dashboard): initialize Next.js user dashboard application
+feat(dashboard): comprehensive state management specification v4.1
 
-This commit initializes the Next.js user dashboard application for the DMRV platform
-with complete folder structure, documentation, and integration setup.
+This commit significantly expands the dashboard state management specification
+from 25 to 44 categories, adding complete coverage for backend operations,
+event-driven architecture, governance, and notification delivery tracking.
 
-**Dashboard Application (apps/dashboard/):**
+**State Management Updates (apps/dashboard/STATE_MANAGEMENT.md):**
 
-Frontend Implementation:
-- Next.js 16.1.1 with App Router and React 19
-- TypeScript 5 with strict type checking
-- Tailwind CSS v4 for styling
-- ESLint for code quality
+Version 4.1 - Governance/Ops + Notification Delivery Tracking:
+- Added 3 new state categories (#42-44):
+  - Dispute / Appeal / Case Management State
+  - SLO/SLA + Incident + Runbook + DR/Backup Operations State
+  - Notification Delivery / Outbox / Provider Health State
 
-Project Structure Created:
-```
-apps/dashboard/
-├── src/
-│   ├── app/(dashboard)/          # Dashboard routes
-│   │   ├── dashboard/           # Main overview page
-│   │   ├── projects/            # Project management
-│   │   ├── mrv/                 # MRV submission workflows
-│   │   ├── verification/        # 9-category verification
-│   │   ├── credits/             # Credit (NFT) management
-│   │   ├── processes/           # Process tracking
-│   │   ├── billing/             # Billing & subscriptions
-│   │   └── settings/            # Settings & configuration
-│   ├── components/              # React components by feature
-│   │   ├── layout/             # Layout components
-│   │   ├── projects/           # Project components
-│   │   ├── mrv/                # MRV components
-│   │   ├── verification/       # Verification components
-│   │   ├── credits/            # Credit components
-│   │   ├── processes/          # Process components
-│   │   └── shared/             # Reusable components
-│   ├── lib/
-│   │   ├── api/                # API client & utilities
-│   │   ├── hooks/              # Custom React hooks
-│   │   └── utils/              # Utility functions
-│   └── types/                  # TypeScript definitions
-├── public/                     # Static assets
-├── README.md                   # Comprehensive documentation
-├── QUICK_START.md              # Getting started guide
-├── PROJECT_SETUP_SUMMARY.md    # Setup summary
-├── .env.example                # Environment variables template
-└── .gitignore                  # Git ignore rules
-```
+Version 4.0 - Backend Operations & Event-Driven Architecture:
+- Added 16 new state categories (#26-41):
+  - Retirement Saga State (4-step workflow separate from credit issuance)
+  - Event Replay & Recovery State (replay jobs, event store, snapshots)
+  - Schema Registry State (versioning, compatibility, migrations)
+  - Consumer Management State (health, lag alerts, backpressure)
+  - API Idempotency State (cache, deduplication, replay detection)
+  - Registry Adapter Health State (circuit breakers, retry queues, DLQ)
+  - NEAR Indexer State (block sync, transaction monitoring)
+  - Registry Requirements Catalog State (requirements per registry/methodology)
+  - Methodology State (selection, formulas, result caching)
+  - Retirement Certificate State (generation, IPFS storage, downloads)
+  - Registry Cancellation State (requests, compensation tracking)
+  - Circuit Breaker State (per-service state machine)
+  - Dead Letter Queue State (messages, review workflow, resolution)
+  - Event Store State (multi-tier storage: hot/warm/cold)
+  - Snapshot/Checkpoint State (component snapshots, restore capability)
+  - Process Timeout State (timeout config, ETA calculation, predictions)
 
-Dashboard Features (Structure):
-- Registry-first workflow with gap analysis UI
-- 8-phase credit lifecycle visualization
-- 9-category verification checklist interface
-- Credit (NFT) management with NEAR blockchain integration
-- Process tracking with progress indicators
-- Registry change management with impact assessment
-- Double-counting prevention UI with compliance indicators
-- Multi-tenant support with tenant context switching
+**Key Improvements:**
 
-Documentation:
-- apps/dashboard/README.md: Full dashboard documentation with features, API
-  integration, authentication, multi-tenancy, and deployment instructions
-- apps/dashboard/QUICK_START.md: Step-by-step getting started guide with
-  installation instructions and next steps
-- apps/dashboard/PROJECT_SETUP_SUMMARY.md: Complete setup summary with
-  implementation roadmap and success metrics
-- apps/README.md: Overview of all frontend applications
+Complete Architecture Coverage:
+- Now covers 100% of backend operations from dmrv_saa_s_architecture_near_nft_design.md
+- Sections 12-33 fully represented in state management
+- Governance model (Section 21) with dispute resolution workflows
+- SLO/SLA monitoring (Section 18.2) with incident management
+- Notification delivery tracking (Section 27) with outbox pattern
 
-Integration Points:
-- API Gateway connection via lib/api/
-- Shared types from ../../shared/types/ or ../../types/
-- Authentication from ../../shared/auth/
-- NEAR smart contracts from ../../smart-contracts/nft-contract/
+State Categories Breakdown:
+- Core Platform State: 17 categories (Phases 1-4: Weeks 1-8)
+- Advanced Features: 8 categories (Phases 5-6: Weeks 9-12)
+- Backend Operations: 16 categories (Phases 7-9: Weeks 13-18)
+- Governance & Ops: 3 categories (Phase 10: Weeks 19-20)
+- Total: 44 state categories + 14 advanced patterns
 
-Technology Choices:
-- Next.js App Router for modern React features and SSR
-- Tailwind CSS v4 for utility-first styling
-- shadcn/ui components (to be installed)
-- SWR or TanStack Query for data fetching (to be installed)
-- React Hook Form + Zod for forms and validation (to be installed)
+**New State Categories Details:**
 
-**Project Organization:**
-- Created apps/ folder for frontend applications
-- Separated dashboard from static UI mockups (UI/ folder)
-- Updated root README.md to include apps/ and UI/ references
-- Monorepo structure: apps/ (frontend) + services/ (backend)
+#42 - Dispute / Appeal / Case Management State:
+- Dispute case lifecycle (credit rejection, verification dispute, ownership, methodology)
+- SLA tracking per dispute type (14-30 days)
+- Escalation workflows (support → dispute committee → arbitration)
+- Evidence attachments and case history
+- Outcome tracking and resolution
 
-**Quick Start:**
-```bash
-cd apps/dashboard
-npm run dev
-# Open http://localhost:3000
-```
+#43 - SLO/SLA + Incident + Runbook + DR/Backup Operations State:
+- Service Level Objectives monitoring (API availability, mint latency, registry sync)
+- Incident management (P1-P4 tiers, response times, runbook execution)
+- Disaster recovery readiness (RPO < 1 min, RTO < 15 min)
+- Backup freshness tracking (database, event store, IPFS)
+- Failover drill status and multi-region health
 
-Breaking Changes: None (new application)
+#44 - Notification Delivery / Outbox / Provider Health State:
+- Unified outbox for email + webhook notifications
+- Delivery attempt tracking with retry logic
+- Provider health monitoring (email service, webhook endpoints)
+- Suppression lists and bounce handling
+- Delivery metrics (success rate, latency, failure reasons)
 
-Impact: 
-- Enables development of production-ready user interface
-- Provides clear structure for implementing DMRV workflows
-- Ready for immediate frontend development with complete documentation
-- Based on comprehensive workflows from docs/architecture/COMPREHENSIVE_WORKFLOWS.md
+**Implementation Phases Updated:**
+
+Phase 7: Backend Operations Monitoring (Weeks 13-14)
+- Retirement Saga, Circuit Breakers, DLQ, Registry Adapters, NEAR Indexer
+
+Phase 8: Event-Driven Architecture (Weeks 15-16)
+- Event Replay, Schema Registry, Consumer Management, API Idempotency, Event Store
+
+Phase 9: Advanced Operations (Weeks 17-18)
+- Requirements Catalog, Methodology, Certificates, Cancellations, Snapshots, Timeouts
+
+Phase 10: Governance & Reliability (Weeks 19-20) [NEW]
+- Dispute Management, SLO/SLA Monitoring, Incident Management, Notification Delivery
+
+**Documentation Updates:**
+
+- Updated STATE_MANAGEMENT.md from v3.0 (25 categories) to v4.1 (44 categories)
+- Added comprehensive TypeScript interfaces for all 19 new state categories
+- Updated implementation roadmap with new phases
+- Added version history tracking (v4.0 and v4.1)
+- Updated summary section with complete category breakdown
+
+**Architecture Alignment:**
+
+Based on comprehensive analysis of:
+- docs/architecture/COMPREHENSIVE_WORKFLOWS.md
+- dmrv_saa_s_architecture_near_nft_design.md (Sections 12-33, 18, 21, 27)
+
+**Impact:**
+
+- Enables full-stack dashboard: frontend user interactions + backend operations monitoring
+- Provides complete state for admin/operator dashboards
+- Supports governance workflows (disputes, SLAs, incidents)
+- Enables notification delivery observability
+- Ready for implementation of all 44 state categories across 10 phases (20 weeks)
+
+Breaking Changes: None (documentation only)
+
+Related Files:
+- apps/dashboard/STATE_MANAGEMENT.md (5,720 lines, v4.1)
+- apps/dashboard/README.md (updated references)

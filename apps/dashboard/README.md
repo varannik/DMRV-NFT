@@ -302,6 +302,12 @@ docker run -p 3000:3000 dmrv-dashboard
 
 ## Related Documentation
 
+- **State Management**: `./STATE_MANAGEMENT.md` - Complete state management requirements and architecture (41 categories)
+  - **NEW v4.0**: Added 16 backend operations & event-driven architecture state categories
+  - **Summary**: `./STATE_MANAGEMENT_V4_SUMMARY.md` - What's new in v4.0
+  - **v3.0 Summary**: `./STATE_MANAGEMENT_V3_SUMMARY.md` - Advanced patterns (v3.0)
+  - **Analysis**: `./STATE_MANAGEMENT_ANALYSIS.md` - Gap analysis (v1.0 → v2.0)
+  - **Quick Reference**: `./STATE_MANAGEMENT_QUICK_REFERENCE.md` - Common patterns
 - **Architecture**: `../../docs/architecture/COMPREHENSIVE_WORKFLOWS.md`
 - **API Specs**: `../../docs/api/README.md`
 - **Development Guide**: `../../docs/development/README.md`
