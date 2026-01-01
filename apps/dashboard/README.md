@@ -302,18 +302,22 @@ docker run -p 3000:3000 dmrv-dashboard
 
 ## Related Documentation
 
+- **🚀 Development Prompt**: `./DEVELOPMENT_PROMPT.md` - **START HERE** - Comprehensive prompt for building the dashboard
+  - Landing page (charmindustrial.com style)
+  - Sign-in page with MFA/SSO
+  - Dashboard with blockchain-style blocks (mempool.space inspired)
+  - ReactFlow process visualization (8-phase workflow)
+  - Glassmorphism UI + animated gradient background
+  - Complete implementation roadmap (6-week plan)
+
 - **Data Schema**: `./DATA_SCHEMA.md` - **v2.0** - Comprehensive data schema specification (43 entities, 83% coverage)
   - ✅ **Phase 1 (Critical)**: Subscription, IAM, Projects, Registry - 14 tables
   - ✅ **Phase 2 (High Priority)**: Carbon Science, Verification, MRV - 9 tables
-  - **CHECK SUMMARY**: `./DATA_SCHEMA_CHECK_SUMMARY.md` - Executive summary & priority roadmap
-  - **Gap Analysis**: `./DATA_SCHEMA_GAP_ANALYSIS.md` - Complete analysis with remaining 9 table schemas
+
 - **State Management**: `./STATE_MANAGEMENT.md` - Complete state management requirements and architecture (44 categories)
-  - **NEW v4.0**: Added 16 backend operations & event-driven architecture state categories
-  - **Summary**: `./STATE_MANAGEMENT_V4_SUMMARY.md` - What's new in v4.0
-  - **v3.0 Summary**: `./STATE_MANAGEMENT_V3_SUMMARY.md` - Advanced patterns (v3.0)
-  - **Analysis**: `./STATE_MANAGEMENT_ANALYSIS.md` - Gap analysis (v1.0 → v2.0)
-  - **Quick Reference**: `./STATE_MANAGEMENT_QUICK_REFERENCE.md` - Common patterns
-- **Architecture**: `../../docs/architecture/COMPREHENSIVE_WORKFLOWS.md`
+
+- **Architecture**: `../../docs/architecture/COMPREHENSIVE_WORKFLOWS.md` - Complete workflow documentation (8-phase credit issuance)
+
 - **API Specs**: `../../docs/api/README.md`
 - **Development Guide**: `../../docs/development/README.md`
 - **Main Architecture**: `../../dmrv_saa_s_architecture_near_nft_design.md`
