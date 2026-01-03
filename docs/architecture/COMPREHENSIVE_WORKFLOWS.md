@@ -11,10 +11,27 @@
 ## Table of Contents
 
 1. [Overview](#1-overview)
+   - 1.3 [Key Milestones](#13-key-milestones)
+   - 1.4 [Data Input Methods](#14-data-input-methods)
 2. [Actors & Roles](#2-actors--roles)
 3. [Core Workflows](#3-core-workflows)
+   - 3.0 [Data Structure Overview](#30-data-structure-overview)
+   - 3.0.1 [Expandable UI: Net CORC Visualization](#301-expandable-ui-net-corc-visualization)
+   - 3.0.2 [Registry-Driven Data Injection Architecture](#302-registry-driven-data-injection-architecture)
+   - 3.0.3 [Data Injection Tree Structure](#303-data-injection-tree-structure)
+   - 3.0.4 [Registry Configuration Schema](#304-registry-configuration-schema)
+   - 3.0.5 [Example: Verra VM0042 Protocol](#305-example-verra-vm0042-protocol-configuration)
+   - 3.0.6 [Example: Puro.earth Biochar Protocol](#306-example-puroearth-biochar-protocol-configuration)
+   - 3.0.7 [Example: Isometric Enhanced Weathering](#307-example-isometric-enhanced-weathering-protocol)
+   - 3.0.8 [Dynamic UI Tree Rendering](#308-dynamic-ui-tree-rendering)
+   - 3.0.9 [Adding a New Registry](#309-adding-a-new-registry-no-code-changes-required)
+   - 3.0.10 [Registry Configuration API](#3010-registry-configuration-api)
+   - 3.0.11 [Life Cycle Assessment (LCA)](#3011-life-cycle-assessment-lca---detailed-structure)
+   - 3.1 [Complete Credit Issuance Workflow](#31-complete-credit-issuance-workflow)
 4. [Registry-First Approach](#4-registry-first-approach)
 5. [Verification Workflow](#5-verification-workflow)
+   - 5.1 [Two-Phase Verification Process](#51-two-phase-verification-process)
+   - 5.1.1 [Expandable UI: Verification Node Structure](#511-expandable-ui-verification-node-structure)
 6. [Blockchain Integration Workflow](#6-blockchain-integration-workflow)
 7. [Error Handling & Recovery](#7-error-handling--recovery)
 8. [Multi-Registry Scenarios](#8-multi-registry-scenarios)
@@ -57,16 +74,59 @@ The DMRV platform transforms carbon removal data into tradeable, verified carbon
 
 ### 1.3 Key Milestones
 
-| Milestone | Description | Output |
-|-----------|-------------|--------|
-| **Registry Selection** | Choose target registry + methodology | Requirements checklist |
-| **Data Collection** | Gather evidence per registry requirements | MRV submission |
-| **Computation** | Calculate tonnage using methodology | Computed results |
-| **Verification** | Independent review (9 categories) | Verification report |
-| **Hashing** | Create canonical hash | `mrv_hash` |
-| **Registry Approval** | Submit to registry | Registry serial number |
-| **NFT Minting** | Mint on NEAR blockchain | Token ID |
-| **Active Trading** | Credit available for market | Tradeable asset |
+| Milestone | Description | Output | Data Type |
+|-----------|-------------|--------|-----------|
+| **Project Creation** | Setup project with General, Design, Facilities | Project record | Phase A |
+| **Registry Selection** | Choose target registry + methodology | Requirements checklist | Phase A |
+| **Data Injection** | Submit LCA, Emissions, GHG, Removal Data | MRV submission | Phase B |
+| **Computation** | Calculate Net CORC using formulas | Computed results | Phase B |
+| **Verification** | Independent review (7 categories) | Verification report | Both |
+| **Hashing** | Create canonical hash | `mrv_hash` | Phase B |
+| **Registry Approval** | Submit to registry | Registry serial number | Phase B |
+| **NFT Minting** | Mint on NEAR blockchain | Token ID | Phase B |
+| **Active Trading** | Credit available for market | Tradeable asset | Ongoing |
+
+### 1.4 Data Input Methods
+
+All data can be submitted via two methods:
+
+| Input Method | Description | Best For |
+|--------------|-------------|----------|
+| **API Integration** | RESTful API endpoints for programmatic submission | IoT sensors, automated systems, real-time data |
+| **Excel Upload** | Templated spreadsheets for bulk data entry | Manual data entry, historical records, lab reports |
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  DATA INPUT FLOW: API vs EXCEL                              │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────┐                    ┌──────────────┐      │
+│  │  API Call    │                    │ Excel Upload │      │
+│  │  (JSON)      │                    │  (.xlsx)     │      │
+│  └──────┬───────┘                    └──────┬───────┘      │
+│         │                                   │              │
+│         └──────────────┬────────────────────┘              │
+│                        │                                   │
+│                        ▼                                   │
+│              ┌─────────────────┐                           │
+│              │   Validation    │                           │
+│              │   (Schema +     │                           │
+│              │    Registry)    │                           │
+│              └────────┬────────┘                           │
+│                       │                                    │
+│              ┌────────▼────────┐                           │
+│              │    Storage      │                           │
+│              │  (PostgreSQL +  │                           │
+│              │      S3)        │                           │
+│              └────────┬────────┘                           │
+│                       │                                    │
+│              ┌────────▼────────┐                           │
+│              │  Gap Analysis   │                           │
+│              │  (Progress %)   │                           │
+│              └─────────────────┘                           │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -114,6 +174,889 @@ The DMRV platform transforms carbon removal data into tradeable, verified carbon
 
 ## 3. Core Workflows
 
+### 3.0 Data Structure Overview
+
+The DMRV platform organizes data into two distinct phases:
+
+**PHASE A: PROJECT CREATION** - One-time setup information about the CDR project
+**PHASE B: DATA INJECTION (MRV)** - Ongoing measurement data for carbon removal quantification
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│              DATA STRUCTURE: PROJECT vs MRV DATA                    │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ PHASE A: PROJECT CREATION (One-Time Setup)                  │   │
+│  │                                                              │   │
+│  │ ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐ │   │
+│  │ │ 1. GENERAL      │ │ 2. PROJECT      │ │ 3. FACILITIES   │ │   │
+│  │ │    INFORMATION  │ │    DESIGN       │ │                 │ │   │
+│  │ ├─────────────────┤ ├─────────────────┤ ├─────────────────┤ │   │
+│  │ │ • Project name  │ │ • Technology    │ │ • Site location │ │   │
+│  │ │ • Legal entity  │ │ • Baseline      │ │ • Site ownership│ │   │
+│  │ │ • Additionality │ │ • Monitoring    │ │ • Equipment     │ │   │
+│  │ │ • Crediting     │ │   plan          │ │   specs         │ │   │
+│  │ │   period        │ │ • QA/QC         │ │ • Operational   │ │   │
+│  │ │ • Stakeholder   │ │   procedures    │ │   capacity      │ │   │
+│  │ │   consultation  │ │                 │ │                 │ │   │
+│  │ └─────────────────┘ └─────────────────┘ └─────────────────┘ │   │
+│  │                                                              │   │
+│  │ INPUT: API or Excel Upload                                   │   │
+│  │ EVENT: project.created.v1                                    │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                              │                                      │
+│                              ▼                                      │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ PHASE B: DATA INJECTION / MRV SUBMISSION (Ongoing)          │   │
+│  │                                                              │   │
+│  │ ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐ │   │
+│  │ │ 1. LIFE CYCLE   │ │ 2. PROJECT      │ │ 3. GHG          │ │   │
+│  │ │    ASSESSMENT   │ │    EMISSIONS    │ │    STATEMENTS   │ │   │
+│  │ │    (LCA)        │ │                 │ │                 │ │   │
+│  │ ├─────────────────┤ ├─────────────────┤ ├─────────────────┤ │   │
+│  │ │ • All CO₂e      │ │ • Scope 1       │ │ • Gross removal │ │   │
+│  │ │   fluxes        │ │ • Scope 2       │ │ • Leakage       │ │   │
+│  │ │ • System        │ │ • Scope 3       │ │   deduction     │ │   │
+│  │ │   boundaries    │ │ • Energy use    │ │ • Buffer        │ │   │
+│  │ │ • Upstream      │ │ • Transport     │ │   deduction     │ │   │
+│  │ │   emissions     │ │ • Materials     │ │ • Net removal   │ │   │
+│  │ └─────────────────┘ └─────────────────┘ └─────────────────┘ │   │
+│  │                                                              │   │
+│  │ ┌───────────────────────────────────────────────────────────┐│   │
+│  │ │ 4. REMOVAL DATA                                           ││   │
+│  │ ├───────────────────────────────────────────────────────────┤│   │
+│  │ │ • Measurement methodology • Instrument calibration        ││   │
+│  │ │ • Sensor data             • Data completeness             ││   │
+│  │ │ • Lab analysis reports    • Data quality metrics          ││   │
+│  │ └───────────────────────────────────────────────────────────┘│   │
+│  │                                                              │   │
+│  │ INPUT: API or Excel Upload                                   │   │
+│  │ EVENT: mrv.submitted.v1                                      │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 3.0.1 Expandable UI: Net CORC Visualization
+
+The dashboard displays the final **Net CORC (Carbon Removal Credit)** at the top, with expandable sections showing formulas and required inputs for each component.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  EXPANDABLE UI: NET CORC CALCULATION                               │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌───────────────────────────────────────────────────────────────┐ │
+│  │ ▼ NET CORC: 969 tCO₂e                         [FINAL RESULT]  │ │
+│  ├───────────────────────────────────────────────────────────────┤ │
+│  │                                                               │ │
+│  │ FORMULA:                                                      │ │
+│  │ ┌─────────────────────────────────────────────────────────┐   │ │
+│  │ │ Net_CORC = Gross_Removal - Project_Emissions            │   │ │
+│  │ │            - Leakage - Buffer_Contribution              │   │ │
+│  │ │                                                         │   │ │
+│  │ │ Net_CORC = 1200 - 50 - 60 - 121 = 969 tCO₂e            │   │ │
+│  │ └─────────────────────────────────────────────────────────┘   │ │
+│  │                                                               │ │
+│  └───────────────────────────────────────────────────────────────┘ │
+│                              │                                      │
+│  ┌───────────────────────────┴───────────────────────────────────┐ │
+│  │                                                               │ │
+│  │  ┌─────────────────────────────────────────────────────────┐  │ │
+│  │  │ ▶ 1. LIFE CYCLE ASSESSMENT (LCA)           [EXPAND +]   │  │ │
+│  │  │   Overview of all CO₂e fluxes related to the project    │  │ │
+│  │  │   Status: ✅ Complete | Data Source: API + Excel        │  │ │
+│  │  └─────────────────────────────────────────────────────────┘  │ │
+│  │                              │                                │ │
+│  │  ┌─────────────────────────────────────────────────────────┐  │ │
+│  │  │ ▼ 2. PROJECT EMISSIONS: 50 tCO₂e           [EXPANDED]   │  │ │
+│  │  ├─────────────────────────────────────────────────────────┤  │ │
+│  │  │                                                         │  │ │
+│  │  │ FORMULA:                                                │  │ │
+│  │  │ Project_Emissions = Scope1 + Scope2 + Scope3            │  │ │
+│  │  │                   = 15 + 20 + 15 = 50 tCO₂e             │  │ │
+│  │  │                                                         │  │ │
+│  │  │ REQUIRED INPUTS:                                        │  │ │
+│  │  │ ┌───────────────────────────────────────────────────┐   │  │ │
+│  │  │ │ Field              │ Value  │ Source    │ Status  │   │  │ │
+│  │  │ ├───────────────────────────────────────────────────┤   │  │ │
+│  │  │ │ Scope 1 (Direct)   │ 15     │ API       │ ✅      │   │  │ │
+│  │  │ │ Scope 2 (Energy)   │ 20     │ Excel     │ ✅      │   │  │ │
+│  │  │ │ Scope 3 (Supply)   │ 15     │ API       │ ✅      │   │  │ │
+│  │  │ │ Energy Usage (kWh) │ 50000  │ API       │ ✅      │   │  │ │
+│  │  │ │ Transport (km)     │ 12000  │ Excel     │ ✅      │   │  │ │
+│  │  │ └───────────────────────────────────────────────────┘   │  │ │
+│  │  │                                                         │  │ │
+│  │  │ [Upload Excel] [Submit via API]                         │  │ │
+│  │  └─────────────────────────────────────────────────────────┘  │ │
+│  │                              │                                │ │
+│  │  ┌─────────────────────────────────────────────────────────┐  │ │
+│  │  │ ▶ 3. GHG STATEMENTS                        [EXPAND +]   │  │ │
+│  │  │   Gross removal, leakage, buffer calculations           │  │ │
+│  │  │   Status: ✅ Complete | Gross: 1200 tCO₂e               │  │ │
+│  │  └─────────────────────────────────────────────────────────┘  │ │
+│  │                              │                                │ │
+│  │  ┌─────────────────────────────────────────────────────────┐  │ │
+│  │  │ ▶ 4. REMOVAL DATA                          [EXPAND +]   │  │ │
+│  │  │   Measurement data, sensor readings, lab reports        │  │ │
+│  │  │   Status: ⚠️ Pending 2 items                            │  │ │
+│  │  └─────────────────────────────────────────────────────────┘  │ │
+│  │                                                               │ │
+│  └───────────────────────────────────────────────────────────────┘ │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 3.0.2 Registry-Driven Data Injection Architecture
+
+The data injection system is **configuration-driven**, allowing new registries and protocols to be added without code changes. Each registry defines its own tree structure of required data.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  FLEXIBLE REGISTRY ARCHITECTURE                                    │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ REGISTRY CONFIGURATION (JSON/YAML)                          │   │
+│  │                                                              │   │
+│  │ Each registry defines:                                       │   │
+│  │ • Tree structure of data nodes                              │   │
+│  │ • Required inputs per node                                  │   │
+│  │ • Formulas for calculations                                 │   │
+│  │ • Validation rules                                          │   │
+│  │ • Input methods (API spec, Excel template)                  │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                              │                                      │
+│                              ▼                                      │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ DYNAMIC UI GENERATION                                        │   │
+│  │                                                              │   │
+│  │ System reads registry config → Generates UI tree            │   │
+│  │ No code changes needed for new registries!                  │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 3.0.3 Data Injection Tree Structure
+
+Based on your diagram, here's the standardized tree structure that each registry defines:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  DATA INJECTION TREE (Generic Template)                            │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│                    ┌─────────────────────┐                         │
+│                    │    Project Name     │                         │
+│                    │   (from Phase A)    │                         │
+│                    └──────────┬──────────┘                         │
+│                               │                                     │
+│                               ▼                                     │
+│                    ┌─────────────────────┐                         │
+│                    │     Net CORC        │ ← Final calculated      │
+│                    │   (Calculated)      │   value shown at top    │
+│                    └──────────┬──────────┘                         │
+│                               │                                     │
+│              ┌────────────────┼────────────────┐                   │
+│              │                │                │                    │
+│              ▼                ▼                ▼                    │
+│     ┌──────────────┐  ┌──────────────┐  ┌──────────────┐           │
+│     │ Removal Data │  │      -       │  │  Emits Data  │           │
+│     │   (Input)    │  │  (Operator)  │  │   (Input)    │           │
+│     └──────┬───────┘  └──────────────┘  └──────┬───────┘           │
+│            │                                    │                   │
+│      ┌─────┼─────┐                        ┌─────┼─────┐             │
+│      │     │     │                        │     │     │             │
+│      ▼     ▼     ▼                        ▼     ▼     ▼             │
+│    ┌───┐ ┌───┐ ┌───┐                    ┌───┐ ┌───┐ ┌───┐          │
+│    │#1 │ │#2 │ │#3 │                    │#1 │ │#2 │ │#3 │          │
+│    └─┬─┘ └─┬─┘ └─┬─┘                    └─┬─┘ └─┬─┘ └─┬─┘          │
+│      │     │     │                        │     │     │            │
+│      ▼     ▼     ▼                        ▼     ▼     ▼            │
+│   ┌──────────────────┐               ┌──────────────────┐          │
+│   │ Required Data    │               │ Required Data    │          │
+│   │ • API spec       │               │ • API spec       │          │
+│   │ • Excel upload   │               │ • Excel upload   │          │
+│   └──────────────────┘               └──────────────────┘          │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 3.0.4 Registry Configuration Schema
+
+Each registry is defined by a JSON/YAML configuration file:
+
+```typescript
+// Registry Configuration Schema
+interface RegistryConfig {
+  registry_id: string;                    // e.g., "verra", "puro", "isometric"
+  registry_name: string;                  // Display name
+  version: string;                        // Config version
+  
+  protocols: ProtocolConfig[];            // Available protocols/methodologies
+}
+
+interface ProtocolConfig {
+  protocol_id: string;                    // e.g., "VM0042", "puro_biochar"
+  protocol_name: string;                  // Display name
+  version: string;                        // Protocol version
+  
+  // The tree structure defining Net CORC calculation
+  net_corc_formula: FormulaNode;
+  
+  // Excel template for bulk upload
+  excel_template: string;                 // Template file path
+  
+  // API endpoints
+  api_endpoints: APIEndpointConfig[];
+}
+
+interface FormulaNode {
+  node_id: string;                        // Unique identifier
+  node_name: string;                      // Display name
+  node_type: "calculated" | "input" | "operator";
+  
+  // For calculated nodes
+  formula?: string;                       // e.g., "removal_data - emits_data"
+  
+  // For operator nodes
+  operator?: "+" | "-" | "*" | "/";
+  
+  // For input nodes
+  required_inputs?: InputField[];
+  
+  // Child nodes (tree structure)
+  children?: FormulaNode[];
+}
+
+interface InputField {
+  field_id: string;
+  field_name: string;
+  field_type: "number" | "string" | "file" | "array";
+  unit?: string;                          // e.g., "tCO₂e", "kWh", "%"
+  required: boolean;
+  validation_rules?: ValidationRule[];
+  input_methods: ("api" | "excel" | "upload")[];
+  api_spec?: APIFieldSpec;
+  excel_column?: string;
+}
+```
+
+### 3.0.5 Example: Verra VM0042 Protocol Configuration
+
+```yaml
+# registries/verra/VM0042.yaml
+
+registry_id: verra
+registry_name: "Verra VCS"
+version: "1.0"
+
+protocols:
+  - protocol_id: VM0042
+    protocol_name: "Methodology for Improved Agricultural Land Management"
+    version: "v2.0"
+    
+    # Net CORC Tree Structure
+    net_corc_formula:
+      node_id: net_corc
+      node_name: "Net CORC"
+      node_type: calculated
+      formula: "removal_data - project_emissions - leakage - buffer"
+      children:
+        # Branch 1: Removal Data
+        - node_id: removal_data
+          node_name: "Removal Data"
+          node_type: input
+          required_inputs:
+            - field_id: gross_removal
+              field_name: "Gross CO₂ Removal"
+              field_type: number
+              unit: "tCO₂e"
+              required: true
+              input_methods: [api, excel]
+              api_spec:
+                endpoint: "/mrv/removal-data"
+                method: POST
+              excel_column: "B"
+            
+            - field_id: sensor_readings
+              field_name: "Sensor Readings"
+              field_type: array
+              required: true
+              input_methods: [api, excel]
+            
+            - field_id: calibration_cert
+              field_name: "Calibration Certificate"
+              field_type: file
+              required: true
+              input_methods: [upload]
+            
+            - field_id: lab_analysis
+              field_name: "Lab Analysis Report"
+              field_type: file
+              required: true
+              input_methods: [upload]
+        
+        # Operator
+        - node_id: operator_subtract
+          node_name: "-"
+          node_type: operator
+          operator: "-"
+        
+        # Branch 2: Project Emissions
+        - node_id: project_emissions
+          node_name: "Project Emissions"
+          node_type: input
+          required_inputs:
+            - field_id: scope_1
+              field_name: "Scope 1 Emissions"
+              field_type: number
+              unit: "tCO₂e"
+              required: true
+              input_methods: [api, excel]
+            
+            - field_id: scope_2
+              field_name: "Scope 2 Emissions"
+              field_type: number
+              unit: "tCO₂e"
+              required: true
+              input_methods: [api, excel]
+            
+            - field_id: scope_3
+              field_name: "Scope 3 Emissions"
+              field_type: number
+              unit: "tCO₂e"
+              required: true
+              input_methods: [api, excel]
+        
+        # Branch 3: Leakage
+        - node_id: leakage
+          node_name: "Leakage Deduction"
+          node_type: calculated
+          formula: "gross_removal * leakage_factor"
+          required_inputs:
+            - field_id: leakage_factor
+              field_name: "Leakage Factor"
+              field_type: number
+              unit: "%"
+              required: true
+              validation_rules:
+                - type: range
+                  min: 0
+                  max: 0.20
+              input_methods: [api, excel]
+        
+        # Branch 4: Buffer
+        - node_id: buffer
+          node_name: "Buffer Pool"
+          node_type: calculated
+          formula: "(gross_removal - leakage) * buffer_rate"
+          required_inputs:
+            - field_id: buffer_rate
+              field_name: "Buffer Rate"
+              field_type: number
+              unit: "%"
+              required: true
+              validation_rules:
+                - type: range
+                  min: 0.10
+                  max: 0.25
+              input_methods: [api, excel]
+    
+    # Excel template
+    excel_template: "templates/verra_VM0042_v2.xlsx"
+```
+
+### 3.0.6 Example: Puro.earth Biochar Protocol Configuration
+
+```yaml
+# registries/puro/biochar.yaml
+
+registry_id: puro
+registry_name: "Puro.earth"
+version: "1.0"
+
+protocols:
+  - protocol_id: puro_biochar
+    protocol_name: "Biochar Carbon Removal"
+    version: "v3.0"
+    
+    net_corc_formula:
+      node_id: net_corc
+      node_name: "Net CORC"
+      node_type: calculated
+      formula: "biochar_carbon - production_emissions - transport_emissions"
+      children:
+        # Branch 1: Biochar Carbon Content
+        - node_id: biochar_carbon
+          node_name: "Biochar Carbon Content"
+          node_type: input
+          required_inputs:
+            - field_id: biochar_mass
+              field_name: "Biochar Mass Produced"
+              field_type: number
+              unit: "tonnes"
+              required: true
+              input_methods: [api, excel]
+            
+            - field_id: carbon_content
+              field_name: "Carbon Content (%)"
+              field_type: number
+              unit: "%"
+              required: true
+              validation_rules:
+                - type: range
+                  min: 0.50
+                  max: 0.95
+              input_methods: [api, excel]
+            
+            - field_id: h_c_ratio
+              field_name: "H:C Molar Ratio"
+              field_type: number
+              required: true
+              validation_rules:
+                - type: max
+                  value: 0.7
+              input_methods: [api, excel]
+            
+            - field_id: lab_certificate
+              field_name: "EBC/IBI Certificate"
+              field_type: file
+              required: true
+              input_methods: [upload]
+        
+        - node_id: operator_subtract
+          node_type: operator
+          operator: "-"
+        
+        # Branch 2: Production Emissions
+        - node_id: production_emissions
+          node_name: "Production Emissions"
+          node_type: input
+          required_inputs:
+            - field_id: pyrolysis_energy
+              field_name: "Pyrolysis Energy"
+              field_type: number
+              unit: "kWh"
+              required: true
+              input_methods: [api, excel]
+            
+            - field_id: feedstock_transport
+              field_name: "Feedstock Transport"
+              field_type: number
+              unit: "km"
+              required: true
+              input_methods: [api, excel]
+            
+            - field_id: feedstock_processing
+              field_name: "Feedstock Processing"
+              field_type: number
+              unit: "tCO₂e"
+              required: true
+              input_methods: [api, excel]
+        
+        # Branch 3: Permanence
+        - node_id: permanence
+          node_name: "Permanence Factor"
+          node_type: input
+          required_inputs:
+            - field_id: permanence_years
+              field_name: "Permanence Period"
+              field_type: number
+              unit: "years"
+              required: true
+              validation_rules:
+                - type: min
+                  value: 100
+              input_methods: [api, excel]
+    
+    excel_template: "templates/puro_biochar_v3.xlsx"
+```
+
+### 3.0.7 Example: Isometric Enhanced Weathering Protocol
+
+```yaml
+# registries/isometric/enhanced_weathering.yaml
+
+registry_id: isometric
+registry_name: "Isometric"
+version: "1.0"
+
+protocols:
+  - protocol_id: iso_enhanced_weathering
+    protocol_name: "Enhanced Rock Weathering"
+    version: "v1.0"
+    
+    net_corc_formula:
+      node_id: net_corc
+      node_name: "Net CORC"
+      node_type: calculated
+      formula: "co2_sequestered - supply_chain_emissions - application_emissions"
+      children:
+        # Branch 1: CO2 Sequestered
+        - node_id: co2_sequestered
+          node_name: "CO₂ Sequestered"
+          node_type: input
+          required_inputs:
+            - field_id: rock_mass
+              field_name: "Rock Mass Applied"
+              field_type: number
+              unit: "tonnes"
+              required: true
+              input_methods: [api, excel]
+            
+            - field_id: rock_type
+              field_name: "Rock Type"
+              field_type: string
+              required: true
+              validation_rules:
+                - type: enum
+                  values: ["basalt", "olivine", "wollastonite"]
+              input_methods: [api, excel]
+            
+            - field_id: weathering_rate
+              field_name: "Measured Weathering Rate"
+              field_type: number
+              unit: "tCO₂/tonne rock"
+              required: true
+              input_methods: [api, excel]
+            
+            - field_id: soil_analysis
+              field_name: "Soil Analysis Report"
+              field_type: file
+              required: true
+              input_methods: [upload]
+            
+            - field_id: sensor_data
+              field_name: "Continuous Sensor Data"
+              field_type: array
+              required: true
+              input_methods: [api, excel]
+        
+        - node_id: operator_subtract
+          node_type: operator
+          operator: "-"
+        
+        # Branch 2: Supply Chain Emissions
+        - node_id: supply_chain_emissions
+          node_name: "Supply Chain Emissions"
+          node_type: input
+          required_inputs:
+            - field_id: mining_emissions
+              field_name: "Mining Emissions"
+              field_type: number
+              unit: "tCO₂e"
+              required: true
+              input_methods: [api, excel]
+            
+            - field_id: crushing_emissions
+              field_name: "Crushing/Grinding Emissions"
+              field_type: number
+              unit: "tCO₂e"
+              required: true
+              input_methods: [api, excel]
+            
+            - field_id: transport_emissions
+              field_name: "Transport Emissions"
+              field_type: number
+              unit: "tCO₂e"
+              required: true
+              input_methods: [api, excel]
+        
+        # Branch 3: Application Emissions
+        - node_id: application_emissions
+          node_name: "Application Emissions"
+          node_type: input
+          required_inputs:
+            - field_id: spreading_emissions
+              field_name: "Spreading Equipment Emissions"
+              field_type: number
+              unit: "tCO₂e"
+              required: true
+              input_methods: [api, excel]
+    
+    excel_template: "templates/isometric_erw_v1.xlsx"
+```
+
+### 3.0.8 Dynamic UI Tree Rendering
+
+The system dynamically generates the UI based on the registry configuration:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  DYNAMIC UI: VERRA VM0042                                          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  Project: Forest Carbon Project Alpha                               │
+│  Registry: Verra (VCS) | Protocol: VM0042 v2.0                     │
+│                                                                     │
+│  ┌───────────────────────────────────────────────────────────────┐ │
+│  │ ▼ Net CORC: 969 tCO₂e                         [CALCULATED]    │ │
+│  ├───────────────────────────────────────────────────────────────┤ │
+│  │                                                               │ │
+│  │ Formula: removal_data - project_emissions - leakage - buffer  │ │
+│  │        = 1200 - 50 - 60 - 121 = 969 tCO₂e                     │ │
+│  │                                                               │ │
+│  └───────────────────────────────────────────────────────────────┘ │
+│       │                                                             │
+│  ┌────┴────────────────────────┬───────────────────────────────┐   │
+│  │                             │                               │   │
+│  │  ┌────────────────────┐    │    ┌────────────────────────┐ │   │
+│  │  │ ▼ Removal Data     │    │    │ ▶ Project Emissions    │ │   │
+│  │  │   1200 tCO₂e       │    │    │   50 tCO₂e             │ │   │
+│  │  ├────────────────────┤    │    │   Status: ✅ Complete  │ │   │
+│  │  │                    │   ─┼─   └────────────────────────┘ │   │
+│  │  │ Required Inputs:   │    │                               │   │
+│  │  │ ┌────────────────┐ │    │    ┌────────────────────────┐ │   │
+│  │  │ │ Gross Removal  │ │    │    │ ▶ Leakage Deduction   │ │   │
+│  │  │ │ 1200 tCO₂e ✅  │ │    │    │   60 tCO₂e (5%)       │ │   │
+│  │  │ ├────────────────┤ │    │    │   Status: ✅ Complete  │ │   │
+│  │  │ │ Sensor Data    │ │    │    └────────────────────────┘ │   │
+│  │  │ │ 365 points ✅  │ │    │                               │   │
+│  │  │ ├────────────────┤ │    │    ┌────────────────────────┐ │   │
+│  │  │ │ Calibration    │ │    │    │ ▶ Buffer Pool         │ │   │
+│  │  │ │ cert.pdf ✅    │ │    │    │   121 tCO₂e (15%)     │ │   │
+│  │  │ ├────────────────┤ │    │    │   Status: ✅ Complete  │ │   │
+│  │  │ │ Lab Analysis   │ │    │    └────────────────────────┘ │   │
+│  │  │ │ ⚠️ Missing     │ │    │                               │   │
+│  │  │ └────────────────┘ │    │                               │   │
+│  │  │                    │    │                               │   │
+│  │  │ [API] [Excel]      │    │                               │   │
+│  │  │ [Upload Files]     │    │                               │   │
+│  │  └────────────────────┘    │                               │   │
+│  └─────────────────────────────┴───────────────────────────────┘   │
+│                                                                     │
+│  Progress: 87% Complete | Missing: Lab Analysis Report             │
+│  [Save Draft] [Submit for Computation]                             │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 3.0.9 Adding a New Registry (No Code Changes Required)
+
+To add a new registry or protocol:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  ADDING NEW REGISTRY: STEP-BY-STEP                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  Step 1: Create Registry Configuration                              │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ /config/registries/new_registry/                             │   │
+│  │   ├── registry.yaml          # Registry metadata             │   │
+│  │   ├── protocol_v1.yaml       # Protocol tree definition      │   │
+│  │   └── templates/                                             │   │
+│  │       └── protocol_v1.xlsx   # Excel template                │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                              │                                      │
+│                              ▼                                      │
+│  Step 2: Define the Net CORC Tree                                   │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ • Define root node (Net CORC formula)                        │   │
+│  │ • Add branch nodes (Removal, Emissions, etc.)                │   │
+│  │ • Specify required inputs per node                           │   │
+│  │ • Set validation rules                                       │   │
+│  │ • Configure input methods (API, Excel, Upload)               │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                              │                                      │
+│                              ▼                                      │
+│  Step 3: Create Excel Template                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ • Map fields to Excel columns                                │   │
+│  │ • Add validation dropdowns                                   │   │
+│  │ • Include formula cells (read-only)                          │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                              │                                      │
+│                              ▼                                      │
+│  Step 4: Deploy Configuration                                       │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ POST /api/v1/admin/registries                                │   │
+│  │ {                                                            │   │
+│  │   "registry_config_path": "/registries/new_registry/"        │   │
+│  │ }                                                            │   │
+│  │                                                              │   │
+│  │ System automatically:                                        │   │
+│  │ • Validates configuration                                    │   │
+│  │ • Generates API endpoints                                    │   │
+│  │ • Builds UI tree                                             │   │
+│  │ • Makes registry available to projects                       │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                              │                                      │
+│                              ▼                                      │
+│  ✅ New registry available - NO CODE DEPLOYMENT NEEDED!            │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 3.0.10 Registry Configuration API
+
+```typescript
+// API for managing registry configurations
+
+// List all available registries
+GET /api/v1/registries
+Response: {
+  registries: [
+    { id: "verra", name: "Verra VCS", protocols: ["VM0042", "VM0044", ...] },
+    { id: "puro", name: "Puro.earth", protocols: ["biochar", "dac", ...] },
+    { id: "isometric", name: "Isometric", protocols: ["enhanced_weathering", ...] }
+  ]
+}
+
+// Get protocol tree structure (for UI rendering)
+GET /api/v1/registries/{registry_id}/protocols/{protocol_id}/tree
+Response: {
+  protocol_id: "VM0042",
+  protocol_name: "Methodology for Improved Agricultural Land Management",
+  tree: {
+    node_id: "net_corc",
+    node_name: "Net CORC",
+    formula: "removal_data - project_emissions - leakage - buffer",
+    children: [
+      {
+        node_id: "removal_data",
+        node_name: "Removal Data",
+        required_inputs: [
+          { field_id: "gross_removal", field_name: "Gross CO₂ Removal", ... },
+          ...
+        ]
+      },
+      ...
+    ]
+  }
+}
+
+// Download Excel template for a protocol
+GET /api/v1/registries/{registry_id}/protocols/{protocol_id}/template
+Response: (Excel file download)
+
+// Add new registry (admin only)
+POST /api/v1/admin/registries
+Body: { config: {...} }
+
+// Add new protocol to existing registry (admin only)
+POST /api/v1/admin/registries/{registry_id}/protocols
+Body: { protocol_config: {...} }
+```
+
+### 3.0.11 Life Cycle Assessment (LCA) - Detailed Structure
+
+The LCA provides a comprehensive overview of all CO₂e fluxes and determines the components needed to certify the CDR project based on the selected registry protocol.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  LIFE CYCLE ASSESSMENT (LCA) - EXPANDABLE NODE                     │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  PURPOSE:                                                           │
+│  • Provides overview of ALL CO₂e fluxes related to the project     │
+│  • Used to create removals (quantification of net removed CO₂e)    │
+│  • Based on selected registry protocol (Verra/Puro/Isometric)      │
+│  • Shows components needed to certify the CDR project              │
+│                                                                     │
+│  ┌───────────────────────────────────────────────────────────────┐ │
+│  │ REGISTRY: Verra (VM0042)                                      │ │
+│  │ PROTOCOL: Enhanced Weathering v2.0                            │ │
+│  └───────────────────────────────────────────────────────────────┘ │
+│                                                                     │
+│  FORMULA (Registry-Specific):                                       │
+│  ┌───────────────────────────────────────────────────────────────┐ │
+│  │                                                               │ │
+│  │ Net_CDR = Gross_CO2_Removal                                   │ │
+│  │         - Upstream_Emissions                                   │ │
+│  │         - Operational_Emissions                                │ │
+│  │         - Downstream_Emissions                                 │ │
+│  │         - Leakage                                              │ │
+│  │         - Buffer_Pool_Contribution                             │ │
+│  │                                                               │ │
+│  │ Where:                                                        │ │
+│  │ • Gross_CO2_Removal = Measured removal from CDR activity      │ │
+│  │ • Upstream = Mining, processing, transport of materials       │ │
+│  │ • Operational = Energy use during CDR operations              │ │
+│  │ • Downstream = Disposal, end-of-life emissions                │ │
+│  │ • Leakage = Unintended emissions outside boundary             │ │
+│  │ • Buffer = Risk reserve (registry-defined %)                  │ │
+│  │                                                               │ │
+│  └───────────────────────────────────────────────────────────────┘ │
+│                                                                     │
+│  REQUIRED LCA COMPONENTS (Per Registry Protocol):                   │
+│  ┌───────────────────────────────────────────────────────────────┐ │
+│  │                                                               │ │
+│  │ ┌─────────────────────────────────────────────────────────┐   │ │
+│  │ │ SYSTEM BOUNDARY DEFINITION                              │   │ │
+│  │ ├─────────────────────────────────────────────────────────┤   │ │
+│  │ │ Field                    │ Required │ Source    │ Status│   │ │
+│  │ ├─────────────────────────────────────────────────────────┤   │ │
+│  │ │ Boundary description     │ Yes      │ API       │ ✅    │   │ │
+│  │ │ Included processes       │ Yes      │ Excel     │ ✅    │   │ │
+│  │ │ Excluded processes       │ Yes      │ API       │ ✅    │   │ │
+│  │ │ Justification            │ Yes      │ API       │ ✅    │   │ │
+│  │ └─────────────────────────────────────────────────────────┘   │ │
+│  │                                                               │ │
+│  │ ┌─────────────────────────────────────────────────────────┐   │ │
+│  │ │ UPSTREAM EMISSIONS                                      │   │ │
+│  │ ├─────────────────────────────────────────────────────────┤   │ │
+│  │ │ Field                    │ Required │ Source    │ Status│   │ │
+│  │ ├─────────────────────────────────────────────────────────┤   │ │
+│  │ │ Material extraction      │ Yes      │ Excel     │ ✅    │   │ │
+│  │ │ Material processing      │ Yes      │ Excel     │ ✅    │   │ │
+│  │ │ Material transport       │ Yes      │ API       │ ✅    │   │ │
+│  │ │ Equipment manufacturing  │ Yes      │ Excel     │ ⚠️    │   │ │
+│  │ └─────────────────────────────────────────────────────────┘   │ │
+│  │                                                               │ │
+│  │ ┌─────────────────────────────────────────────────────────┐   │ │
+│  │ │ OPERATIONAL EMISSIONS                                   │   │ │
+│  │ ├─────────────────────────────────────────────────────────┤   │ │
+│  │ │ Field                    │ Required │ Source    │ Status│   │ │
+│  │ ├─────────────────────────────────────────────────────────┤   │ │
+│  │ │ Energy consumption       │ Yes      │ API       │ ✅    │   │ │
+│  │ │ Fuel usage               │ Yes      │ API       │ ✅    │   │ │
+│  │ │ On-site emissions        │ Yes      │ API       │ ✅    │   │ │
+│  │ │ Waste generation         │ Cond.    │ Excel     │ N/A   │   │ │
+│  │ └─────────────────────────────────────────────────────────┘   │ │
+│  │                                                               │ │
+│  │ ┌─────────────────────────────────────────────────────────┐   │ │
+│  │ │ DOWNSTREAM EMISSIONS                                    │   │ │
+│  │ ├─────────────────────────────────────────────────────────┤   │ │
+│  │ │ Field                    │ Required │ Source    │ Status│   │ │
+│  │ ├─────────────────────────────────────────────────────────┤   │ │
+│  │ │ Product distribution     │ Yes      │ Excel     │ ✅    │   │ │
+│  │ │ End-of-life treatment    │ Yes      │ API       │ ✅    │   │ │
+│  │ │ Permanence assessment    │ Yes      │ API       │ ✅    │   │ │
+│  │ └─────────────────────────────────────────────────────────┘   │ │
+│  │                                                               │ │
+│  └───────────────────────────────────────────────────────────────┘ │
+│                                                                     │
+│  DATA INPUT OPTIONS:                                                │
+│  ┌───────────────────────────────────────────────────────────────┐ │
+│  │                                                               │ │
+│  │ OPTION 1: API Integration                                     │ │
+│  │ POST /api/v1/projects/{id}/mrv/lca                           │ │
+│  │ {                                                             │ │
+│  │   "system_boundary": { ... },                                 │ │
+│  │   "upstream_emissions": { ... },                              │ │
+│  │   "operational_emissions": { ... },                           │ │
+│  │   "downstream_emissions": { ... }                             │ │
+│  │ }                                                             │ │
+│  │                                                               │ │
+│  │ OPTION 2: Excel Upload                                        │ │
+│  │ Template: LCA_Template_[Registry]_v2.xlsx                     │ │
+│  │ Upload: POST /api/v1/projects/{id}/mrv/lca/upload             │ │
+│  │                                                               │ │
+│  └───────────────────────────────────────────────────────────────┘ │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ### 3.1 Complete Credit Issuance Workflow
 
 **Duration**: 4-8 weeks (typical)  
@@ -125,32 +1068,99 @@ The DMRV platform transforms carbon removal data into tradeable, verified carbon
 │         COMPLETE CREDIT ISSUANCE WORKFLOW (END-TO-END)             │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
+│  ══════════════════════════════════════════════════════════════════ │
+│  PHASE A: PROJECT CREATION (One-Time Setup)                         │
+│  ══════════════════════════════════════════════════════════════════ │
+│                                                                     │
 │  WEEK 1-2: SETUP & PLANNING                                         │
 │  ┌──────────────────────────────────────────────────────────────┐   │
 │  │ 1. Tenant creates project                                    │   │
 │  │ 2. Select target registry (Verra/Puro/Isometric)             │   │
 │  │ 3. Choose methodology (e.g., VM0042 for Verra)               │   │
 │  │ 4. Platform loads registry requirements                      │   │
+│  │                                                              │   │
+│  │ PROJECT CREATION DATA (3 Categories):                        │   │
+│  │ ┌────────────────────────────────────────────────────────┐   │   │
+│  │ │ 1. GENERAL INFORMATION                                 │   │   │
+│  │ │    • Project name, description, legal entity           │   │   │
+│  │ │    • Additionality demonstration                       │   │   │
+│  │ │    • Crediting period start/end                        │   │   │
+│  │ │    • Stakeholder consultation records                  │   │   │
+│  │ │    • Regulatory surplus confirmation                   │   │   │
+│  │ │    INPUT: API or Excel                                 │   │   │
+│  │ │                                                        │   │   │
+│  │ │ 2. PROJECT DESIGN                                      │   │   │
+│  │ │    • Technology selection and justification            │   │   │
+│  │ │    • Baseline scenario description                     │   │   │
+│  │ │    • Monitoring plan details                           │   │   │
+│  │ │    • QA/QC procedures documentation                    │   │   │
+│  │ │    INPUT: API or Excel                                 │   │   │
+│  │ │                                                        │   │   │
+│  │ │ 3. FACILITIES                                          │   │   │
+│  │ │    • Site location (GPS coordinates)                   │   │   │
+│  │ │    • Site ownership documentation                      │   │   │
+│  │ │    • Equipment specifications                          │   │   │
+│  │ │    • Operational capacity claims                       │   │   │
+│  │ │    INPUT: API or Excel                                 │   │   │
+│  │ └────────────────────────────────────────────────────────┘   │   │
+│  │                                                              │   │
 │  │ 5. Gap analysis shows missing evidence/data                  │   │
 │  │ 6. Project manager plans data collection                     │   │
 │  │                                                              │   │
+│  │ EVENT: project.created.v1                                    │   │
 │  │ EVENT: mrv.registry.selected.v1                              │   │
 │  └──────────────────────────────────────────────────────────────┘   │
 │                          │                                          │
+│  ══════════════════════════════════════════════════════════════════ │
+│  PHASE B: DATA INJECTION / MRV SUBMISSION (Ongoing)                 │
+│  ══════════════════════════════════════════════════════════════════ │
+│                          │                                          │
 │                          ▼                                          │
-│  WEEK 2-3: DATA COLLECTION                                          │
+│  WEEK 2-3: DATA COLLECTION (MRV Injection)                          │
 │  ┌──────────────────────────────────────────────────────────────┐   │
 │  │ 1. Deploy sensors/measurement equipment                      │   │
 │  │ 2. Collect monitoring data (6-12 months typical)             │   │
-│  │ 3. Upload evidence artifacts:                                │   │
-│  │    - Sensor calibration certificates                         │   │
-│  │    - Lab analysis reports                                    │   │
-│  │    - QA/QC procedures                                        │   │
-│  │    - Baseline assessments                                    │   │
-│  │ 4. Validate against registry schema                          │   │
-│  │ 5. Store in platform (PostgreSQL + S3)                       │   │
+│  │                                                              │   │
+│  │ MRV DATA INJECTION (4 Categories):                           │   │
+│  │ ┌────────────────────────────────────────────────────────┐   │   │
+│  │ │ 1. LIFE CYCLE ASSESSMENT (LCA)                         │   │   │
+│  │ │    • All CO₂e fluxes related to project                │   │   │
+│  │ │    • System boundary definition                        │   │   │
+│  │ │    • Upstream/operational/downstream emissions         │   │   │
+│  │ │    • Net removal quantification                        │   │   │
+│  │ │    • Based on registry protocol requirements           │   │   │
+│  │ │    INPUT: API or Excel                                 │   │   │
+│  │ │                                                        │   │   │
+│  │ │ 2. PROJECT EMISSIONS                                   │   │   │
+│  │ │    • Scope 1 (direct) emissions                        │   │   │
+│  │ │    • Scope 2 (energy) emissions                        │   │   │
+│  │ │    • Scope 3 (supply chain) emissions                  │   │   │
+│  │ │    • Energy consumption data                           │   │   │
+│  │ │    • Transport emissions                               │   │   │
+│  │ │    INPUT: API or Excel                                 │   │   │
+│  │ │                                                        │   │   │
+│  │ │ 3. GHG STATEMENTS                                      │   │   │
+│  │ │    • Gross removal calculation                         │   │   │
+│  │ │    • Leakage deduction                                 │   │   │
+│  │ │    • Buffer pool contribution                          │   │   │
+│  │ │    • Net removal statement                             │   │   │
+│  │ │    INPUT: API or Excel                                 │   │   │
+│  │ │                                                        │   │   │
+│  │ │ 4. REMOVAL DATA                                        │   │   │
+│  │ │    • Measurement methodology                           │   │   │
+│  │ │    • Instrument calibration certificates               │   │   │
+│  │ │    • Sensor readings and data logs                     │   │   │
+│  │ │    • Lab analysis reports                              │   │   │
+│  │ │    • Data completeness metrics                         │   │   │
+│  │ │    • Data quality assessment                           │   │   │
+│  │ │    INPUT: API or Excel                                 │   │   │
+│  │ └────────────────────────────────────────────────────────┘   │   │
+│  │                                                              │   │
+│  │ 3. Validate against registry schema                          │   │
+│  │ 4. Store in platform (PostgreSQL + S3)                       │   │
 │  │                                                              │   │
 │  │ STATUS: MRV Submission = "received"                          │   │
+│  │ EVENT: mrv.submitted.v1                                      │   │
 │  └──────────────────────────────────────────────────────────────┘   │
 │                          │                                          │
 │                          ▼                                          │
@@ -159,11 +1169,11 @@ The DMRV platform transforms carbon removal data into tradeable, verified carbon
 │  │ 1. MRV Engine selects registry-specific calculator           │   │
 │  │ 2. Apply methodology formulas:                               │   │
 │  │    - Calculate baseline emissions                            │   │
-│  │    - Calculate project emissions                             │   │
-│  │    - Calculate gross removal                                 │   │
+│  │    - Calculate project emissions (from injected data)        │   │
+│  │    - Calculate gross removal (from removal data)             │   │
 │  │    - Apply leakage deduction (e.g., 5%)                      │   │
 │  │    - Apply buffer deduction (e.g., 15%)                      │   │
-│  │ 3. Compute net tonnage (tCO2e)                                │   │
+│  │ 3. Compute net tonnage (tCO2e) = NET CORC                    │   │
 │  │ 4. Generate computation report                               │   │
 │  │ 5. Store results in mrv.mrv_computations table               │   │
 │  │                                                              │   │
@@ -175,16 +1185,19 @@ The DMRV platform transforms carbon removal data into tradeable, verified carbon
 │  WEEK 4-6: VERIFICATION (Critical Phase)                            │
 │  ┌──────────────────────────────────────────────────────────────┐   │
 │  │ 1. Assign accredited verifier                                │   │
-│  │ 2. Verifier reviews 9 categories:                            │   │
-│  │    ✓ Project Setup                                           │   │
-│  │    ✓ General (Additionality, etc.)                           │   │
+│  │ 2. Verifier reviews ALL categories:                          │   │
+│  │                                                              │   │
+│  │    PROJECT CREATION DATA (from Phase A):                     │   │
+│  │    ✓ General Information (Additionality, etc.)               │   │
 │  │    ✓ Project Design                                          │   │
 │  │    ✓ Facilities                                              │   │
-│  │    ✓ Carbon Accounting                                       │   │
+│  │                                                              │   │
+│  │    MRV DATA (from Phase B):                                  │   │
 │  │    ✓ Life Cycle Assessment (LCA)                             │   │
 │  │    ✓ Project Emissions                                       │   │
 │  │    ✓ GHG Statements                                          │   │
 │  │    ✓ Removal Data                                            │   │
+│  │                                                              │   │
 │  │ 3. Verifier may request clarifications                       │   │
 │  │ 4. Project manager responds                                  │   │
 │  │ 5. Verifier approves or rejects                              │   │
@@ -235,7 +1248,7 @@ The DMRV platform transforms carbon removal data into tradeable, verified carbon
 │  │ 2. Construct NFT metadata:                                   │   │
 │  │    - mrv_hash                                                │   │
 │  │    - registry_serial                                         │   │
-│  │    - tonnage_co2e                                            │   │
+│  │    - tonnage_co2e (NET CORC)                                 │   │
 │  │    - vintage year                                            │   │
 │  │ 3. Call NEAR smart contract mint() function                  │   │
 │  │ 4. Wait for blockchain confirmation (~3 seconds)             │   │
@@ -244,7 +1257,7 @@ The DMRV platform transforms carbon removal data into tradeable, verified carbon
 │  │                                                              │   │
 │  │ EVENT: blockchain.nft.minted.v1                              │   │
 │  │ STATUS: Credit = "active"                                    │   │
-│  │ OUTCOME: ✅ NFT ISSUED                                       │   │
+│  │ OUTCOME: ✅ NFT ISSUED (NET CORC: 969 tCO₂e)                 │   │
 │  └──────────────────────────────────────────────────────────────┘   │
 │                          │                                          │
 │                          ▼                                          │
@@ -356,7 +1369,7 @@ POST /api/v1/projects
 
 ---
 
-#### Step 2: Data Collection & MRV Submission
+#### Step 2: Data Collection & MRV Submission (Data Injection)
 
 **Actors**: Project Manager, MRV Analyst, IoT Sensors  
 **Duration**: Ongoing (6-12 months typical monitoring period)  
@@ -364,7 +1377,7 @@ POST /api/v1/projects
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 2: DATA COLLECTION                                   │
+│  STEP 2: DATA INJECTION (MRV SUBMISSION)                   │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  DATA SOURCES          INGESTION          STORAGE           │
@@ -391,34 +1404,166 @@ POST /api/v1/projects
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Data Submission Flow:**
+### MRV Data Categories (4 Required Components)
 
-1. **Sensor Data Upload (Automated)**
+The MRV submission requires data in 4 main categories. Each category shows the **Net CORC formula** contribution and required inputs.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  MRV DATA INJECTION: 4 COMPONENTS                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ NET CORC FORMULA (Displayed at Top of UI):              │   │
+│  │                                                         │   │
+│  │ Net_CORC = Gross_Removal - Project_Emissions            │   │
+│  │            - Leakage - Buffer                           │   │
+│  │          = [Removal Data] - [Project Emissions]         │   │
+│  │            - [GHG Statements: Leakage + Buffer]         │   │
+│  │                                                         │   │
+│  │ All values derived from LCA framework                   │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                              │                                  │
+│  ════════════════════════════╪══════════════════════════════   │
+│                              ▼                                  │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ 1. LIFE CYCLE ASSESSMENT (LCA)                          │   │
+│  │    "Framework for all CO₂e flux quantification"         │   │
+│  ├─────────────────────────────────────────────────────────┤   │
+│  │                                                         │   │
+│  │ PURPOSE:                                                │   │
+│  │ • Provides overview of ALL CO₂e fluxes                  │   │
+│  │ • Used to create removals (net removed CO₂e)            │   │
+│  │ • Based on selected registry protocol                   │   │
+│  │ • Shows components needed to certify CDR project        │   │
+│  │                                                         │   │
+│  │ FORMULA:                                                │   │
+│  │ LCA_Net = Gross_Removal - Upstream - Operational        │   │
+│  │           - Downstream - Leakage - Buffer               │   │
+│  │                                                         │   │
+│  │ REQUIRED INPUTS (via API or Excel):                     │   │
+│  │ • System boundary definition                            │   │
+│  │ • Included/excluded processes                           │   │
+│  │ • Upstream emissions (material, transport)              │   │
+│  │ • Operational emissions (energy, fuel)                  │   │
+│  │ • Downstream emissions (disposal)                       │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                              │                                  │
+│                              ▼                                  │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ 2. PROJECT EMISSIONS                                    │   │
+│  │    "Emissions generated by the CDR project itself"      │   │
+│  ├─────────────────────────────────────────────────────────┤   │
+│  │                                                         │   │
+│  │ FORMULA:                                                │   │
+│  │ Project_Emissions = Scope1 + Scope2 + Scope3            │   │
+│  │                                                         │   │
+│  │ REQUIRED INPUTS (via API or Excel):                     │   │
+│  │ • Scope 1 emissions (tCO₂e)                             │   │
+│  │ • Scope 2 emissions (tCO₂e)                             │   │
+│  │ • Scope 3 emissions (tCO₂e)                             │   │
+│  │ • Energy consumption (kWh)                              │   │
+│  │ • Fuel consumption (L/kg)                               │   │
+│  │ • Transport distance (km)                               │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                              │                                  │
+│                              ▼                                  │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ 3. GHG STATEMENTS                                       │   │
+│  │    "Final carbon accounting declarations"               │   │
+│  ├─────────────────────────────────────────────────────────┤   │
+│  │                                                         │   │
+│  │ FORMULA:                                                │   │
+│  │ Net_Removal = Gross_Removal - Leakage - Buffer          │   │
+│  │                                                         │   │
+│  │ REQUIRED INPUTS (via API or Excel):                     │   │
+│  │ • Gross removal (tCO₂e)                                 │   │
+│  │ • Leakage factor (%)                                    │   │
+│  │ • Buffer rate (%)                                       │   │
+│  │ • Uncertainty assessment                                │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                              │                                  │
+│                              ▼                                  │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ 4. REMOVAL DATA                                         │   │
+│  │    "Evidence and measurements supporting claims"        │   │
+│  ├─────────────────────────────────────────────────────────┤   │
+│  │                                                         │   │
+│  │ REQUIRED INPUTS (via API or Excel):                     │   │
+│  │ • Measurement methodology                               │   │
+│  │ • Sensor readings (array)                               │   │
+│  │ • Calibration certificates (PDF upload)                 │   │
+│  │ • Lab analysis reports (PDF upload)                     │   │
+│  │ • Data completeness (%)                                 │   │
+│  │ • Data quality score (0-100)                            │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Data Submission Flow (API):**
+
+1. **Life Cycle Assessment Upload**
    ```typescript
-   POST /api/v1/projects/{project_id}/mrv/sensor-data
+   POST /api/v1/projects/{project_id}/mrv/lca
    {
-     "monitoring_period_start": "2024-01-01T00:00:00Z",
-     "monitoring_period_end": "2024-01-31T23:59:59Z",
-     "readings": [
-       { "timestamp": "2024-01-01T12:00:00Z", "co2_removed": 100.5 },
-       { "timestamp": "2024-01-02T12:00:00Z", "co2_removed": 102.3 },
-       ...
-     ]
+     "system_boundary": {
+       "description": "Enhanced weathering project",
+       "included_processes": ["mining", "transport", "application"],
+       "excluded_processes": ["end_consumer_use"]
+     },
+     "upstream_emissions": { "material": 25.5, "transport": 8.2 },
+     "operational_emissions": { "energy": 15.0, "fuel": 5.5 },
+     "downstream_emissions": { "disposal": 2.0 }
    }
    ```
 
-2. **Evidence Artifact Upload**
+2. **Project Emissions Upload**
    ```typescript
-   POST /api/v1/projects/{project_id}/mrv/evidence
-   Content-Type: multipart/form-data
-   
-   Files:
-   - calibration_certificate.pdf
-   - qa_qc_procedures.pdf
-   - baseline_assessment.pdf
+   POST /api/v1/projects/{project_id}/mrv/project-emissions
+   {
+     "scope_1": { "direct_emissions": 15.0, "fuel_combustion": 8.5 },
+     "scope_2": { "electricity": 20.0, "heating": 5.0 },
+     "scope_3": { "transport": 10.0, "materials": 5.0 }
+   }
    ```
 
-3. **Gap Analysis Check**
+3. **GHG Statements Upload**
+   ```typescript
+   POST /api/v1/projects/{project_id}/mrv/ghg-statements
+   {
+     "gross_removal": 1200.0,
+     "leakage_factor": 0.05,
+     "buffer_rate": 0.15,
+     "uncertainty_assessment": { "lower": 920.0, "upper": 1018.0 }
+   }
+   ```
+
+4. **Removal Data Upload**
+   ```typescript
+   POST /api/v1/projects/{project_id}/mrv/removal-data
+   {
+     "measurement_methodology": "ISO 14064-2",
+     "sensor_readings": [
+       { "timestamp": "2024-01-01T12:00:00Z", "co2_removed": 100.5 },
+       { "timestamp": "2024-01-02T12:00:00Z", "co2_removed": 102.3 }
+     ],
+     "data_completeness_percent": 98.5,
+     "data_quality_score": 92
+   }
+   ```
+
+5. **Excel Bulk Upload (Alternative)**
+   ```typescript
+   POST /api/v1/projects/{project_id}/mrv/upload
+   Content-Type: multipart/form-data
+   
+   // Template: MRV_Data_Template_[Registry].xlsx
+   // Contains sheets: LCA, Project_Emissions, GHG_Statements, Removal_Data
+   ```
+
+6. **Gap Analysis Check**
    ```typescript
    GET /api/v1/projects/{project_id}/mrv/gap-analysis
    
@@ -426,11 +1571,16 @@ POST /api/v1/projects
    {
      "completeness_score": 78,
      "can_proceed_to_computation": false,
+     "categories": {
+       "lca": { "complete": true, "score": 100 },
+       "project_emissions": { "complete": true, "score": 100 },
+       "ghg_statements": { "complete": false, "score": 60 },
+       "removal_data": { "complete": false, "score": 52 }
+     },
      "missing_required_fields": [
-       "leakage.assessment",
-       "buffer_pool.calculation"
-     ],
-     "missing_evidence_types": ["qa_qc_procedures"]
+       "ghg_statements.uncertainty_assessment",
+       "removal_data.calibration_certificates"
+     ]
    }
    ```
 
@@ -649,7 +1799,11 @@ interface RegistryRequirement {
 
 ## 5. Verification Workflow
 
-### 5.1 9-Category Verification Process
+### 5.1 Two-Phase Verification Process
+
+The verification process covers data from both phases:
+- **Phase A: Project Creation Data** (General, Project Design, Facilities)
+- **Phase B: MRV Data Injection** (LCA, Project Emissions, GHG Statements, Removal Data)
 
 **Purpose**: Independent validation before registry submission  
 **Duration**: 2-4 weeks  
@@ -657,67 +1811,125 @@ interface RegistryRequirement {
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  VERIFICATION: 9-CATEGORY CHECKLIST                        │
+│  VERIFICATION CHECKLIST: 7 CATEGORIES                      │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  CATEGORY 1: PROJECT SETUP                    [✓] PASSED   │
+│  ══════════════════════════════════════════════════════════ │
+│  PHASE A: PROJECT CREATION DATA (3 Categories)             │
+│  ══════════════════════════════════════════════════════════ │
+│                                                             │
+│  CATEGORY 1: GENERAL INFORMATION              [✓] PASSED   │
 │  ├─ Project registration complete                          │
 │  ├─ Legal entity verified                                  │
-│  ├─ Project boundaries defined                             │
-│  └─ Crediting period valid                                 │
-│                                                             │
-│  CATEGORY 2: GENERAL                          [✓] PASSED   │
 │  ├─ Additionality demonstrated                             │
 │  ├─ Regulatory surplus confirmed                           │
+│  ├─ Crediting period valid                                 │
 │  ├─ No double-counting                                     │
 │  └─ Stakeholder consultation complete                      │
 │                                                             │
-│  CATEGORY 3: PROJECT DESIGN                   [✓] PASSED   │
+│  CATEGORY 2: PROJECT DESIGN                   [✓] PASSED   │
 │  ├─ Technology selection appropriate                       │
 │  ├─ Baseline scenario credible                             │
 │  ├─ Monitoring plan adequate                               │
 │  └─ QA/QC procedures defined                               │
 │                                                             │
-│  CATEGORY 4: FACILITIES                       [✓] PASSED   │
-│  ├─ Site location accurate                                 │
+│  CATEGORY 3: FACILITIES                       [✓] PASSED   │
+│  ├─ Site location accurate (GPS verified)                  │
 │  ├─ Site ownership verified                                │
 │  ├─ Equipment specifications documented                    │
+│  ├─ Project boundaries defined                             │
 │  └─ Operational capacity matches claims                    │
 │                                                             │
-│  CATEGORY 5: CARBON ACCOUNTING                [!] MINOR    │
-│  ├─ Calculation methodology correct                        │
-│  ├─ Emission factors appropriate                           │
-│  ├─ Activity data accurate                                 │
-│  └─ ⚠️ Update uncertainty analysis (non-blocking)          │
+│  ══════════════════════════════════════════════════════════ │
+│  PHASE B: MRV DATA INJECTION (4 Categories)                │
+│  ══════════════════════════════════════════════════════════ │
 │                                                             │
-│  CATEGORY 6: LIFE CYCLE ASSESSMENT            [✓] PASSED   │
-│  ├─ System boundaries clear                                │
+│  CATEGORY 4: LIFE CYCLE ASSESSMENT (LCA)      [✓] PASSED   │
+│  ├─ System boundaries clearly defined                      │
+│  ├─ All CO₂e fluxes identified                             │
 │  ├─ Upstream emissions included                            │
 │  ├─ Operational emissions included                         │
+│  ├─ Downstream emissions included                          │
+│  ├─ Registry protocol requirements met                     │
 │  └─ Net removal positive                                   │
 │                                                             │
-│  CATEGORY 7: PROJECT EMISSIONS                [✓] PASSED   │
+│  CATEGORY 5: PROJECT EMISSIONS                [✓] PASSED   │
 │  ├─ Scope 1 emissions quantified                           │
 │  ├─ Scope 2 emissions quantified                           │
 │  ├─ Scope 3 emissions estimated                            │
+│  ├─ Emission factors appropriate                           │
+│  ├─ Activity data accurate                                 │
 │  └─ All material sources identified                        │
 │                                                             │
-│  CATEGORY 8: GHG STATEMENTS                   [✓] PASSED   │
+│  CATEGORY 6: GHG STATEMENTS                   [!] MINOR    │
 │  ├─ Gross removal accurate                                 │
-│  ├─ Leakage deduction applied                              │
-│  ├─ Buffer deduction applied                               │
-│  └─ Net removal calculation correct                        │
+│  ├─ Leakage deduction applied correctly                    │
+│  ├─ Buffer deduction applied correctly                     │
+│  ├─ Net removal calculation correct                        │
+│  └─ ⚠️ Update uncertainty analysis (non-blocking)          │
 │                                                             │
-│  CATEGORY 9: REMOVAL DATA                     [✓] PASSED   │
+│  CATEGORY 7: REMOVAL DATA                     [✓] PASSED   │
 │  ├─ Measurement methodology approved                       │
 │  ├─ Instrument calibration current                         │
-│  ├─ Data completeness verified                             │
-│  └─ Data quality acceptable                                │
+│  ├─ Sensor data complete                                   │
+│  ├─ Lab analysis reports verified                          │
+│  ├─ Data completeness > 95%                                │
+│  └─ Data quality score acceptable                          │
 │                                                             │
 │  ════════════════════════════════════════════               │
 │  OVERALL RESULT: ✅ APPROVED WITH MINOR COMMENTS            │
-│  Verified Tonnage: 969 tCO2e                                │
+│  Verified Net CORC: 969 tCO₂e                               │
 │  ════════════════════════════════════════════               │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 5.1.1 Expandable UI: Verification Node Structure
+
+Each verification category in the UI shows an expandable node with formula and required inputs:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  VERIFICATION NODE: EXPANDABLE UI STRUCTURE                │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │ ▼ GHG STATEMENTS                        [EXPANDED]    │ │
+│  ├───────────────────────────────────────────────────────┤ │
+│  │                                                       │ │
+│  │ STATUS: ⚠️ Minor issues | SCORE: 85/100              │ │
+│  │                                                       │ │
+│  │ FORMULA VERIFIED:                                     │ │
+│  │ ┌─────────────────────────────────────────────────┐   │ │
+│  │ │ Net_CORC = Gross_Removal - Leakage - Buffer     │   │ │
+│  │ │          = 1200 - 60 - 171 = 969 tCO₂e          │   │ │
+│  │ │                                                 │   │ │
+│  │ │ Leakage  = 1200 × 5%  = 60 tCO₂e   ✅ Correct   │   │ │
+│  │ │ Buffer   = 1140 × 15% = 171 tCO₂e  ✅ Correct   │   │ │
+│  │ └─────────────────────────────────────────────────┘   │ │
+│  │                                                       │ │
+│  │ INPUT VALUES VERIFIED:                                │ │
+│  │ ┌─────────────────────────────────────────────────┐   │ │
+│  │ │ Input            │ Value  │ Source │ Verified  │   │ │
+│  │ ├─────────────────────────────────────────────────┤   │ │
+│  │ │ Gross removal    │ 1200   │ API    │ ✅ Pass   │   │ │
+│  │ │ Leakage factor   │ 5%     │ Excel  │ ✅ Pass   │   │ │
+│  │ │ Buffer rate      │ 15%    │ API    │ ✅ Pass   │   │ │
+│  │ │ Uncertainty      │ ±8%    │ Excel  │ ⚠️ Review │   │ │
+│  │ └─────────────────────────────────────────────────┘   │ │
+│  │                                                       │ │
+│  │ FINDINGS:                                             │ │
+│  │ • ⚠️ Uncertainty analysis needs additional detail    │ │
+│  │ • Recommendation: Expand Monte Carlo documentation   │ │
+│  │                                                       │ │
+│  │ [View Raw Data] [Download Report] [Request Changes]  │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │ ▶ REMOVAL DATA                        [COLLAPSED]     │ │
+│  │   Status: ✅ Passed | Score: 98/100                   │ │
+│  │   Data completeness: 98.5% | Quality: 92/100          │ │
+│  └───────────────────────────────────────────────────────┘ │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -2222,47 +3434,74 @@ Transforming Carbon Data into Verified NFT Credits
 - High-Level Architecture
 - Key Stakeholders
 
-### Slide 3: Registry-First Approach
+### Slide 3: Two-Phase Data Model
+**Phase A: Project Creation (One-Time)**
+- General Information (legal, additionality, crediting)
+- Project Design (technology, baseline, monitoring)
+- Facilities (location, equipment, capacity)
+
+**Phase B: Data Injection (Ongoing MRV)**
+- Life Cycle Assessment (LCA)
+- Project Emissions
+- GHG Statements
+- Removal Data
+
+### Slide 4: Life Cycle Assessment (LCA)
+- Overview of ALL CO₂e fluxes
+- Based on selected registry protocol
+- Components needed to certify CDR project
+- System boundaries, upstream, operational, downstream emissions
+
+### Slide 5: Net CORC Calculation
+- Formula: Net_CORC = Gross - Emissions - Leakage - Buffer
+- Expandable UI showing each component
+- Required inputs per node (API or Excel)
+- Real-time gap analysis
+
+### Slide 6: Input Methods
+- **API Integration**: IoT sensors, automated systems
+- **Excel Upload**: Manual entry, historical records
+- Template per registry protocol
+- Validation against registry schema
+
+### Slide 7: 7-Category Verification
+**Project Data (3 categories):**
+1. General Information
+2. Project Design
+3. Facilities
+
+**MRV Data (4 categories):**
+4. Life Cycle Assessment
+5. Project Emissions
+6. GHG Statements
+7. Removal Data
+
+### Slide 8: Registry-First Approach
 - Why Registry Selection Matters
 - Different Requirements Per Registry
 - Gap Analysis Process
 
-### Slide 4: 8-Phase Credit Lifecycle
-1. Registry Selection
-2. Data Collection
-3. Computation
-4. Verification
-5. Hashing
-6. Registry Approval
-7. NFT Minting
-8. Active Trading
-
-### Slide 5: Verification Framework
-- 9-Category Checklist
-- Independent Verifiers
-- Pass/Fail Criteria
-
-### Slide 6: Blockchain Integration
+### Slide 9: Blockchain Integration
 - NEAR Protocol
-- NFT Metadata
+- NFT Metadata (includes Net CORC)
 - 3-Second Confirmation
 
-### Slide 7: Hash Integrity Model
+### Slide 10: Hash Integrity Model
 - `mrv_hash`: Registry-specific claim
 - `evidence_hash`: Cross-registry detection
 - Verifiable Chain of Custody
 
-### Slide 8: Multi-Registry Scenarios
+### Slide 11: Multi-Registry Scenarios
 - Same Evidence, Different Credits
 - Cross-Registry Deduplication
 - Policy Options
 
-### Slide 9: Error Handling & Recovery
+### Slide 12: Error Handling & Recovery
 - Circuit Breakers
 - Retry Logic
 - Saga Compensation
 
-### Slide 10: Key Metrics & SLAs
+### Slide 13: Key Metrics & SLAs
 - 99.9% API Availability
 - < 30 Second Mint Latency
 - < 5 Minute Registry Sync
@@ -2273,8 +3512,14 @@ Transforming Carbon Data into Verified NFT Credits
 
 ### 11.1 Key Takeaways
 
+✅ **Two-phase data model**: Project Creation (General, Design, Facilities) + Data Injection (LCA, Emissions, GHG, Removal)  
+✅ **Configuration-driven registry system**: Add new registries/protocols via YAML config (no code changes)  
+✅ **Dynamic tree structure**: Each registry defines its own Net CORC calculation tree  
 ✅ **Registry-first** approach ensures compliance from day one  
-✅ **9-category verification** ensures credit integrity  
+✅ **7-category verification** ensures credit integrity (3 project + 4 MRV categories)  
+✅ **Expandable UI** shows Net CORC formula at top with drill-down to required inputs  
+✅ **Dual input methods**: API integration and Excel upload for all data categories  
+✅ **LCA framework** provides comprehensive CO₂e flux quantification based on registry protocol  
 ✅ **Dual-hash system** enables transparency and deduplication  
 ✅ **Event-driven architecture** ensures auditability  
 ✅ **NEAR blockchain** provides fast, low-cost NFT issuance  
