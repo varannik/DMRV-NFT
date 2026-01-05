@@ -4,6 +4,7 @@
  * Dashboard Page
  * 
  * Main dashboard showing project blocks, process flow, and stats.
+ * Includes integrated data injection flow visualization.
  * Responsive design for mobile, tablet, and desktop.
  */
 
@@ -16,11 +17,13 @@ import {
   CheckCircle2,
   ArrowUpRight,
   ArrowDownRight,
+  BarChart3,
+  GitBranch,
 } from 'lucide-react'
 import { GlassCard, StatusBadge } from '@/components/shared'
 import { BlockChain, ProjectSelector } from '@/components/blocks'
-import { ProcessFlow } from '@/components/process'
-import type { Block, ProcessPhase } from '@/types'
+import { ProcessFlow, DataInjectionFlow } from '@/components/process'
+import type { Block, ProcessPhase, RegistryType } from '@/types'
 
 // Demo data
 const demoProjects = [
@@ -48,10 +51,13 @@ interface StatCard {
   color: string
 }
 
+type ViewMode = 'data-injection' | 'process-flow'
+
 export default function DashboardPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>('proj-1')
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>('block-1')
   const [currentPhase] = useState<ProcessPhase>(3)
+  const [viewMode, setViewMode] = useState<ViewMode>('data-injection')
   
   const stats: StatCard[] = useMemo(() => [
     {
@@ -150,35 +156,81 @@ export default function DashboardPage() {
         />
       </motion.div>
       
-      {/* Process Flow */}
+      {/* Flow Visualization */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        {/* Header with View Toggle */}
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg md:text-xl font-semibold text-white">Process Flow</h2>
+            <h2 className="text-lg md:text-xl font-semibold text-white">
+              {viewMode === 'data-injection' ? 'Data Injection Flow' : 'Process Flow'}
+            </h2>
             <p className="text-xs md:text-sm text-white/60">
               {selectedBlockId 
-                ? `Viewing workflow for Block #${demoBlocks.find(b => b.id === selectedBlockId)?.blockNumber}`
-                : 'Select a block to view its workflow'}
+                ? `Viewing ${viewMode === 'data-injection' ? 'data metrics' : 'workflow'} for Block #${demoBlocks.find(b => b.id === selectedBlockId)?.blockNumber}`
+                : 'Select a block to view its details'}
             </p>
           </div>
-          {selectedBlockId && (
-            <StatusBadge 
-              status={demoBlocks.find(b => b.id === selectedBlockId)?.status || 'pending'} 
-              size="lg"
-            />
-          )}
+          
+          <div className="flex items-center gap-2">
+            {/* View Toggle */}
+            <div className="flex items-center p-1 bg-white/5 rounded-lg">
+              <button
+                onClick={() => setViewMode('data-injection')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-all ${
+                  viewMode === 'data-injection' 
+                    ? 'bg-emerald-500/20 text-emerald-400' 
+                    : 'text-white/50 hover:text-white/80'
+                }`}
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span className="hidden sm:inline">Data Flow</span>
+              </button>
+              <button
+                onClick={() => setViewMode('process-flow')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-all ${
+                  viewMode === 'process-flow' 
+                    ? 'bg-blue-500/20 text-blue-400' 
+                    : 'text-white/50 hover:text-white/80'
+                }`}
+              >
+                <GitBranch className="w-4 h-4" />
+                <span className="hidden sm:inline">Process</span>
+              </button>
+            </div>
+            
+            {selectedBlockId && (
+              <StatusBadge 
+                status={demoBlocks.find(b => b.id === selectedBlockId)?.status || 'pending'} 
+                size="lg"
+              />
+            )}
+          </div>
         </div>
-        <ProcessFlow
-          steps={[]}
-          currentPhase={currentPhase}
-          onStepClick={(stepId) => {
-            console.log('Step clicked:', stepId)
-          }}
-        />
+        
+        {/* Conditional Flow View */}
+        {viewMode === 'data-injection' ? (
+          <DataInjectionFlow
+            registry={(demoProjects.find(p => p.id === selectedProjectId)?.registryType || 'verra') as RegistryType}
+            blockId={selectedBlockId ? demoBlocks.find(b => b.id === selectedBlockId)?.blockNumber.toString() : undefined}
+            netCorc={selectedBlockId ? (demoBlocks.find(b => b.id === selectedBlockId)?.tonnage || 0) * 0.85 : 969}
+            grossRemoval={selectedBlockId ? demoBlocks.find(b => b.id === selectedBlockId)?.tonnage || 1200 : 1200}
+            projectEmissions={selectedBlockId ? Math.round((demoBlocks.find(b => b.id === selectedBlockId)?.tonnage || 0) * 0.04) : 50}
+            leakage={selectedBlockId ? Math.round((demoBlocks.find(b => b.id === selectedBlockId)?.tonnage || 0) * 0.05) : 60}
+            buffer={selectedBlockId ? Math.round((demoBlocks.find(b => b.id === selectedBlockId)?.tonnage || 0) * 0.1) : 121}
+          />
+        ) : (
+          <ProcessFlow
+            steps={[]}
+            currentPhase={currentPhase}
+            onStepClick={(stepId) => {
+              console.log('Step clicked:', stepId)
+            }}
+          />
+        )}
       </motion.div>
     </div>
   )

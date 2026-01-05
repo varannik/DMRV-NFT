@@ -137,6 +137,18 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Dropdown menus - more opaque background for overlays */
+.glass-dropdown {
+  background: rgba(15, 25, 20, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  border-radius: 16px;
+}
+
 .glass-input {
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
@@ -255,7 +267,7 @@ body {
   background: rgba(245, 158, 11, 0.2);
   color: #FBBF24;
   border: 1px solid rgba(245, 158, 11, 0.3);
-}
+  }
 
 .status-rejected,
 .status-failed {
@@ -352,8 +364,31 @@ body {
    ReactFlow Custom Styles
    ============================================ */
 .react-flow__node {
+  background: transparent !important;
   border-radius: 12px;
   font-size: 14px;
+}
+
+.react-flow__node-input,
+.react-flow__node-output,
+.react-flow__node-default,
+.react-flow__node-project {
+  background: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.react-flow__pane {
+  background: transparent !important;
+}
+
+.react-flow__viewport {
+  background: transparent !important;
+}
+
+.react-flow__renderer {
+  background: transparent !important;
 }
 
 .react-flow__edge-path {

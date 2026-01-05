@@ -37,7 +37,7 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased`}
       >
         <QueryProvider>
-          {children}
+        {children}
         </QueryProvider>
       </body>
     </html>

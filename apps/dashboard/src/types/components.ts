@@ -114,7 +114,7 @@ export interface AuthLayoutProps {
 export interface GlassCardProps {
   children: ReactNode
   className?: string
-  variant?: 'default' | 'strong' | 'subtle'
+  variant?: 'default' | 'strong' | 'subtle' | 'dropdown'
   hover?: boolean
   onClick?: () => void
 }

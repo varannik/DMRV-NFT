@@ -28,6 +28,8 @@ import {
   Layers,
   Menu,
   X,
+  Upload,
+  Building2,
 } from 'lucide-react'
 import { useSidebarStore, useAuthStore } from '@/lib/stores'
 import { GlassCard } from '@/components/shared'
@@ -43,6 +45,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { id: 'projects', label: 'Projects', href: '/projects', icon: FolderKanban },
+  { id: 'data-injection', label: 'Data Injection', href: '/data-injection', icon: Upload },
   { id: 'mrv', label: 'MRV Submissions', href: '/mrv', icon: FileSpreadsheet, badge: 3 },
   { id: 'verification', label: 'Verification', href: '/verification', icon: CheckCircle2 },
   { id: 'credits', label: 'Credits', href: '/credits', icon: Coins },

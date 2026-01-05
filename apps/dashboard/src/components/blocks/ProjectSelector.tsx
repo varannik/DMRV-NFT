@@ -118,7 +118,7 @@ export function ProjectSelector({
             transition={{ duration: 0.15 }}
             className="absolute top-full left-0 right-0 mt-2 z-50"
           >
-            <GlassCard className="!p-2 max-h-80 overflow-hidden flex flex-col" variant="strong">
+            <GlassCard className="!p-2 max-h-80 overflow-hidden flex flex-col" variant="dropdown">
               {/* Search Input */}
               <div className="relative mb-2">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />

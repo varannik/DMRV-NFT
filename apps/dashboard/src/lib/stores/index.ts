@@ -9,4 +9,5 @@ export { useProjectStore } from './projectStore'
 export { useProcessStore } from './processStore'
 export { useMRVStore } from './mrvStore'
 export { useAuthStore } from './authStore'
+export { useRegistryStore } from './registryStore'
 

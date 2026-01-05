@@ -329,3 +329,27 @@ export interface RealtimeEvent {
   tenant_id: UUID
 }
 
+// ============================================
+// Registry Types (Re-export from registry.ts)
+// ============================================
+
+export type {
+  RegistryConfig,
+  ProtocolConfig,
+  FormulaNode,
+  NodeType,
+  Operator,
+  InputField,
+  FieldType,
+  InputMethod,
+  ValidationRule,
+  ValidationType,
+  NodeState,
+  FieldState,
+  DataInjectionSession,
+  NetCORCResult,
+  GapAnalysis,
+  RegistryState,
+  RegistryStore,
+} from './registry'
+

@@ -34,6 +34,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
       default: 'glass',
       strong: 'glass-strong',
       subtle: 'glass-subtle',
+      dropdown: 'glass-dropdown',
     }
 
     return (
