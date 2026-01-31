@@ -1,190 +1,154 @@
-feat(dashboard): comprehensive data schema v2.0 (83% coverage) + gap analysis
+feat(dashboard): integrated data injection flow visualization + UI improvements
 
-This commit significantly expands the dashboard data schema documentation from
-20 to 43 entities (38% → 83% coverage), adding all Phase 1 (Critical) and
-Phase 2 (High Priority) database tables. Includes comprehensive gap analysis
-and executive summary documenting remaining 9 operational tables.
+This commit adds a comprehensive data injection flow visualization directly
+integrated into the dashboard ProcessFlow section, along with UI fixes for
+ReactFlow node backgrounds and dropdown menu transparency issues.
 
-**Major Update: DATA_SCHEMA.md v2.0**
+**Major Feature: DataInjectionFlow Component**
 
-Coverage Improvement:
-- **Before**: 20 entities (38% of 52 total tables)
-- **After**: 43 entities (83% of 52 total tables)
-- **Added**: 23 new entities (Phase 1: 14 tables, Phase 2: 9 tables)
+New visualization component (`src/components/process/DataInjectionFlow.tsx`)
+that displays the MRV data injection workflow as an interactive flow diagram,
+similar to product analytics dashboards showing metric relationships.
 
-1. **Updated Data Schema (apps/dashboard/DATA_SCHEMA.md)**
-   - Version upgraded from 1.0 → 2.0
-   - Now documents 43 of 52 database entities with complete TypeScript interfaces
-   
-   **Phase 1 - Critical Tables Added (14 entities):**
-   - Subscription & Billing (5): subscription_plans, tenant_plan_assignments, features, 
-     plan_entitlements, tenant_feature_overrides
-   - IAM & Authentication (6): roles, user_roles, invitations, mfa_factors, sessions, 
-     tenant_api_keys
-   - Project & Methodology (2): methodologies, project_members
-   - Registry Integration (1): tenant_registry_connections
+Flow Structure:
+- **Left Column (Project Activities)**: Data source cards with progress indicators
+  - Life Cycle Assessment (LCA) - CO₂e flux analysis
+  - Project Emissions - Scope 1, 2, 3 tracking
+  - Removal Data - Sensor & lab data collection
+  - GHG Statements - Declarations
 
-   **Phase 2 - High Priority Tables Added (9 entities):**
-   - Carbon Science (5): credit_transfers, credit_lineage, buffer_pools, 
-     reversal_events, reversal_affected_credits
-   - Verification Workflow (2): verification_clarifications, verification_reports
-   - MRV Evidence (1): mrv_artifacts
-   - Billing (1): invoices
+- **Middle Column (Input Metrics)**: Calculated metrics with expandable details
+  - Gross Removal - Sum of all removal activities
+  - Total Emissions - Aggregated project emissions
+  - Leakage Deduction - 5% leakage factor
+  - Buffer Pool - 15% permanence reserve
+  - Each node shows values for 7 days, 6 weeks, 12 months with % changes
+  - Expandable sections reveal formulas and API/Excel upload options
 
-   **Complete Coverage:**
-   - 43 database entities with TypeScript interfaces, indexes, RLS policies
-   - 15+ Redis cache patterns with namespace strategy
-   - 5 browser storage schemas (localStorage + sessionStorage)
-   - 6 API response schema categories
-   - Data access patterns (cache-aside, write-through, batch, paginated)
-   - Cache strategy with TTL guidelines (30s-24h) and 3 invalidation patterns
-   - Data validation using Zod schemas with examples
+- **Right Column (Output Metrics)**: Final KPIs with correlation scores
+  - Net CORC - Final carbon removal credits (0.999 correlation)
+  - Verification Score - 7-category verification status
 
-2. **Check Summary (apps/dashboard/DATA_SCHEMA_CHECK_SUMMARY.md)**
-   - Executive summary: 38% database coverage (20/52 tables)
-   - Critical gaps: Subscription (5 tables), IAM (6 tables), Carbon science (5 tables)
-   - 4-phase implementation roadmap (8-10 weeks to 100%)
-   - State management impact: 26/44 categories blocked
-   - Status: ⚠️ NOT READY FOR PRODUCTION
+- **Edge Connections**: Animated dotted lines with correlation values
+  - Green edges (≥0.9): Strong positive correlation
+  - Amber edges (0.5-0.9): Moderate correlation
+  - Red edges (<0): Negative correlation (e.g., emissions deduction)
 
-3. **Gap Analysis (apps/dashboard/DATA_SCHEMA_GAP_ANALYSIS.md)**
-   - Comprehensive gap analysis vs. 52 database tables in migration
-   - Originally identified 32 missing tables (now 23 added, 9 remaining)
-   - 4-phase priority implementation roadmap with estimated timelines
-   - 18 additional operational entities for monitoring & governance (Phase 3-4)
-   - State management coverage analysis (now 82% of 44 categories have schema docs)
-   - Cache schema gaps (9 missing patterns) and API response schema gaps (10 missing types)
+**Dashboard Integration**
 
-**Impact:**
+Updated dashboard page (`src/app/(dashboard)/dashboard/page.tsx`):
+- Added view toggle between "Data Flow" and "Process Flow" modes
+- Data Flow shows DataInjectionFlow (default view)
+- Process Flow shows original 8-phase workflow
+- Dynamic values based on selected block's tonnage data
+- Calculates Net CORC, emissions, leakage, buffer from block data
 
-Unblocked State Management Categories:
-- ✅ #1: Authentication State (RBAC, sessions, MFA, API keys)
-- ✅ #2: Project State (methodologies, project members)
-- ✅ #7: Credit State (transfers, lineage)
-- ✅ #18: Carbon Science Integrity (buffer pools, reversals)
-- ✅ #21: Feature Flags & Entitlements (plans, features)
-- ✅ #34: Methodology State
-- 🔓 Unblocked 26 of 44 state management categories (59% → 82%)
+**UI Fixes**
 
-Ready for Implementation:
-- Multi-tenant subscription management ✅
-- Role-based access control (RBAC) ✅
-- Carbon credit transfers & lineage tracking ✅
-- Buffer pool management (15% permanence reserve) ✅
-- Reversal event handling (fire, disease, policy) ✅
-- Verification clarifications workflow ✅
-- MRV evidence artifact tracking ✅
-- Feature flag enforcement per plan ✅
+1. **ReactFlow Node Backgrounds** (`src/app/globals.css`):
+   - Fixed white background on ReactFlow nodes
+   - Added transparent background rules for:
+     - `.react-flow__node` - Base node styling
+     - `.react-flow__node-input`, `.react-flow__node-output`, `.react-flow__node-default`
+     - `.react-flow__pane`, `.react-flow__viewport`, `.react-flow__renderer`
+   - Removed padding, border, box-shadow from default node types
 
-Remaining Work (9 tables, Phase 3-4):
-- Enterprise features: SSO configurations, SCIM provisioning
-- Event processing: Processed events, outbox events, audit events
-- Operational monitoring: Circuit breakers, DLQ, consumer groups, adapter health
+2. **Dropdown Menu Transparency** (`src/app/globals.css`):
+   - Added new `.glass-dropdown` class for opaque dropdown backgrounds
+   - Background: `rgba(15, 25, 20, 0.95)` - Nearly opaque dark green-black
+   - Enhanced shadow for depth: `0 20px 40px rgba(0, 0, 0, 0.5)`
+   - Inner glow: `0 0 0 1px rgba(255, 255, 255, 0.1) inset`
+   - Prevents visual confusion when dropdowns overlay transparent elements
 
-**State Management Updates (apps/dashboard/STATE_MANAGEMENT.md):**
+3. **GlassCard Component Updates**:
+   - Added 'dropdown' variant to GlassCard component
+   - Updated GlassCardProps type definition
+   - Applied dropdown variant to ProjectSelector and RegistrySelector
 
-Version 4.1 - Governance/Ops + Notification Delivery Tracking:
-- Added 3 new state categories (#42-44):
-  - Dispute / Appeal / Case Management State
-  - SLO/SLA + Incident + Runbook + DR/Backup Operations State
-  - Notification Delivery / Outbox / Provider Health State
+**Files Changed**
 
-Version 4.0 - Backend Operations & Event-Driven Architecture:
-- Added 16 new state categories (#26-41):
-  - Retirement Saga State (4-step workflow separate from credit issuance)
-  - Event Replay & Recovery State (replay jobs, event store, snapshots)
-  - Schema Registry State (versioning, compatibility, migrations)
-  - Consumer Management State (health, lag alerts, backpressure)
-  - API Idempotency State (cache, deduplication, replay detection)
-  - Registry Adapter Health State (circuit breakers, retry queues, DLQ)
-  - NEAR Indexer State (block sync, transaction monitoring)
-  - Registry Requirements Catalog State (requirements per registry/methodology)
-  - Methodology State (selection, formulas, result caching)
-  - Retirement Certificate State (generation, IPFS storage, downloads)
-  - Registry Cancellation State (requests, compensation tracking)
-  - Circuit Breaker State (per-service state machine)
-  - Dead Letter Queue State (messages, review workflow, resolution)
-  - Event Store State (multi-tier storage: hot/warm/cold)
-  - Snapshot/Checkpoint State (component snapshots, restore capability)
-  - Process Timeout State (timeout config, ETA calculation, predictions)
+New Files:
+- `src/components/process/DataInjectionFlow.tsx` (587 lines)
+  - Custom ReactFlow nodes: ProjectNode, InputMetricNode, OutputMetricNode
+  - Memo-optimized components for performance
+  - Responsive header with Net CORC badge
+  - Integration with registry types
 
-**Key Improvements:**
+Modified Files:
+- `src/components/process/index.ts`
+  - Added DataInjectionFlow export
 
-Complete Architecture Coverage:
-- Now covers 100% of backend operations from dmrv_saa_s_architecture_near_nft_design.md
-- Sections 12-33 fully represented in state management
-- Governance model (Section 21) with dispute resolution workflows
-- SLO/SLA monitoring (Section 18.2) with incident management
-- Notification delivery tracking (Section 27) with outbox pattern
+- `src/app/(dashboard)/dashboard/page.tsx`
+  - Added view toggle (Data Flow / Process Flow)
+  - Imported DataInjectionFlow component
+  - Dynamic data calculation from selected block
 
-State Categories Breakdown:
-- Core Platform State: 17 categories (Phases 1-4: Weeks 1-8)
-- Advanced Features: 8 categories (Phases 5-6: Weeks 9-12)
-- Backend Operations: 16 categories (Phases 7-9: Weeks 13-18)
-- Governance & Ops: 3 categories (Phase 10: Weeks 19-20)
-- Total: 44 state categories + 14 advanced patterns
+- `src/app/globals.css`
+  - ReactFlow node transparent background rules (23 lines)
+  - New `.glass-dropdown` class (12 lines)
 
-**New State Categories Details:**
+- `src/components/shared/GlassCard.tsx`
+  - Added 'dropdown' to variantClasses object
 
-#42 - Dispute / Appeal / Case Management State:
-- Dispute case lifecycle (credit rejection, verification dispute, ownership, methodology)
-- SLA tracking per dispute type (14-30 days)
-- Escalation workflows (support → dispute committee → arbitration)
-- Evidence attachments and case history
-- Outcome tracking and resolution
+- `src/types/components.ts`
+  - Updated GlassCardProps variant type to include 'dropdown'
 
-#43 - SLO/SLA + Incident + Runbook + DR/Backup Operations State:
-- Service Level Objectives monitoring (API availability, mint latency, registry sync)
-- Incident management (P1-P4 tiers, response times, runbook execution)
-- Disaster recovery readiness (RPO < 1 min, RTO < 15 min)
-- Backup freshness tracking (database, event store, IPFS)
-- Failover drill status and multi-region health
+- `src/components/blocks/ProjectSelector.tsx`
+  - Changed GlassCard variant from 'strong' to 'dropdown'
 
-#44 - Notification Delivery / Outbox / Provider Health State:
-- Unified outbox for email + webhook notifications
-- Delivery attempt tracking with retry logic
-- Provider health monitoring (email service, webhook endpoints)
-- Suppression lists and bounce handling
-- Delivery metrics (success rate, latency, failure reasons)
+- `src/components/registry/RegistrySelector.tsx`
+  - Changed GlassCard variant from 'strong' to 'dropdown'
 
-**Implementation Phases Updated:**
+**Technical Details**
 
-Phase 7: Backend Operations Monitoring (Weeks 13-14)
-- Retirement Saga, Circuit Breakers, DLQ, Registry Adapters, NEAR Indexer
+DataInjectionFlow Props:
+```typescript
+interface DataInjectionFlowProps {
+  registry: RegistryType
+  blockId?: string
+  netCorc?: number
+  grossRemoval?: number
+  projectEmissions?: number
+  leakage?: number
+  buffer?: number
+  className?: string
+}
+```
 
-Phase 8: Event-Driven Architecture (Weeks 15-16)
-- Event Replay, Schema Registry, Consumer Management, API Idempotency, Event Store
+Custom Node Types:
+```typescript
+const nodeTypes: NodeTypes = {
+  project: ProjectNode,    // Data source cards
+  input: InputMetricNode,  // Expandable metric nodes
+  output: OutputMetricNode // Final KPI display
+}
+```
 
-Phase 9: Advanced Operations (Weeks 17-18)
-- Requirements Catalog, Methodology, Certificates, Cancellations, Snapshots, Timeouts
+**Impact**
 
-Phase 10: Governance & Reliability (Weeks 19-20) [NEW]
-- Dispute Management, SLO/SLA Monitoring, Incident Management, Notification Delivery
+User Experience:
+- ✅ Data injection workflow visible directly in dashboard
+- ✅ Interactive expandable nodes showing formulas
+- ✅ Clear correlation visualization between metrics
+- ✅ Toggle between data view and process view
+- ✅ Proper dropdown visibility over transparent backgrounds
+- ✅ Clean ReactFlow node rendering without white backgrounds
 
-**Documentation Updates:**
+Architecture Alignment:
+- Implements expandable UI concept from COMPREHENSIVE_WORKFLOWS.md
+- Shows Net CORC formula breakdown: Gross - Emissions - Leakage - Buffer
+- Supports API and Excel upload options per metric node
+- Registry-specific visualization based on selected project
 
-- Updated STATE_MANAGEMENT.md from v3.0 (25 categories) to v4.1 (44 categories)
-- Added comprehensive TypeScript interfaces for all 19 new state categories
-- Updated implementation roadmap with new phases
-- Added version history tracking (v4.0 and v4.1)
-- Updated summary section with complete category breakdown
+Performance:
+- Memo-optimized ReactFlow nodes
+- Efficient re-renders on block selection
+- Smooth animations with Framer Motion
 
-**Architecture Alignment:**
+Breaking Changes: None
 
-Based on comprehensive analysis of:
-- docs/architecture/COMPREHENSIVE_WORKFLOWS.md
-- dmrv_saa_s_architecture_near_nft_design.md (Sections 12-33, 18, 21, 27)
+Build Status: ✅ Passes (Next.js 16.1.1 Turbopack)
 
-**Impact:**
-
-- Enables full-stack dashboard: frontend user interactions + backend operations monitoring
-- Provides complete state for admin/operator dashboards
-- Supports governance workflows (disputes, SLAs, incidents)
-- Enables notification delivery observability
-- Ready for implementation of all 44 state categories across 10 phases (20 weeks)
-
-Breaking Changes: None (documentation only)
-
-Related Files:
-- apps/dashboard/STATE_MANAGEMENT.md (5,720 lines, v4.1)
-- apps/dashboard/README.md (updated references)
+Related Documentation:
+- docs/architecture/COMPREHENSIVE_WORKFLOWS.md (Data Injection section)
+- apps/dashboard/DEVELOPMENT_PROMPT.md (Process visualization requirements)
