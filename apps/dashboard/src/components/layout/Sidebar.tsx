@@ -4,13 +4,13 @@
  * Sidebar Component
  * 
  * The main navigation sidebar for the dashboard.
+ * Supports switching between DMRV and Marketplace modes.
  * Collapsible/expandable with glassmorphism styling.
  * Responsive: hidden on mobile with hamburger toggle.
  */
 
 import { useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import Link from 'next/link'
 import clsx from 'clsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -29,9 +29,16 @@ import {
   Menu,
   X,
   Upload,
+  Store,
+  Wallet,
+  LineChart,
+  ArrowLeftRight,
+  Globe,
+  Briefcase,
   Building2,
+  Leaf,
 } from 'lucide-react'
-import { useSidebarStore, useAuthStore } from '@/lib/stores'
+import { useSidebarStore, useAuthStore, useAppModeStore, type AppMode } from '@/lib/stores'
 import { GlassCard } from '@/components/shared'
 
 interface NavItem {
@@ -42,7 +49,8 @@ interface NavItem {
   badge?: number
 }
 
-const navItems: NavItem[] = [
+// DMRV Mode Navigation
+const dmrvNavItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { id: 'projects', label: 'Projects', href: '/projects', icon: FolderKanban },
   { id: 'data-injection', label: 'Data Injection', href: '/data-injection', icon: Upload },
@@ -52,11 +60,26 @@ const navItems: NavItem[] = [
   { id: 'settings', label: 'Settings', href: '/settings', icon: Settings },
 ]
 
+// Marketplace Mode Navigation
+const marketplaceNavItems: NavItem[] = [
+  { id: 'marketplace', label: 'Marketplace', href: '/marketplace', icon: Store },
+  { id: 'portfolio', label: 'My Portfolio', href: '/marketplace/portfolio', icon: Briefcase },
+  { id: 'registries', label: 'My Registries', href: '/marketplace/registries', icon: Building2 },
+  { id: 'trading', label: 'Trading Desk', href: '/marketplace/trading', icon: ArrowLeftRight },
+  { id: 'explorer', label: 'NEAR Explorer', href: '/marketplace/explorer', icon: Globe },
+  { id: 'analytics', label: 'Analytics', href: '/marketplace/analytics', icon: LineChart },
+  { id: 'settings', label: 'Settings', href: '/settings', icon: Settings },
+]
+
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { isExpanded, toggle, collapse } = useSidebarStore()
   const { user, logout } = useAuthStore()
+  const { mode, setMode } = useAppModeStore()
+  
+  // Get navigation items based on current mode
+  const navItems = mode === 'dmrv' ? dmrvNavItems : marketplaceNavItems
   
   // Close sidebar on mobile when route changes
   useEffect(() => {
@@ -82,6 +105,16 @@ export function Sidebar() {
   const handleLogout = () => {
     logout()
     router.push('/sign-in')
+  }
+
+  const handleModeChange = (newMode: AppMode) => {
+    setMode(newMode)
+    // Navigate to the appropriate home page
+    if (newMode === 'dmrv') {
+      router.push('/dashboard')
+    } else {
+      router.push('/marketplace')
+    }
   }
   
   return (
@@ -133,11 +166,20 @@ export function Sidebar() {
           {/* Logo */}
           <div className="p-4 flex items-center justify-between border-b border-white/10">
             <button 
-              onClick={() => handleNavClick('/dashboard')}
+              onClick={() => handleNavClick(mode === 'dmrv' ? '/dashboard' : '/marketplace')}
               className="flex items-center gap-3"
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
-                <Layers className="w-5 h-5 text-white" />
+              <div className={clsx(
+                'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',
+                mode === 'dmrv' 
+                  ? 'bg-gradient-to-br from-green-500 to-emerald-600' 
+                  : 'bg-gradient-to-br from-blue-500 to-cyan-600'
+              )}>
+                {mode === 'dmrv' ? (
+                  <Layers className="w-5 h-5 text-white" />
+                ) : (
+                  <Store className="w-5 h-5 text-white" />
+                )}
               </div>
               <AnimatePresence mode="wait">
                 {isExpanded && (
@@ -147,7 +189,7 @@ export function Sidebar() {
                     exit={{ opacity: 0, width: 0 }}
                     className="font-bold text-xl text-white whitespace-nowrap overflow-hidden"
                   >
-                    DMRV
+                    {mode === 'dmrv' ? 'DMRV' : 'Marketplace'}
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -159,6 +201,43 @@ export function Sidebar() {
             >
               {isExpanded ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </button>
+          </div>
+          
+          {/* Mode Switcher */}
+          <div className="p-3 border-b border-white/10">
+            <div className={clsx(
+              'flex rounded-xl bg-white/5 p-1',
+              !isExpanded && 'flex-col gap-1'
+            )}>
+              <button
+                onClick={() => handleModeChange('dmrv')}
+                className={clsx(
+                  'flex items-center justify-center gap-2 py-2 rounded-lg transition-all duration-200',
+                  isExpanded ? 'flex-1 px-3' : 'w-full px-2',
+                  mode === 'dmrv'
+                    ? 'bg-gradient-to-r from-green-500/30 to-emerald-500/20 text-green-400 border border-green-500/30'
+                    : 'text-white/50 hover:text-white/70 hover:bg-white/5'
+                )}
+                title="DMRV Mode"
+              >
+                <Leaf className="w-4 h-4 flex-shrink-0" />
+                {isExpanded && <span className="text-sm font-medium">DMRV</span>}
+              </button>
+              <button
+                onClick={() => handleModeChange('marketplace')}
+                className={clsx(
+                  'flex items-center justify-center gap-2 py-2 rounded-lg transition-all duration-200',
+                  isExpanded ? 'flex-1 px-3' : 'w-full px-2',
+                  mode === 'marketplace'
+                    ? 'bg-gradient-to-r from-blue-500/30 to-cyan-500/20 text-blue-400 border border-blue-500/30'
+                    : 'text-white/50 hover:text-white/70 hover:bg-white/5'
+                )}
+                title="Marketplace Mode"
+              >
+                <Store className="w-4 h-4 flex-shrink-0" />
+                {isExpanded && <span className="text-sm font-medium">Market</span>}
+              </button>
+            </div>
           </div>
           
           {/* Navigation */}
@@ -175,11 +254,16 @@ export function Sidebar() {
                       className={clsx(
                         'w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 text-left',
                         isActive
-                          ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/10 text-white border border-green-500/30'
+                          ? mode === 'dmrv'
+                            ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/10 text-white border border-green-500/30'
+                            : 'bg-gradient-to-r from-blue-500/20 to-cyan-500/10 text-white border border-blue-500/30'
                           : 'text-white/70 hover:text-white hover:bg-white/10 border border-transparent'
                       )}
                     >
-                      <Icon className={clsx('w-5 h-5 flex-shrink-0', isActive && 'text-green-400')} />
+                      <Icon className={clsx(
+                        'w-5 h-5 flex-shrink-0', 
+                        isActive && (mode === 'dmrv' ? 'text-green-400' : 'text-blue-400')
+                      )} />
                       <AnimatePresence mode="wait">
                         {isExpanded && (
                           <motion.span

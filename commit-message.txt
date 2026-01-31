@@ -1,154 +1,270 @@
-feat(dashboard): integrated data injection flow visualization + UI improvements
+feat(dashboard): add Carbon Credit Marketplace with DMRV/Marketplace mode switch
 
-This commit adds a comprehensive data injection flow visualization directly
-integrated into the dashboard ProcessFlow section, along with UI fixes for
-ReactFlow node backgrounds and dropdown menu transparency issues.
+This commit adds a comprehensive Carbon Credit Marketplace dashboard built on
+NEAR Protocol, with a new sidebar toggle to switch between DMRV and Marketplace
+modes. Inspired by carbonplace.com's approach to carbon credit trading.
 
-**Major Feature: DataInjectionFlow Component**
+**Major Feature: DMRV/Marketplace Mode Switch**
 
-New visualization component (`src/components/process/DataInjectionFlow.tsx`)
-that displays the MRV data injection workflow as an interactive flow diagram,
-similar to product analytics dashboards showing metric relationships.
+Added toggle in the left sidebar to seamlessly switch between:
+- **DMRV Mode**: Original dashboard with Projects, MRV, Verification, Credits
+- **Marketplace Mode**: New carbon credit trading platform
 
-Flow Structure:
-- **Left Column (Project Activities)**: Data source cards with progress indicators
-  - Life Cycle Assessment (LCA) - CO₂e flux analysis
-  - Project Emissions - Scope 1, 2, 3 tracking
-  - Removal Data - Sensor & lab data collection
-  - GHG Statements - Declarations
+The toggle persists user preference to localStorage and updates navigation
+items, color schemes, and layout accordingly.
 
-- **Middle Column (Input Metrics)**: Calculated metrics with expandable details
-  - Gross Removal - Sum of all removal activities
-  - Total Emissions - Aggregated project emissions
-  - Leakage Deduction - 5% leakage factor
-  - Buffer Pool - 15% permanence reserve
-  - Each node shows values for 7 days, 6 weeks, 12 months with % changes
-  - Expandable sections reveal formulas and API/Excel upload options
+**Marketplace Dashboard Features**
 
-- **Right Column (Output Metrics)**: Final KPIs with correlation scores
-  - Net CORC - Final carbon removal credits (0.999 correlation)
-  - Verification Score - 7-category verification status
+1. **Browse Marketplace** (`/marketplace`)
+   - Grid/list view of carbon credit projects
+   - Advanced filtering sidebar with:
+     - Registry filters (Verra, Gold Standard, ACR, CAR, GCC, ART, Plan Vivo)
+     - Methodology filters (Renewable Energy, Forestry, Blue Carbon, etc.)
+     - Price range and vintage year sliders
+     - Co-benefits filters (Biodiversity, SDG, Community Development)
+     - Verification status filters
+   - Sorting options (price, date, popularity, volume)
+   - Search by project name, ID, or location
+   - Watchlist and compare functionality
+   - Buy modal with quantity selection and price breakdown
 
-- **Edge Connections**: Animated dotted lines with correlation values
-  - Green edges (≥0.9): Strong positive correlation
-  - Amber edges (0.5-0.9): Moderate correlation
-  - Red edges (<0): Negative correlation (e.g., emissions deduction)
+2. **My Portfolio** (`/marketplace/portfolio`)
+   - Holdings overview with registry breakdown
+   - Portfolio stats (value, credits, CO₂ offset, performance)
+   - Holdings table/grid view with sell/retire actions
+   - Transaction history with NEAR explorer links
+   - Environmental impact dashboard:
+     - Equivalent cars off road
+     - Trees grown
+     - Miles not driven
+     - Homes powered
+   - Retirement certificates list
 
-**Dashboard Integration**
+3. **Trading Desk** (`/marketplace/trading`)
+   - Create new listings (fixed price, auction, negotiable)
+   - My active listings management (edit, pause, cancel)
+   - Order book visualization (buy/sell orders)
+   - Listing stats (views, watchers, offers)
+   - Fee estimation and market insights
 
-Updated dashboard page (`src/app/(dashboard)/dashboard/page.tsx`):
-- Added view toggle between "Data Flow" and "Process Flow" modes
-- Data Flow shows DataInjectionFlow (default view)
-- Process Flow shows original 8-phase workflow
-- Dynamic values based on selected block's tonnage data
-- Calculates Net CORC, emissions, leakage, buffer from block data
+4. **NEAR Explorer** (`/marketplace/explorer`)
+   - Network status display (block height, TPS, validators, gas price)
+   - Smart contract information (carbon-credits.near)
+   - Recent transactions feed with type indicators
+   - Transaction search by hash, address, or block
+   - Links to NEAR Explorer for verification
 
-**UI Fixes**
+5. **Analytics** (`/marketplace/analytics`)
+   - Trading volume metrics (24h, 7d)
+   - Average price with trend indicators
+   - Top projects by volume chart
+   - Price by methodology breakdown
+   - Market distribution pie chart
+   - CO₂ offset timeline chart
 
-1. **ReactFlow Node Backgrounds** (`src/app/globals.css`):
-   - Fixed white background on ReactFlow nodes
-   - Added transparent background rules for:
-     - `.react-flow__node` - Base node styling
-     - `.react-flow__node-input`, `.react-flow__node-output`, `.react-flow__node-default`
-     - `.react-flow__pane`, `.react-flow__viewport`, `.react-flow__renderer`
-   - Removed padding, border, box-shadow from default node types
+6. **My Registries** (`/marketplace/registries`)
+   - Connected registry accounts list
+   - Registry connection modal with API key input
+   - Sync and manage registry credentials
+   - Available registries to connect
 
-2. **Dropdown Menu Transparency** (`src/app/globals.css`):
-   - Added new `.glass-dropdown` class for opaque dropdown backgrounds
-   - Background: `rgba(15, 25, 20, 0.95)` - Nearly opaque dark green-black
-   - Enhanced shadow for depth: `0 20px 40px rgba(0, 0, 0, 0.5)`
-   - Inner glow: `0 0 0 1px rgba(255, 255, 255, 0.1) inset`
-   - Prevents visual confusion when dropdowns overlay transparent elements
+**NEAR Wallet Integration**
 
-3. **GlassCard Component Updates**:
-   - Added 'dropdown' variant to GlassCard component
-   - Updated GlassCardProps type definition
-   - Applied dropdown variant to ProjectSelector and RegistrySelector
+WalletConnect component (`/src/components/marketplace/WalletConnect.tsx`):
+- Connect/disconnect NEAR wallet (mock implementation)
+- Balance display in NEAR and USD
+- Network status indicator (Mainnet/Testnet)
+- Dropdown with wallet details and network stats
+- Copy address and view on explorer links
+
+**New Stores (Zustand)**
+
+- `appModeStore.ts` - DMRV/Marketplace mode switching
+- `walletStore.ts` - NEAR wallet connection state
+- `marketplaceStore.ts` - Credits browsing, filtering, pagination
+- `portfolioStore.ts` - Holdings, transactions, retirements
+- `tradingStore.ts` - Listings, orders, buy modal state
+
+**Type Definitions** (`/src/types/marketplace.ts`)
+
+Comprehensive TypeScript interfaces for:
+- MarketplaceRegistry (Verra, Gold Standard, ACR, etc.)
+- MethodologyCategory & MethodologySubtype
+- CarbonCredit, PortfolioHolding, PortfolioSummary
+- MarketplaceListing, BuyOrder, OrderBookEntry
+- Transaction, Retirement, RetirementReason
+- WalletState, NetworkStatus, SmartContractInfo
+- MarketplaceFilters, UserRegistryConnection
+- MarketAnalytics, ImpactMetrics
+
+**Mock Data** (`/src/lib/data/marketplaceMockData.ts`)
+
+12 sample carbon credit projects including:
+- Solar Farm (India) - Verra
+- Amazon Rainforest Protection (Brazil) - Verra REDD+
+- Wind Power (Denmark) - Gold Standard
+- Mangrove Restoration (Indonesia) - Blue Carbon
+- Direct Air Capture (Iceland) - Gold Standard
+- Regenerative Agriculture (USA) - ACR
+- Clean Cookstoves (Kenya) - Gold Standard
+- Landfill Gas Capture (Mexico) - CAR
+- Hydroelectric Power (Nepal) - Verra
+- Biochar Production (Australia) - ACR
+- Afforestation (China) - Verra
+- Geothermal Power (Philippines) - Gold Standard
+
+Plus mock data for:
+- Portfolio holdings and summary
+- Transaction history
+- Retirement certificates
+- Registry connections
+- Order book entries
+- Market analytics
+- Impact metrics
+- Network status
+
+**Component Library** (`/src/components/marketplace/`)
+
+- `WalletConnect.tsx` - NEAR wallet connection UI
+- `CreditCard.tsx` - Carbon credit project card with:
+  - Project image and verification badge
+  - Registry and methodology display
+  - Location, vintage, SDG alignment
+  - Price in USD and NEAR
+  - Buy/details/watchlist/compare actions
+- `MarketplaceFilters.tsx` - Collapsible filter sections
+- `BuyModal.tsx` - Multi-step purchase flow
+- `MarketplaceStats.tsx` - Stats cards for market/portfolio
+
+**Layout Updates**
+
+Dashboard layout (`/src/app/(dashboard)/layout.tsx`):
+- Detects marketplace mode from store or pathname
+- Hides right sidebar (StepsTracker) in marketplace mode
+- Full-width content area for marketplace pages
+- Mobile bottom bar only shows in DMRV mode
+
+Sidebar (`/src/components/layout/Sidebar.tsx`):
+- Mode toggle with DMRV (green) and Market (blue) buttons
+- Different navigation items per mode
+- Mode-specific active state colors
+- Logo changes based on mode
+
+**Configuration**
+
+Next.js config (`next.config.ts`):
+- Added Unsplash image domain for project photos
 
 **Files Changed**
 
-New Files:
-- `src/components/process/DataInjectionFlow.tsx` (587 lines)
-  - Custom ReactFlow nodes: ProjectNode, InputMetricNode, OutputMetricNode
-  - Memo-optimized components for performance
-  - Responsive header with Net CORC badge
-  - Integration with registry types
+New Files (19):
+- `src/lib/stores/appModeStore.ts`
+- `src/lib/stores/walletStore.ts`
+- `src/lib/stores/marketplaceStore.ts`
+- `src/lib/stores/portfolioStore.ts`
+- `src/lib/stores/tradingStore.ts`
+- `src/types/marketplace.ts`
+- `src/lib/data/marketplaceMockData.ts`
+- `src/lib/data/index.ts`
+- `src/components/marketplace/WalletConnect.tsx`
+- `src/components/marketplace/CreditCard.tsx`
+- `src/components/marketplace/MarketplaceFilters.tsx`
+- `src/components/marketplace/BuyModal.tsx`
+- `src/components/marketplace/MarketplaceStats.tsx`
+- `src/components/marketplace/index.ts`
+- `src/app/(dashboard)/marketplace/page.tsx`
+- `src/app/(dashboard)/marketplace/portfolio/page.tsx`
+- `src/app/(dashboard)/marketplace/trading/page.tsx`
+- `src/app/(dashboard)/marketplace/explorer/page.tsx`
+- `src/app/(dashboard)/marketplace/analytics/page.tsx`
+- `src/app/(dashboard)/marketplace/registries/page.tsx`
 
-Modified Files:
-- `src/components/process/index.ts`
-  - Added DataInjectionFlow export
-
-- `src/app/(dashboard)/dashboard/page.tsx`
-  - Added view toggle (Data Flow / Process Flow)
-  - Imported DataInjectionFlow component
-  - Dynamic data calculation from selected block
-
-- `src/app/globals.css`
-  - ReactFlow node transparent background rules (23 lines)
-  - New `.glass-dropdown` class (12 lines)
-
-- `src/components/shared/GlassCard.tsx`
-  - Added 'dropdown' to variantClasses object
-
-- `src/types/components.ts`
-  - Updated GlassCardProps variant type to include 'dropdown'
-
-- `src/components/blocks/ProjectSelector.tsx`
-  - Changed GlassCard variant from 'strong' to 'dropdown'
-
-- `src/components/registry/RegistrySelector.tsx`
-  - Changed GlassCard variant from 'strong' to 'dropdown'
+Modified Files (4):
+- `src/lib/stores/index.ts` - Added marketplace store exports
+- `src/components/layout/Sidebar.tsx` - Added mode toggle and marketplace nav
+- `src/app/(dashboard)/layout.tsx` - Mode-aware layout adjustments
+- `next.config.ts` - Added Unsplash image domain
 
 **Technical Details**
 
-DataInjectionFlow Props:
+State Management:
+- Zustand stores with devtools and persist middleware
+- Computed selectors for filtered/sorted credits
+- Optimistic updates for buy/sell/retire actions
+
+Filtering System:
 ```typescript
-interface DataInjectionFlowProps {
-  registry: RegistryType
-  blockId?: string
-  netCorc?: number
-  grossRemoval?: number
-  projectEmissions?: number
-  leakage?: number
-  buffer?: number
-  className?: string
+interface MarketplaceFilters {
+  registries: MarketplaceRegistry[]
+  methodologies: MethodologyCategory[]
+  subtypes: MethodologySubtype[]
+  priceRange: { min: number; max: number }
+  vintageYears: { min: number; max: number }
+  countries: string[]
+  coBenefits: { biodiversity, sdgAligned, communityDevelopment, indigenousRights }
+  verification: { recentlyAudited, thirdPartyVerified }
+  sortBy: 'price_asc' | 'price_desc' | 'newest' | 'oldest' | 'popular' | 'volume'
+  searchQuery: string
 }
 ```
 
-Custom Node Types:
+Wallet Integration (Mock):
 ```typescript
-const nodeTypes: NodeTypes = {
-  project: ProjectNode,    // Data source cards
-  input: InputMetricNode,  // Expandable metric nodes
-  output: OutputMetricNode // Final KPI display
+interface WalletState {
+  isConnected: boolean
+  accountId: string | null
+  balance: { near: number; usd: number }
+  network: 'mainnet' | 'testnet'
 }
 ```
 
 **Impact**
 
 User Experience:
-- ✅ Data injection workflow visible directly in dashboard
-- ✅ Interactive expandable nodes showing formulas
-- ✅ Clear correlation visualization between metrics
-- ✅ Toggle between data view and process view
-- ✅ Proper dropdown visibility over transparent backgrounds
-- ✅ Clean ReactFlow node rendering without white backgrounds
+- ✅ Seamless mode switching between DMRV and Marketplace
+- ✅ Professional carbon credit marketplace UI
+- ✅ Advanced filtering with multiple criteria
+- ✅ Clear project cards with verification badges
+- ✅ Complete portfolio management
+- ✅ Trading desk for creating/managing listings
+- ✅ Blockchain transparency with NEAR Explorer
+- ✅ Market analytics and insights
+- ✅ Environmental impact visualization
 
-Architecture Alignment:
-- Implements expandable UI concept from COMPREHENSIVE_WORKFLOWS.md
-- Shows Net CORC formula breakdown: Gross - Emissions - Leakage - Buffer
-- Supports API and Excel upload options per metric node
-- Registry-specific visualization based on selected project
+Architecture:
+- Clean separation between DMRV and Marketplace features
+- Reusable marketplace components
+- Type-safe with comprehensive TypeScript definitions
+- Mock data ready for API integration
+- Follows existing glassmorphism design system
 
 Performance:
-- Memo-optimized ReactFlow nodes
-- Efficient re-renders on block selection
-- Smooth animations with Framer Motion
+- Memoized filter computations
+- Paginated credit listings
+- Lazy-loaded modal components
+- Optimized re-renders with Zustand selectors
+
+**Future Integration Points**
+
+Ready for NEAR Protocol integration:
+- Wallet connection via near-api-js
+- Smart contract calls for buy/sell/retire
+- Transaction signing and confirmation
+- Real-time balance updates
+- On-chain transaction verification
+
+Ready for backend API:
+- Filter API endpoints
+- Credit CRUD operations
+- Portfolio aggregations
+- Transaction history
+- Registry OAuth connections
 
 Breaking Changes: None
 
-Build Status: ✅ Passes (Next.js 16.1.1 Turbopack)
+Build Status: ✅ Passes TypeScript compilation
 
 Related Documentation:
-- docs/architecture/COMPREHENSIVE_WORKFLOWS.md (Data Injection section)
-- apps/dashboard/DEVELOPMENT_PROMPT.md (Process visualization requirements)
+- Comprehensive prompt in user request (Carbon Credit Marketplace spec)
+- carbonplace.com design inspiration
+- NEAR Protocol token standards (NEP-141, NEP-171)
