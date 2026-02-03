@@ -22,7 +22,6 @@ import {
   Settings,
   User,
   ChevronLeft,
-  ChevronRight,
   Bell,
   LogOut,
   Layers,
@@ -30,7 +29,6 @@ import {
   X,
   Upload,
   Store,
-  Wallet,
   LineChart,
   ArrowLeftRight,
   Globe,
@@ -120,13 +118,37 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile Menu Button - Fixed top left */}
-      <button
+      <motion.button
         onClick={toggle}
-        className="md:hidden fixed top-4 left-4 z-50 w-12 h-12 rounded-xl glass flex items-center justify-center text-white"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="md:hidden fixed top-4 left-4 z-50 w-12 h-12 rounded-xl glass flex items-center justify-center text-white shadow-lg shadow-black/30 border border-white/10"
         aria-label="Toggle menu"
       >
-        {isExpanded ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-      </button>
+        <AnimatePresence mode="wait">
+          {isExpanded ? (
+            <motion.div
+              key="close"
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: 90, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <X className="w-6 h-6" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="menu"
+              initial={{ rotate: 90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: -90, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Menu className="w-6 h-6" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.button>
       
       {/* Mobile Overlay */}
       <AnimatePresence>
@@ -150,37 +172,50 @@ export function Sidebar() {
         }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         className={clsx(
-          'fixed left-0 top-0 bottom-0 z-40 flex flex-col',
+          'fixed left-4 top-4 bottom-4 z-40 flex flex-col',
           // Mobile: hidden when collapsed, show when expanded
-          'max-md:translate-x-[-100%]',
-          isExpanded && 'max-md:translate-x-0'
+          'max-md:left-0 max-md:top-0 max-md:bottom-0 max-md:translate-x-[-100%]',
+          isExpanded && 'max-md:translate-x-0 max-md:left-4 max-md:top-4 max-md:bottom-4'
         )}
         style={{
           transform: undefined, // Let framer-motion handle this
         }}
       >
         <GlassCard 
-          className="flex-1 flex flex-col !rounded-none !rounded-r-2xl overflow-hidden !p-0"
+          className="flex-1 flex flex-col !rounded-2xl overflow-hidden !p-0 shadow-2xl shadow-black/40"
           variant="strong"
         >
           {/* Logo */}
           <div className="p-4 flex items-center justify-between border-b border-white/10">
-            <button 
-              onClick={() => handleNavClick(mode === 'dmrv' ? '/dashboard' : '/marketplace')}
-              className="flex items-center gap-3"
+            <motion.button 
+              onClick={toggle}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center gap-3 group"
             >
-              <div className={clsx(
-                'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',
-                mode === 'dmrv' 
-                  ? 'bg-gradient-to-br from-green-500 to-emerald-600' 
-                  : 'bg-gradient-to-br from-blue-500 to-cyan-600'
-              )}>
+              <motion.div 
+                className={clsx(
+                  'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden',
+                  mode === 'dmrv' 
+                    ? 'bg-gradient-to-br from-green-500 to-emerald-600' 
+                    : 'bg-gradient-to-br from-blue-500 to-cyan-600'
+                )}
+                whileHover={{ rotate: [0, -10, 10, -5, 5, 0] }}
+                transition={{ duration: 0.5 }}
+              >
                 {mode === 'dmrv' ? (
                   <Layers className="w-5 h-5 text-white" />
                 ) : (
                   <Store className="w-5 h-5 text-white" />
                 )}
-              </div>
+                {/* Shine effect */}
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                  initial={{ x: '-100%' }}
+                  whileHover={{ x: '100%' }}
+                  transition={{ duration: 0.6 }}
+                />
+              </motion.div>
               <AnimatePresence mode="wait">
                 {isExpanded && (
                   <motion.span
@@ -193,14 +228,33 @@ export function Sidebar() {
                   </motion.span>
                 )}
               </AnimatePresence>
-            </button>
-            <button
-              onClick={toggle}
-              className="hidden md:flex w-8 h-8 rounded-lg bg-white/10 items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition"
-              aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
-            >
-              {isExpanded ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-            </button>
+              {/* Expand indicator when collapsed */}
+              {!isExpanded && (
+                <motion.div
+                  initial={{ opacity: 0, x: -5 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="absolute left-14 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <ChevronLeft className="w-4 h-4 text-white/50 rotate-180" />
+                </motion.div>
+              )}
+            </motion.button>
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  onClick={toggle}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="hidden md:flex w-9 h-9 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 items-center justify-center text-white/60 hover:text-white hover:border-white/20 hover:from-white/15 hover:to-white/10 transition-all duration-300 shadow-lg shadow-black/20"
+                  aria-label="Collapse sidebar"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
           
           {/* Mode Switcher */}

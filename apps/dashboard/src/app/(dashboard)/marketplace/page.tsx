@@ -24,6 +24,7 @@ import {
   CreditCard, 
   MarketplaceFilters, 
   BuyModal,
+  CreditDetailModal,
   MarketplaceStats,
   WalletConnect,
 } from '@/components/marketplace'
@@ -62,6 +63,8 @@ export default function MarketplacePage() {
 
   const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedCreditForDetail, setSelectedCreditForDetail] = useState<CarbonCredit | null>(null)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
   // Initialize credits
   useEffect(() => {
@@ -82,13 +85,25 @@ export default function MarketplacePage() {
   const paginatedCredits = credits.slice((page - 1) * pageSize, page * pageSize)
   const totalPages = Math.ceil(credits.length / pageSize)
 
-  const handleViewDetails = (credit: CarbonCredit) => {
-    // Could open a modal or navigate to detail page
-    console.log('View details:', credit.id)
-  }
-
   const handleBuy = (credit: CarbonCredit) => {
     openBuyModal(credit)
+  }
+
+  const handleViewDetails = (credit: CarbonCredit) => {
+    setSelectedCreditForDetail(credit)
+    setIsDetailModalOpen(true)
+  }
+
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false)
+    // Keep the credit in state briefly for exit animation
+    setTimeout(() => setSelectedCreditForDetail(null), 300)
+  }
+
+  const handleBuyFromDetail = (credit: CarbonCredit) => {
+    handleCloseDetailModal()
+    // Small delay to let detail modal close first
+    setTimeout(() => openBuyModal(credit), 100)
   }
 
   return (
@@ -328,6 +343,16 @@ export default function MarketplacePage() {
 
       {/* Buy Modal */}
       <BuyModal />
+
+      {/* Credit Detail Modal */}
+      <CreditDetailModal
+        credit={selectedCreditForDetail}
+        isOpen={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+        onBuy={handleBuyFromDetail}
+        onToggleWatchlist={toggleWatchlist}
+        isInWatchlist={selectedCreditForDetail ? watchlist.includes(selectedCreditForDetail.id) : false}
+      />
     </div>
   )
 }

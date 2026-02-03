@@ -51,16 +51,20 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }, [isMarketplaceMode])
   
   // Calculate main content margins based on screen size and sidebar states
+  // Sidebar has 16px margin from edge, so content needs: 16px + sidebar width + 16px gap
   const getMainMargins = () => {
     if (isMobile) {
+      // Mobile: 80px top padding for hamburger menu
       return { marginLeft: 0, marginRight: 0, paddingTop: 80 }
     }
     
-    const leftMargin = isExpanded ? 280 : 80
+    // 16px left margin + sidebar width + 16px gap = 32 + width
+    const leftMargin = isExpanded ? 312 : 112
     // No right margin in marketplace mode
     const rightMargin = !isMarketplaceMode && showRightSidebar ? 336 : 0
     
-    return { marginLeft: leftMargin, marginRight: rightMargin, paddingTop: 0 }
+    // Desktop: 32px top padding to align with sidebar content (16px margin + 16px internal padding)
+    return { marginLeft: leftMargin, marginRight: rightMargin, paddingTop: 32 }
   }
   
   const margins = getMainMargins()
@@ -70,12 +74,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* Left Sidebar */}
       <Sidebar />
       
-      {/* Main Content Area */}
+      {/* Main Content Area - pt-8 on desktop aligns with sidebar content (16px sidebar margin + 16px internal padding) */}
       <motion.main
         initial={false}
         animate={margins}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className="min-h-screen p-4 md:p-6"
+        className="min-h-screen px-4 md:px-6 pt-20 md:pt-8 pb-6"
       >
         {children}
       </motion.main>
@@ -106,7 +110,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             opacity: showRightSidebar ? 1 : 0,
           }}
           transition={{ duration: 0.3, ease: 'easeInOut' }}
-          className="fixed right-0 top-0 bottom-0 p-4 hidden md:block"
+          className="fixed right-4 top-4 bottom-4 hidden md:block"
         >
           <StepsTracker
             steps={currentProcess?.steps || []}

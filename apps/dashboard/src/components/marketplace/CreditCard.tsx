@@ -18,12 +18,9 @@ import {
   Heart,
   Scale,
   ShoppingCart,
-  Eye,
-  TrendingUp,
   Users,
   TreePine,
   Droplets,
-  Wind,
   Sun,
   Factory,
   Flame,
@@ -168,6 +165,12 @@ export function CreditCard({
     })
   }
 
+  const handleCardClick = () => {
+    if (onViewDetails) {
+      onViewDetails(credit)
+    }
+  }
+
   return (
     <motion.div
       whileHover={{ y: -4 }}
@@ -177,8 +180,9 @@ export function CreditCard({
       className={className}
     >
       <GlassCard 
-        className="!p-0 overflow-hidden h-full flex flex-col"
+        className="!p-0 overflow-hidden h-full flex flex-col cursor-pointer"
         hover
+        onClick={handleCardClick}
       >
         {/* Image Section */}
         <div className="relative h-48 overflow-hidden">
@@ -353,26 +357,18 @@ export function CreditCard({
               </div>
             </div>
             
-            <div className="flex gap-2">
-              {onViewDetails && (
-                <button
-                  onClick={() => onViewDetails(credit)}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 transition font-medium text-sm"
-                >
-                  <Eye className="w-4 h-4" />
-                  Details
-                </button>
-              )}
-              {onBuy && (
-                <button
-                  onClick={() => onBuy(credit)}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 transition font-medium text-sm shadow-lg shadow-blue-500/25"
-                >
-                  <ShoppingCart className="w-4 h-4" />
-                  Buy Now
-                </button>
-              )}
-            </div>
+            {onBuy && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onBuy(credit)
+                }}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 transition font-medium text-sm shadow-lg shadow-blue-500/25"
+              >
+                <ShoppingCart className="w-4 h-4" />
+                Buy Now
+              </button>
+            )}
           </div>
         </div>
       </GlassCard>

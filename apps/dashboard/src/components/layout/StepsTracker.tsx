@@ -94,14 +94,14 @@ export function StepsTracker({
   
   if (isLoading) {
     return (
-      <GlassCard className="w-80 h-full flex items-center justify-center">
+      <GlassCard className="w-80 h-full flex items-center justify-center !rounded-2xl shadow-2xl shadow-black/40" variant="strong">
         <Loader2 className="w-8 h-8 text-white/50 animate-spin" />
       </GlassCard>
     )
   }
   
   return (
-    <GlassCard className="w-80 flex flex-col max-h-full">
+    <GlassCard className="w-80 flex flex-col max-h-full !rounded-2xl shadow-2xl shadow-black/40" variant="strong">
       {/* Header */}
       <div className="p-4 border-b border-white/10">
         <h3 className="text-lg font-semibold text-white mb-1">Process Steps</h3>

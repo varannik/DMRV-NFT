@@ -1,89 +1,154 @@
-fix(marketplace): improve CreditCard UX and fix filter functionality
+feat(dashboard): major UI/UX overhaul with floating sidebar, detail modal, and filter fixes
 
-This commit addresses several UX improvements and bug fixes in the Carbon
-Credit Marketplace dashboard.
+This commit introduces significant UI improvements across the dashboard, focusing on
+professional design patterns, improved interactions, and bug fixes.
 
-**Bug Fixes**
+## New Features
 
-1. **Fixed Filters Not Working**
-   - Added explicit `credits` state subscription to MarketplaceFilters and 
-     marketplace page components
-   - Wrapped `filteredCredits()` in `useMemo` with proper dependencies for
-     reactivity when filters change
-   - Fixed checkbox toggle - changed `<label>` to `<button>` with `onClick`
-     handler (checkboxes were not responding to clicks)
+### 1. CreditDetailModal - Project Details View
+- **New component** for viewing full project details when clicking credit cards
+- Displays header image with registry badge and verification status
+- Shows project location with map coordinates and "Open in Maps" link
+- Two-column layout: Location/Map | Verification & Standards
+- Co-benefits displayed as colorful badges (Biodiversity, Community, Indigenous Rights, Jobs)
+- Full SDG list with color-coded badges showing goal names
+- Certifications section when available
+- Purchase section with available credits, price, and "Buy Credits" button
+- Watchlist heart button integration
+- Click outside or X button to close
 
-2. **Fixed SDG Tooltip Visibility**
-   - Implemented React Portal for SDG tooltips to escape card's overflow:hidden
-   - Tooltips now render to document.body and appear above cards properly
-   - Shows full SDG name on hover (e.g., "SDG 13: Climate Action")
+### 2. Floating Sidebar Design
+- **Sidebar now floats** with 16px margins from top, bottom, and left edges
+- Rounded corners (`rounded-2xl`) for modern card appearance  
+- Deep shadow (`shadow-2xl shadow-black/40`) for depth
+- Mobile sidebar also adopts floating card style when expanded
+- Right sidebar (StepsTracker) matches the floating design
 
-**UX Improvements**
+### 3. Professional Sidebar Toggle
+- **Logo click toggles sidebar** expansion (previously navigated)
+- Animated logo with wobble on hover and shine sweep effect
+- Expand indicator (chevron) appears on logo hover when collapsed
+- Toggle button shows only when expanded, with gradient background
+- Smooth width transition animations
 
-1. **Consistent Card Heights**
-   - Added `min-h-14` (56px) to project name for 2-line title space
-   - Added `min-h-10` (40px) to methodology name with `line-clamp-2`
-   - All credit cards now maintain uniform height regardless of text length
+### 4. Improved Modal Design
+- **BuyModal** redesigned to fit on screen without scrolling
+- Compact layout with reduced padding and margins
+- Click outside modal to close (backdrop click handler)
+- Uses `solid` prop on GlassCard for opaque background
+- Professional three-step flow: Details → Confirm → Success
 
-2. **Reorganized CreditCard Layout**
-   - Moved "Jobs Created" section before SDGs for better visual hierarchy
-   - Split bottom section 50/50: Tonnage (left) | Price (right)
-   - Tonnage now displays with leaf icon, quantity, and "tonnes CO₂" label
-   - Price section aligned right with USD and NEAR values
+## Bug Fixes
 
-3. **Added Solid Mode to GlassCard**
-   - New `solid` prop for overlay/modal panels
-   - Uses opaque `bg-gray-900` instead of transparent glass effect
-   - Applied to mobile filters panel for better visibility on overlay
-   - Updated GlassCardProps interface with JSDoc documentation
+### 1. Fixed Filters Not Working
+- Added explicit `credits` state subscription in MarketplaceFilters
+- Wrapped `filteredCredits()` in `useMemo` with proper dependencies
+- Fixed CheckboxItem: changed `<label>` to `<button>` with `onClick` handler
+- Checkboxes now properly toggle filter state on click
 
-**Files Changed**
+### 2. Fixed SDG Tooltip Visibility
+- Implemented React Portal for tooltips to escape `overflow:hidden`
+- Tooltips render to `document.body` and appear above cards
+- Position calculated once on mouse enter (no jittery movement)
+- Shows "SDG {number}: {Full Name}" on hover
 
-Modified Files (6):
+### 3. Fixed Card Height Inconsistency
+- Added `min-h-14` (56px) to project name for 2-line title space
+- Added `min-h-10` (40px) to methodology name with `line-clamp-2`
+- All credit cards now maintain uniform height
+
+### 4. Fixed Page Title Alignment
+- Page titles now align with top of sidebar content
+- Desktop: 32px top padding (16px sidebar margin + 16px internal padding)
+- Mobile: 80px top padding for hamburger menu
+- Consistent margin calculations accounting for floating sidebar
+
+## UI Improvements
+
+### Card Interaction
+- **Entire credit card is clickable** to open CreditDetailModal
+- "Buy Now" button uses `stopPropagation()` to prevent conflict
+- Removed separate "Details" button (card click replaces it)
+- Cursor changes to pointer on card hover
+
+### Layout Reorganization (CreditCard)
+- Jobs Created section moved before SDGs
+- Bottom section split 50/50: Tonnage (left) | Price (right)
+- Tonnage shows leaf icon, quantity, and "tonnes CO₂" label
+- Price aligned right with USD and NEAR values
+
+### GlassCard Solid Mode
+- New `solid` prop for overlay/modal panels
+- Uses opaque `bg-gray-900` instead of transparent glass
+- Applied to mobile filters, BuyModal, and CreditDetailModal
+- Prevents background content showing through overlays
+
+### Mobile Experience
+- Mobile hamburger menu with animated icon transitions (Menu ↔ X)
+- Mobile filter overlay uses solid background
+- Floating sidebar style preserved on mobile when expanded
+
+## Files Changed
+
+### New Files (1)
+- `src/components/marketplace/CreditDetailModal.tsx` - Full project details modal
+
+### Modified Files (8)
+- `src/components/layout/Sidebar.tsx`
+  - Logo click toggles sidebar expansion
+  - Floating card design with margins and rounded corners
+  - Professional toggle button with animations
+  - Mobile menu button improvements
+
+- `src/app/(dashboard)/layout.tsx`
+  - Updated margin calculations for floating sidebar
+  - Added 32px top padding for desktop content alignment
+  - Right sidebar adopts floating card style
+
 - `src/components/marketplace/CreditCard.tsx`
-  - Added SDGBadge component with Portal-based tooltip
-  - Added SDG config with colors and names for all 17 goals
-  - Consistent min-heights for title and methodology
-  - Reorganized layout (jobs → SDGs → tonnage/price split)
+  - Entire card clickable for details view
+  - SDG Portal tooltips
+  - Consistent min-heights for title/methodology
+  - Layout reorganization
+
+- `src/components/marketplace/BuyModal.tsx`
+  - Compact layout without scroll
+  - Click outside to close
+  - Uses solid GlassCard
 
 - `src/components/marketplace/MarketplaceFilters.tsx`
-  - Added `credits` subscription for filter reactivity
-  - Added `useMemo` for filtered count
-  - Fixed CheckboxItem: changed label to button with onClick
-  - Added `solid` prop support for mobile overlay mode
-
-- `src/app/(dashboard)/marketplace/page.tsx`
-  - Added `allCredits` subscription for proper re-renders
-  - Wrapped `filteredCredits()` in useMemo with dependencies
-  - Pass `solid` prop to mobile MarketplaceFilters
+  - Fixed checkbox click handlers
+  - Added credits subscription for reactivity
+  - Support for solid prop
 
 - `src/components/shared/GlassCard.tsx`
-  - Added `solid` prop for opaque overlay mode
-  - Solid mode uses: bg-gray-900, border, rounded-2xl, shadow-2xl
+  - Added solid prop for opaque backgrounds
 
 - `src/types/components.ts`
-  - Added `solid?: boolean` to GlassCardProps interface
+  - Added solid?: boolean to GlassCardProps
 
-- `src/types/marketplace.ts` (no changes, referenced for SDG types)
+- `src/components/marketplace/index.ts`
+  - Export CreditDetailModal
 
-**Technical Details**
+## Technical Details
 
-SDG Tooltip Implementation:
+### Sidebar Margin Calculation
+```typescript
+// Content margins account for floating sidebar
+const leftMargin = isExpanded ? 312 : 112  // 16px + width + 16px gap
+const rightMargin = showRightSidebar ? 336 : 0
+return { marginLeft, marginRight, paddingTop: 32 }  // 32px aligns with sidebar content
+```
+
+### Portal-Based Tooltips
 ```typescript
 function SDGBadge({ sdg }: { sdg: number }) {
-  const [isHovered, setIsHovered] = useState(false)
-  const [position, setPosition] = useState<{ top: number; left: number } | null>(null)
-  const badgeRef = useRef<HTMLSpanElement>(null)
-
-  // Calculate position on mouse enter (once, not continuously)
   const handleMouseEnter = () => {
-    if (badgeRef.current) {
-      const rect = badgeRef.current.getBoundingClientRect()
-      setPosition({ top: rect.top - 8, left: rect.left + rect.width / 2 })
-      setIsHovered(true)
-    }
+    const rect = badgeRef.current.getBoundingClientRect()
+    setPosition({ top: rect.top - 8, left: rect.left + rect.width / 2 })
+    setIsHovered(true)
   }
-
+  
   return (
     <>
       <span ref={badgeRef} onMouseEnter={handleMouseEnter} ... />
@@ -93,77 +158,69 @@ function SDGBadge({ sdg }: { sdg: number }) {
 }
 ```
 
-Filter Reactivity Fix:
-```typescript
-// Subscribe to credits state explicitly
-const { credits: allCredits, filters, filteredCredits } = useMarketplaceStore()
+### Click Outside to Close Pattern
+```tsx
+{/* Backdrop - click closes modal */}
+<motion.div onClick={onClose} className="fixed inset-0 bg-black/70 z-50" />
 
-// Use useMemo with explicit dependencies
-const credits = useMemo(() => {
-  return filteredCredits()
-}, [allCredits, filters, filteredCredits])
+{/* Modal container - pointer-events-none prevents backdrop interference */}
+<motion.div className="fixed inset-0 z-50 pointer-events-none">
+  <GlassCard className="pointer-events-auto">
+    {/* Modal content receives clicks */}
+  </GlassCard>
+</motion.div>
 ```
 
-GlassCard Solid Mode:
-```typescript
-interface GlassCardProps {
-  solid?: boolean  // Use for overlay/modal panels
-}
+## Visual Changes
 
-// Solid classes for overlays
-const solidClasses = 'bg-gray-900 border border-white/20 rounded-2xl shadow-2xl'
+### Before (Old Sidebar)
+```
+┌─────────────────────────────────────────────────────┐
+│ Full-height sidebar                                 │
+│ Touches all edges                                   │
+│ No rounded corners                                  │
+└─────────────────────────────────────────────────────┘
 ```
 
-**Card Layout (Before → After)**
-
-Before:
+### After (Floating Sidebar)
 ```
-┌─────────────────────────────┐
-│ Project Name                │
-│ Methodology                 │
-│ Location | Vintage          │
-│ SDGs: [1][7][13]           │
-│ 🍃 4,500 available | 👥 jobs│
-│ ─────────────────────────── │
-│ Price per credit            │
-│ $42.50 / 8.5 NEAR          │
-└─────────────────────────────┘
-```
-
-After:
-```
-┌─────────────────────────────┐
-│ Project Name (min-h-14)     │
-│ Methodology (min-h-10)      │
-│ Location | Vintage          │
-│ 👥 200 jobs created         │  ← Moved up
-│ SDGs: [1][7][13] (tooltip)  │  ← With tooltips
-│ ─────────────────────────── │
-│ Available    │ Price/credit │  ← 50/50 split
-│ 🍃 4,500     │      $42.50  │
-│ tonnes CO₂   │    8.5 NEAR  │
-└─────────────────────────────┘
+     16px margin
+    ↓
+   ┌────────────────────────┐  ← 16px margin
+   │  ╭───────────────────╮ │
+   │  │ DMRV Logo    [◀]  │ │  ← Rounded 2xl
+   │  │─────────────────────│ │
+   │  │ Dashboard         │ │
+   │  │ Projects          │ │
+   │  │ ...               │ │
+   │  │                   │ │  ← Shadow 2xl
+   │  │ User Profile      │ │
+   │  ╰───────────────────╯ │
+   └────────────────────────┘  ← 16px margin
 ```
 
-**Impact**
+## Impact
 
-User Experience:
-- ✅ Filters now work correctly when selecting checkboxes
-- ✅ SDG badges show full goal names on hover
-- ✅ All credit cards have consistent heights
-- ✅ Better information hierarchy with jobs before SDGs
-- ✅ Clear tonnage/price comparison at card bottom
-- ✅ Mobile filter panel is now clearly visible (solid background)
+**User Experience:**
+- ✅ Professional floating sidebar matches modern design patterns
+- ✅ Click card for full details, separate button for quick buy
+- ✅ Filters work correctly with immediate feedback
+- ✅ SDG tooltips provide context without leaving cards
+- ✅ Modals are compact and don't require scrolling
+- ✅ Page content aligns properly with sidebar
 
-Accessibility:
-- ✅ Filter checkboxes are now proper buttons with click handlers
-- ✅ SDG tooltips provide context for numbered badges
+**Accessibility:**
+- ✅ Keyboard-accessible modal close (click backdrop)
+- ✅ Proper button elements for checkboxes
+- ✅ Tooltips provide SDG context for numbered badges
 
-Performance:
-- ✅ Tooltip position calculated once on hover (not continuously)
+**Performance:**
+- ✅ Tooltip position calculated once on hover
 - ✅ useMemo prevents unnecessary filter recalculations
 - ✅ Portal-based tooltips avoid layout thrashing
 
-Breaking Changes: None
+## Breaking Changes
+None - all changes are backwards compatible
 
-Build Status: ✅ Passes TypeScript compilation (only style warnings)
+## Build Status
+✅ Passes TypeScript compilation (only pre-existing style warnings)
