@@ -6,7 +6,7 @@
  * Advanced filtering sidebar for the carbon credit marketplace.
  */
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Filter,
@@ -93,7 +93,11 @@ interface CheckboxItemProps {
 
 function CheckboxItem({ label, checked, onChange, icon, color }: CheckboxItemProps) {
   return (
-    <label className="flex items-center gap-2.5 py-1.5 cursor-pointer group">
+    <button
+      type="button"
+      onClick={onChange}
+      className="flex items-center gap-2.5 py-1.5 cursor-pointer group w-full text-left"
+    >
       <div
         className={clsx(
           'w-4 h-4 rounded border-2 flex items-center justify-center transition',
@@ -126,7 +130,7 @@ function CheckboxItem({ label, checked, onChange, icon, color }: CheckboxItemPro
       <span className="text-sm text-white/70 group-hover:text-white transition">
         {label}
       </span>
-    </label>
+    </button>
   )
 }
 
@@ -204,8 +208,14 @@ const methodologies: {
   { id: 'transportation', name: 'Transportation', icon: Truck },
 ]
 
-export function MarketplaceFilters() {
+interface MarketplaceFiltersProps {
+  /** Use solid background for mobile/overlay mode */
+  solid?: boolean
+}
+
+export function MarketplaceFilters({ solid = false }: MarketplaceFiltersProps) {
   const {
+    credits,
     filters,
     setSearchQuery,
     toggleRegistry,
@@ -231,6 +241,11 @@ export function MarketplaceFilters() {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }))
   }
 
+  // Memoize filtered credits count for reactivity
+  const filteredCount = useMemo(() => {
+    return filteredCredits().length
+  }, [credits, filters, filteredCredits])
+
   const activeFilterCount = 
     filters.registries.length +
     filters.methodologies.length +
@@ -243,7 +258,7 @@ export function MarketplaceFilters() {
     (filters.verification.thirdPartyVerified ? 1 : 0)
 
   return (
-    <GlassCard className="!p-0 overflow-hidden">
+    <GlassCard className="!p-0 overflow-hidden h-full" solid={solid}>
       {/* Header */}
       <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -522,7 +537,7 @@ export function MarketplaceFilters() {
       {/* Results count */}
       <div className="px-4 py-3 border-t border-white/10 bg-white/5">
         <p className="text-sm text-white/70">
-          <span className="font-medium text-white">{filteredCredits().length}</span> credits found
+          <span className="font-medium text-white">{filteredCount}</span> credits found
         </p>
       </div>
     </GlassCard>

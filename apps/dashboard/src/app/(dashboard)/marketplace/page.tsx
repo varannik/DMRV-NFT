@@ -6,7 +6,7 @@
  * Main marketplace for browsing and purchasing carbon credits.
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Grid3X3,
@@ -42,6 +42,7 @@ const sortOptions = [
 
 export default function MarketplacePage() {
   const {
+    credits: allCredits,
     setCredits,
     filteredCredits,
     filters,
@@ -73,7 +74,11 @@ export default function MarketplacePage() {
     return () => clearTimeout(timer)
   }, [setCredits])
 
-  const credits = filteredCredits()
+  // Compute filtered credits with explicit dependencies for reactivity
+  const credits = useMemo(() => {
+    return filteredCredits()
+  }, [allCredits, filters, filteredCredits])
+  
   const paginatedCredits = credits.slice((page - 1) * pageSize, page * pageSize)
   const totalPages = Math.ceil(credits.length / pageSize)
 
@@ -310,11 +315,11 @@ export default function MarketplacePage() {
               <div className="relative h-full">
                 <button
                   onClick={() => setShowMobileFilters(false)}
-                  className="absolute -right-3 top-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white z-10"
+                  className="absolute -right-3 top-4 w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white z-10"
                 >
                   <X className="w-4 h-4" />
                 </button>
-                <MarketplaceFilters />
+                <MarketplaceFilters solid />
               </div>
             </motion.div>
           </>

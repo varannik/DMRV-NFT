@@ -26,7 +26,8 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
       className, 
       variant = 'default', 
       hover = false, 
-      onClick 
+      onClick,
+      solid = false,
     },
     ref
   ) {
@@ -37,11 +38,14 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
       dropdown: 'glass-dropdown',
     }
 
+    // Solid mode for overlays/modals - uses opaque background instead of glass effect
+    const solidClasses = 'bg-gray-900 border border-white/20 rounded-2xl shadow-2xl'
+
     return (
       <div
         ref={ref}
         className={clsx(
-          variantClasses[variant],
+          solid ? solidClasses : variantClasses[variant],
           hover && 'glass-hover cursor-pointer',
           'p-6',
           className

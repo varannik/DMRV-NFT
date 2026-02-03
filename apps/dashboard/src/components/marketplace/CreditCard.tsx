@@ -6,7 +6,8 @@
  * Displays a carbon credit project in the marketplace.
  */
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import {
@@ -70,25 +71,77 @@ const methodologyIcons: Record<MethodologyCategory, React.ComponentType<{ classN
   transportation: Truck,
 }
 
-// SDG colors
-const sdgColors: Record<number, string> = {
-  1: 'bg-red-500',
-  2: 'bg-amber-600',
-  3: 'bg-green-600',
-  4: 'bg-red-600',
-  5: 'bg-orange-500',
-  6: 'bg-sky-500',
-  7: 'bg-yellow-500',
-  8: 'bg-rose-600',
-  9: 'bg-orange-600',
-  10: 'bg-pink-500',
-  11: 'bg-amber-500',
-  12: 'bg-amber-700',
-  13: 'bg-green-700',
-  14: 'bg-blue-600',
-  15: 'bg-green-500',
-  16: 'bg-blue-700',
-  17: 'bg-blue-900',
+// SDG colors and names
+const sdgConfig: Record<number, { color: string; name: string }> = {
+  1: { color: 'bg-red-500', name: 'No Poverty' },
+  2: { color: 'bg-amber-600', name: 'Zero Hunger' },
+  3: { color: 'bg-green-600', name: 'Good Health and Well-being' },
+  4: { color: 'bg-red-600', name: 'Quality Education' },
+  5: { color: 'bg-orange-500', name: 'Gender Equality' },
+  6: { color: 'bg-sky-500', name: 'Clean Water and Sanitation' },
+  7: { color: 'bg-yellow-500', name: 'Affordable and Clean Energy' },
+  8: { color: 'bg-rose-600', name: 'Decent Work and Economic Growth' },
+  9: { color: 'bg-orange-600', name: 'Industry, Innovation and Infrastructure' },
+  10: { color: 'bg-pink-500', name: 'Reduced Inequalities' },
+  11: { color: 'bg-amber-500', name: 'Sustainable Cities and Communities' },
+  12: { color: 'bg-amber-700', name: 'Responsible Consumption and Production' },
+  13: { color: 'bg-green-700', name: 'Climate Action' },
+  14: { color: 'bg-blue-600', name: 'Life Below Water' },
+  15: { color: 'bg-green-500', name: 'Life on Land' },
+  16: { color: 'bg-blue-700', name: 'Peace, Justice and Strong Institutions' },
+  17: { color: 'bg-blue-900', name: 'Partnerships for the Goals' },
+}
+
+// SDG Badge with Portal Tooltip
+function SDGBadge({ sdg }: { sdg: number }) {
+  const [isHovered, setIsHovered] = useState(false)
+  const [position, setPosition] = useState<{ top: number; left: number } | null>(null)
+  const badgeRef = useRef<HTMLSpanElement>(null)
+
+  const handleMouseEnter = () => {
+    if (badgeRef.current) {
+      const rect = badgeRef.current.getBoundingClientRect()
+      setPosition({
+        top: rect.top - 8,
+        left: rect.left + rect.width / 2,
+      })
+      setIsHovered(true)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    setIsHovered(false)
+  }
+
+  return (
+    <>
+      <span
+        ref={badgeRef}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={clsx(
+          'w-5 h-5 rounded text-[10px] font-bold text-white flex items-center justify-center cursor-pointer',
+          sdgConfig[sdg]?.color || 'bg-gray-500'
+        )}
+      >
+        {sdg}
+      </span>
+      {isHovered && position && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed z-[9999] px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap pointer-events-none"
+          style={{
+            top: position.top,
+            left: position.left,
+            transform: 'translate(-50%, -100%)',
+          }}
+        >
+          SDG {sdg}: {sdgConfig[sdg]?.name || 'Unknown'}
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+        </div>,
+        document.body
+      )}
+    </>
+  )
 }
 
 export function CreditCard({
@@ -219,17 +272,17 @@ export function CreditCard({
         
         {/* Content Section */}
         <div className="flex-1 p-4 flex flex-col">
-          {/* Project Name */}
-          <h3 className="font-semibold text-white text-lg leading-tight mb-2 line-clamp-2">
+          {/* Project Name - fixed height for 2 lines to keep cards consistent */}
+          <h3 className="font-semibold text-white text-lg leading-tight mb-2 line-clamp-2 min-h-14">
             {credit.projectName}
           </h3>
           
-          {/* Methodology */}
-          <div className="flex items-center gap-2 mb-3">
-            <div className="p-1.5 rounded-lg bg-white/10">
+          {/* Methodology - fixed height for consistency */}
+          <div className="flex items-start gap-2 mb-3 min-h-10">
+            <div className="p-1.5 rounded-lg bg-white/10 shrink-0">
               <MethodologyIcon className="w-4 h-4 text-white/70" />
             </div>
-            <span className="text-sm text-white/70">
+            <span className="text-sm text-white/70 line-clamp-2">
               {credit.methodology.name}
             </span>
           </div>
@@ -246,21 +299,21 @@ export function CreditCard({
             </div>
           </div>
           
+          {/* Jobs Created */}
+          {credit.coBenefits.jobsCreated && (
+            <div className="flex items-center gap-1.5 mb-3 text-sm text-white/60">
+              <Users className="w-4 h-4 text-blue-400" />
+              <span>{credit.coBenefits.jobsCreated} jobs created</span>
+            </div>
+          )}
+
           {/* Co-Benefits / SDGs */}
           {credit.coBenefits.sdgAligned.length > 0 && (
             <div className="flex items-center gap-1.5 mb-3">
               <span className="text-xs text-white/50">SDGs:</span>
               <div className="flex gap-1">
                 {credit.coBenefits.sdgAligned.slice(0, 5).map((sdg) => (
-                  <span
-                    key={sdg}
-                    className={clsx(
-                      'w-5 h-5 rounded text-[10px] font-bold text-white flex items-center justify-center',
-                      sdgColors[sdg] || 'bg-gray-500'
-                    )}
-                  >
-                    {sdg}
-                  </span>
+                  <SDGBadge key={sdg} sdg={sdg} />
                 ))}
                 {credit.coBenefits.sdgAligned.length > 5 && (
                   <span className="text-xs text-white/50">
@@ -271,27 +324,25 @@ export function CreditCard({
             </div>
           )}
           
-          {/* Stats row */}
-          <div className="flex items-center gap-3 mb-4 text-sm">
-            <div className="flex items-center gap-1 text-white/60">
-              <Leaf className="w-4 h-4 text-green-400" />
-              <span>{credit.quantity.toLocaleString()} available</span>
-            </div>
-            {credit.coBenefits.jobsCreated && (
-              <div className="flex items-center gap-1 text-white/60">
-                <Users className="w-4 h-4 text-blue-400" />
-                <span>{credit.coBenefits.jobsCreated} jobs</span>
-              </div>
-            )}
-          </div>
-          
           {/* Spacer */}
           <div className="flex-1" />
           
-          {/* Price & Actions */}
+          {/* Price & Tonnage */}
           <div className="pt-4 border-t border-white/10">
-            <div className="flex items-end justify-between mb-3">
-              <div>
+            <div className="flex items-start justify-between mb-3">
+              {/* Tonnage */}
+              <div className="flex-1">
+                <p className="text-xs text-white/50">Available</p>
+                <div className="flex items-center gap-1.5">
+                  <Leaf className="w-4 h-4 text-green-400" />
+                  <p className="text-xl font-bold text-white">
+                    {credit.quantity.toLocaleString()}
+                  </p>
+                </div>
+                <p className="text-sm text-white/50">tonnes CO₂</p>
+              </div>
+              {/* Price */}
+              <div className="flex-1 text-right">
                 <p className="text-xs text-white/50">Price per credit</p>
                 <p className="text-xl font-bold text-white">
                   {formatPrice(credit.priceUsd)}

@@ -117,6 +117,8 @@ export interface GlassCardProps {
   variant?: 'default' | 'strong' | 'subtle' | 'dropdown'
   hover?: boolean
   onClick?: () => void
+  /** Use solid background for overlay/modal panels that appear on top of other content */
+  solid?: boolean
 }
 
 // ============================================

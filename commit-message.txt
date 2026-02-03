@@ -1,270 +1,169 @@
-feat(dashboard): add Carbon Credit Marketplace with DMRV/Marketplace mode switch
+fix(marketplace): improve CreditCard UX and fix filter functionality
 
-This commit adds a comprehensive Carbon Credit Marketplace dashboard built on
-NEAR Protocol, with a new sidebar toggle to switch between DMRV and Marketplace
-modes. Inspired by carbonplace.com's approach to carbon credit trading.
+This commit addresses several UX improvements and bug fixes in the Carbon
+Credit Marketplace dashboard.
 
-**Major Feature: DMRV/Marketplace Mode Switch**
+**Bug Fixes**
 
-Added toggle in the left sidebar to seamlessly switch between:
-- **DMRV Mode**: Original dashboard with Projects, MRV, Verification, Credits
-- **Marketplace Mode**: New carbon credit trading platform
+1. **Fixed Filters Not Working**
+   - Added explicit `credits` state subscription to MarketplaceFilters and 
+     marketplace page components
+   - Wrapped `filteredCredits()` in `useMemo` with proper dependencies for
+     reactivity when filters change
+   - Fixed checkbox toggle - changed `<label>` to `<button>` with `onClick`
+     handler (checkboxes were not responding to clicks)
 
-The toggle persists user preference to localStorage and updates navigation
-items, color schemes, and layout accordingly.
+2. **Fixed SDG Tooltip Visibility**
+   - Implemented React Portal for SDG tooltips to escape card's overflow:hidden
+   - Tooltips now render to document.body and appear above cards properly
+   - Shows full SDG name on hover (e.g., "SDG 13: Climate Action")
 
-**Marketplace Dashboard Features**
+**UX Improvements**
 
-1. **Browse Marketplace** (`/marketplace`)
-   - Grid/list view of carbon credit projects
-   - Advanced filtering sidebar with:
-     - Registry filters (Verra, Gold Standard, ACR, CAR, GCC, ART, Plan Vivo)
-     - Methodology filters (Renewable Energy, Forestry, Blue Carbon, etc.)
-     - Price range and vintage year sliders
-     - Co-benefits filters (Biodiversity, SDG, Community Development)
-     - Verification status filters
-   - Sorting options (price, date, popularity, volume)
-   - Search by project name, ID, or location
-   - Watchlist and compare functionality
-   - Buy modal with quantity selection and price breakdown
+1. **Consistent Card Heights**
+   - Added `min-h-14` (56px) to project name for 2-line title space
+   - Added `min-h-10` (40px) to methodology name with `line-clamp-2`
+   - All credit cards now maintain uniform height regardless of text length
 
-2. **My Portfolio** (`/marketplace/portfolio`)
-   - Holdings overview with registry breakdown
-   - Portfolio stats (value, credits, CO₂ offset, performance)
-   - Holdings table/grid view with sell/retire actions
-   - Transaction history with NEAR explorer links
-   - Environmental impact dashboard:
-     - Equivalent cars off road
-     - Trees grown
-     - Miles not driven
-     - Homes powered
-   - Retirement certificates list
+2. **Reorganized CreditCard Layout**
+   - Moved "Jobs Created" section before SDGs for better visual hierarchy
+   - Split bottom section 50/50: Tonnage (left) | Price (right)
+   - Tonnage now displays with leaf icon, quantity, and "tonnes CO₂" label
+   - Price section aligned right with USD and NEAR values
 
-3. **Trading Desk** (`/marketplace/trading`)
-   - Create new listings (fixed price, auction, negotiable)
-   - My active listings management (edit, pause, cancel)
-   - Order book visualization (buy/sell orders)
-   - Listing stats (views, watchers, offers)
-   - Fee estimation and market insights
-
-4. **NEAR Explorer** (`/marketplace/explorer`)
-   - Network status display (block height, TPS, validators, gas price)
-   - Smart contract information (carbon-credits.near)
-   - Recent transactions feed with type indicators
-   - Transaction search by hash, address, or block
-   - Links to NEAR Explorer for verification
-
-5. **Analytics** (`/marketplace/analytics`)
-   - Trading volume metrics (24h, 7d)
-   - Average price with trend indicators
-   - Top projects by volume chart
-   - Price by methodology breakdown
-   - Market distribution pie chart
-   - CO₂ offset timeline chart
-
-6. **My Registries** (`/marketplace/registries`)
-   - Connected registry accounts list
-   - Registry connection modal with API key input
-   - Sync and manage registry credentials
-   - Available registries to connect
-
-**NEAR Wallet Integration**
-
-WalletConnect component (`/src/components/marketplace/WalletConnect.tsx`):
-- Connect/disconnect NEAR wallet (mock implementation)
-- Balance display in NEAR and USD
-- Network status indicator (Mainnet/Testnet)
-- Dropdown with wallet details and network stats
-- Copy address and view on explorer links
-
-**New Stores (Zustand)**
-
-- `appModeStore.ts` - DMRV/Marketplace mode switching
-- `walletStore.ts` - NEAR wallet connection state
-- `marketplaceStore.ts` - Credits browsing, filtering, pagination
-- `portfolioStore.ts` - Holdings, transactions, retirements
-- `tradingStore.ts` - Listings, orders, buy modal state
-
-**Type Definitions** (`/src/types/marketplace.ts`)
-
-Comprehensive TypeScript interfaces for:
-- MarketplaceRegistry (Verra, Gold Standard, ACR, etc.)
-- MethodologyCategory & MethodologySubtype
-- CarbonCredit, PortfolioHolding, PortfolioSummary
-- MarketplaceListing, BuyOrder, OrderBookEntry
-- Transaction, Retirement, RetirementReason
-- WalletState, NetworkStatus, SmartContractInfo
-- MarketplaceFilters, UserRegistryConnection
-- MarketAnalytics, ImpactMetrics
-
-**Mock Data** (`/src/lib/data/marketplaceMockData.ts`)
-
-12 sample carbon credit projects including:
-- Solar Farm (India) - Verra
-- Amazon Rainforest Protection (Brazil) - Verra REDD+
-- Wind Power (Denmark) - Gold Standard
-- Mangrove Restoration (Indonesia) - Blue Carbon
-- Direct Air Capture (Iceland) - Gold Standard
-- Regenerative Agriculture (USA) - ACR
-- Clean Cookstoves (Kenya) - Gold Standard
-- Landfill Gas Capture (Mexico) - CAR
-- Hydroelectric Power (Nepal) - Verra
-- Biochar Production (Australia) - ACR
-- Afforestation (China) - Verra
-- Geothermal Power (Philippines) - Gold Standard
-
-Plus mock data for:
-- Portfolio holdings and summary
-- Transaction history
-- Retirement certificates
-- Registry connections
-- Order book entries
-- Market analytics
-- Impact metrics
-- Network status
-
-**Component Library** (`/src/components/marketplace/`)
-
-- `WalletConnect.tsx` - NEAR wallet connection UI
-- `CreditCard.tsx` - Carbon credit project card with:
-  - Project image and verification badge
-  - Registry and methodology display
-  - Location, vintage, SDG alignment
-  - Price in USD and NEAR
-  - Buy/details/watchlist/compare actions
-- `MarketplaceFilters.tsx` - Collapsible filter sections
-- `BuyModal.tsx` - Multi-step purchase flow
-- `MarketplaceStats.tsx` - Stats cards for market/portfolio
-
-**Layout Updates**
-
-Dashboard layout (`/src/app/(dashboard)/layout.tsx`):
-- Detects marketplace mode from store or pathname
-- Hides right sidebar (StepsTracker) in marketplace mode
-- Full-width content area for marketplace pages
-- Mobile bottom bar only shows in DMRV mode
-
-Sidebar (`/src/components/layout/Sidebar.tsx`):
-- Mode toggle with DMRV (green) and Market (blue) buttons
-- Different navigation items per mode
-- Mode-specific active state colors
-- Logo changes based on mode
-
-**Configuration**
-
-Next.js config (`next.config.ts`):
-- Added Unsplash image domain for project photos
+3. **Added Solid Mode to GlassCard**
+   - New `solid` prop for overlay/modal panels
+   - Uses opaque `bg-gray-900` instead of transparent glass effect
+   - Applied to mobile filters panel for better visibility on overlay
+   - Updated GlassCardProps interface with JSDoc documentation
 
 **Files Changed**
 
-New Files (19):
-- `src/lib/stores/appModeStore.ts`
-- `src/lib/stores/walletStore.ts`
-- `src/lib/stores/marketplaceStore.ts`
-- `src/lib/stores/portfolioStore.ts`
-- `src/lib/stores/tradingStore.ts`
-- `src/types/marketplace.ts`
-- `src/lib/data/marketplaceMockData.ts`
-- `src/lib/data/index.ts`
-- `src/components/marketplace/WalletConnect.tsx`
+Modified Files (6):
 - `src/components/marketplace/CreditCard.tsx`
-- `src/components/marketplace/MarketplaceFilters.tsx`
-- `src/components/marketplace/BuyModal.tsx`
-- `src/components/marketplace/MarketplaceStats.tsx`
-- `src/components/marketplace/index.ts`
-- `src/app/(dashboard)/marketplace/page.tsx`
-- `src/app/(dashboard)/marketplace/portfolio/page.tsx`
-- `src/app/(dashboard)/marketplace/trading/page.tsx`
-- `src/app/(dashboard)/marketplace/explorer/page.tsx`
-- `src/app/(dashboard)/marketplace/analytics/page.tsx`
-- `src/app/(dashboard)/marketplace/registries/page.tsx`
+  - Added SDGBadge component with Portal-based tooltip
+  - Added SDG config with colors and names for all 17 goals
+  - Consistent min-heights for title and methodology
+  - Reorganized layout (jobs → SDGs → tonnage/price split)
 
-Modified Files (4):
-- `src/lib/stores/index.ts` - Added marketplace store exports
-- `src/components/layout/Sidebar.tsx` - Added mode toggle and marketplace nav
-- `src/app/(dashboard)/layout.tsx` - Mode-aware layout adjustments
-- `next.config.ts` - Added Unsplash image domain
+- `src/components/marketplace/MarketplaceFilters.tsx`
+  - Added `credits` subscription for filter reactivity
+  - Added `useMemo` for filtered count
+  - Fixed CheckboxItem: changed label to button with onClick
+  - Added `solid` prop support for mobile overlay mode
+
+- `src/app/(dashboard)/marketplace/page.tsx`
+  - Added `allCredits` subscription for proper re-renders
+  - Wrapped `filteredCredits()` in useMemo with dependencies
+  - Pass `solid` prop to mobile MarketplaceFilters
+
+- `src/components/shared/GlassCard.tsx`
+  - Added `solid` prop for opaque overlay mode
+  - Solid mode uses: bg-gray-900, border, rounded-2xl, shadow-2xl
+
+- `src/types/components.ts`
+  - Added `solid?: boolean` to GlassCardProps interface
+
+- `src/types/marketplace.ts` (no changes, referenced for SDG types)
 
 **Technical Details**
 
-State Management:
-- Zustand stores with devtools and persist middleware
-- Computed selectors for filtered/sorted credits
-- Optimistic updates for buy/sell/retire actions
-
-Filtering System:
+SDG Tooltip Implementation:
 ```typescript
-interface MarketplaceFilters {
-  registries: MarketplaceRegistry[]
-  methodologies: MethodologyCategory[]
-  subtypes: MethodologySubtype[]
-  priceRange: { min: number; max: number }
-  vintageYears: { min: number; max: number }
-  countries: string[]
-  coBenefits: { biodiversity, sdgAligned, communityDevelopment, indigenousRights }
-  verification: { recentlyAudited, thirdPartyVerified }
-  sortBy: 'price_asc' | 'price_desc' | 'newest' | 'oldest' | 'popular' | 'volume'
-  searchQuery: string
+function SDGBadge({ sdg }: { sdg: number }) {
+  const [isHovered, setIsHovered] = useState(false)
+  const [position, setPosition] = useState<{ top: number; left: number } | null>(null)
+  const badgeRef = useRef<HTMLSpanElement>(null)
+
+  // Calculate position on mouse enter (once, not continuously)
+  const handleMouseEnter = () => {
+    if (badgeRef.current) {
+      const rect = badgeRef.current.getBoundingClientRect()
+      setPosition({ top: rect.top - 8, left: rect.left + rect.width / 2 })
+      setIsHovered(true)
+    }
+  }
+
+  return (
+    <>
+      <span ref={badgeRef} onMouseEnter={handleMouseEnter} ... />
+      {isHovered && position && createPortal(<Tooltip />, document.body)}
+    </>
+  )
 }
 ```
 
-Wallet Integration (Mock):
+Filter Reactivity Fix:
 ```typescript
-interface WalletState {
-  isConnected: boolean
-  accountId: string | null
-  balance: { near: number; usd: number }
-  network: 'mainnet' | 'testnet'
+// Subscribe to credits state explicitly
+const { credits: allCredits, filters, filteredCredits } = useMarketplaceStore()
+
+// Use useMemo with explicit dependencies
+const credits = useMemo(() => {
+  return filteredCredits()
+}, [allCredits, filters, filteredCredits])
+```
+
+GlassCard Solid Mode:
+```typescript
+interface GlassCardProps {
+  solid?: boolean  // Use for overlay/modal panels
 }
+
+// Solid classes for overlays
+const solidClasses = 'bg-gray-900 border border-white/20 rounded-2xl shadow-2xl'
+```
+
+**Card Layout (Before → After)**
+
+Before:
+```
+┌─────────────────────────────┐
+│ Project Name                │
+│ Methodology                 │
+│ Location | Vintage          │
+│ SDGs: [1][7][13]           │
+│ 🍃 4,500 available | 👥 jobs│
+│ ─────────────────────────── │
+│ Price per credit            │
+│ $42.50 / 8.5 NEAR          │
+└─────────────────────────────┘
+```
+
+After:
+```
+┌─────────────────────────────┐
+│ Project Name (min-h-14)     │
+│ Methodology (min-h-10)      │
+│ Location | Vintage          │
+│ 👥 200 jobs created         │  ← Moved up
+│ SDGs: [1][7][13] (tooltip)  │  ← With tooltips
+│ ─────────────────────────── │
+│ Available    │ Price/credit │  ← 50/50 split
+│ 🍃 4,500     │      $42.50  │
+│ tonnes CO₂   │    8.5 NEAR  │
+└─────────────────────────────┘
 ```
 
 **Impact**
 
 User Experience:
-- ✅ Seamless mode switching between DMRV and Marketplace
-- ✅ Professional carbon credit marketplace UI
-- ✅ Advanced filtering with multiple criteria
-- ✅ Clear project cards with verification badges
-- ✅ Complete portfolio management
-- ✅ Trading desk for creating/managing listings
-- ✅ Blockchain transparency with NEAR Explorer
-- ✅ Market analytics and insights
-- ✅ Environmental impact visualization
+- ✅ Filters now work correctly when selecting checkboxes
+- ✅ SDG badges show full goal names on hover
+- ✅ All credit cards have consistent heights
+- ✅ Better information hierarchy with jobs before SDGs
+- ✅ Clear tonnage/price comparison at card bottom
+- ✅ Mobile filter panel is now clearly visible (solid background)
 
-Architecture:
-- Clean separation between DMRV and Marketplace features
-- Reusable marketplace components
-- Type-safe with comprehensive TypeScript definitions
-- Mock data ready for API integration
-- Follows existing glassmorphism design system
+Accessibility:
+- ✅ Filter checkboxes are now proper buttons with click handlers
+- ✅ SDG tooltips provide context for numbered badges
 
 Performance:
-- Memoized filter computations
-- Paginated credit listings
-- Lazy-loaded modal components
-- Optimized re-renders with Zustand selectors
-
-**Future Integration Points**
-
-Ready for NEAR Protocol integration:
-- Wallet connection via near-api-js
-- Smart contract calls for buy/sell/retire
-- Transaction signing and confirmation
-- Real-time balance updates
-- On-chain transaction verification
-
-Ready for backend API:
-- Filter API endpoints
-- Credit CRUD operations
-- Portfolio aggregations
-- Transaction history
-- Registry OAuth connections
+- ✅ Tooltip position calculated once on hover (not continuously)
+- ✅ useMemo prevents unnecessary filter recalculations
+- ✅ Portal-based tooltips avoid layout thrashing
 
 Breaking Changes: None
 
-Build Status: ✅ Passes TypeScript compilation
-
-Related Documentation:
-- Comprehensive prompt in user request (Carbon Credit Marketplace spec)
-- carbonplace.com design inspiration
-- NEAR Protocol token standards (NEP-141, NEP-171)
+Build Status: ✅ Passes TypeScript compilation (only style warnings)
