@@ -35,6 +35,18 @@ interface PortfolioStoreState {
   holdingsView: 'grid' | 'table'
   transactionsPage: number
   transactionsPageSize: number
+  
+  // Sell Modal State
+  isSellModalOpen: boolean
+  selectedHoldingForSell: PortfolioHolding | null
+  sellQuantity: number
+  sellPriceUsd: number
+  sellPriceNear: number
+  
+  // Retire Modal State
+  isRetireModalOpen: boolean
+  selectedHoldingForRetire: PortfolioHolding | null
+  retireQuantity: number
 
   // Actions
   setHoldings: (holdings: PortfolioHolding[]) => void
@@ -55,6 +67,18 @@ interface PortfolioStoreState {
   // Registry connection actions
   addRegistryConnection: (connection: UserRegistryConnection) => void
   removeRegistryConnection: (connectionId: string) => void
+  
+  // Sell Modal Actions
+  openSellModal: (holding: PortfolioHolding) => void
+  closeSellModal: () => void
+  setSellQuantity: (quantity: number) => void
+  setSellPrice: (priceUsd: number, priceNear: number) => void
+  executeSell: () => Promise<Transaction>
+  
+  // Retire Modal Actions
+  openRetireModal: (holding: PortfolioHolding) => void
+  closeRetireModal: () => void
+  setRetireQuantity: (quantity: number) => void
   
   // Retirement action (mock)
   retireCredits: (holdingId: string, quantity: number, details: {
@@ -91,6 +115,18 @@ export const usePortfolioStore = create<PortfolioStoreState>()(
       holdingsView: 'grid',
       transactionsPage: 1,
       transactionsPageSize: 10,
+      
+      // Sell Modal State
+      isSellModalOpen: false,
+      selectedHoldingForSell: null,
+      sellQuantity: 1,
+      sellPriceUsd: 0,
+      sellPriceNear: 0,
+      
+      // Retire Modal State
+      isRetireModalOpen: false,
+      selectedHoldingForRetire: null,
+      retireQuantity: 1,
 
       // Basic setters
       setHoldings: (holdings) => set({ holdings }),
@@ -116,6 +152,97 @@ export const usePortfolioStore = create<PortfolioStoreState>()(
       removeRegistryConnection: (connectionId) => set((state) => ({
         registryConnections: state.registryConnections.filter(c => c.id !== connectionId),
       })),
+      
+      // Sell Modal Actions
+      openSellModal: (holding) => set({
+        isSellModalOpen: true,
+        selectedHoldingForSell: holding,
+        sellQuantity: 1,
+        sellPriceUsd: holding.credit.priceUsd,
+        sellPriceNear: holding.credit.priceNear,
+      }),
+      
+      closeSellModal: () => set({
+        isSellModalOpen: false,
+        selectedHoldingForSell: null,
+        sellQuantity: 1,
+        sellPriceUsd: 0,
+        sellPriceNear: 0,
+      }),
+      
+      setSellQuantity: (quantity) => set({ sellQuantity: quantity }),
+      
+      setSellPrice: (priceUsd, priceNear) => set({ 
+        sellPriceUsd: priceUsd,
+        sellPriceNear: priceNear,
+      }),
+      
+      executeSell: async () => {
+        const { selectedHoldingForSell, sellQuantity, sellPriceUsd, sellPriceNear } = get()
+        if (!selectedHoldingForSell) {
+          throw new Error('No holding selected')
+        }
+        
+        set({ isLoading: true, error: null })
+        
+        try {
+          // Simulate API call
+          await new Promise(resolve => setTimeout(resolve, 2000))
+          
+          const transaction: Transaction = {
+            id: `TX-${Date.now()}`,
+            type: 'sell',
+            fromUserId: 'demo-user.near',
+            credit: selectedHoldingForSell.credit,
+            quantity: sellQuantity,
+            priceUsd: sellPriceUsd * sellQuantity,
+            priceNear: sellPriceNear * sellQuantity,
+            gasFeeNear: 0.01,
+            nearTxHash: `${Math.random().toString(36).substr(2, 8)}...${Math.random().toString(36).substr(2, 4)}`,
+            blockNumber: Math.floor(Math.random() * 1000000) + 100000000,
+            status: 'confirmed',
+            confirmations: 12,
+            createdAt: new Date().toISOString(),
+          }
+          
+          // Update holdings (reduce quantity)
+          set((state) => ({
+            holdings: state.holdings.map(h =>
+              h.credit.id === selectedHoldingForSell.credit.id
+                ? { ...h, quantity: h.quantity - sellQuantity }
+                : h
+            ).filter(h => h.quantity > 0),
+            transactions: [transaction, ...state.transactions],
+            isSellModalOpen: false,
+            selectedHoldingForSell: null,
+            sellQuantity: 1,
+            isLoading: false,
+          }))
+          
+          return transaction
+        } catch (error) {
+          set({
+            error: error instanceof Error ? error.message : 'Failed to execute sell order',
+            isLoading: false,
+          })
+          throw error
+        }
+      },
+      
+      // Retire Modal Actions
+      openRetireModal: (holding) => set({
+        isRetireModalOpen: true,
+        selectedHoldingForRetire: holding,
+        retireQuantity: 1,
+      }),
+      
+      closeRetireModal: () => set({
+        isRetireModalOpen: false,
+        selectedHoldingForRetire: null,
+        retireQuantity: 1,
+      }),
+      
+      setRetireQuantity: (quantity) => set({ retireQuantity: quantity }),
       
       // Retirement action (mock implementation)
       retireCredits: async (holdingId, quantity, details) => {

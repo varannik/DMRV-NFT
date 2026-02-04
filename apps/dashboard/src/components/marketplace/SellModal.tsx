@@ -1,0 +1,452 @@
+'use client'
+
+/**
+ * SellModal Component
+ * 
+ * Modal for selling carbon credits from portfolio with NEAR integration.
+ */
+
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  X,
+  TrendingDown,
+  Wallet,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  ExternalLink,
+  Minus,
+  Plus,
+  Building2,
+  MapPin,
+  Calendar,
+  DollarSign,
+  Tag,
+} from 'lucide-react'
+import clsx from 'clsx'
+import { usePortfolioStore, useWalletStore } from '@/lib/stores'
+import { GlassCard } from '@/components/shared'
+
+export function SellModal() {
+  const {
+    isSellModalOpen,
+    closeSellModal,
+    selectedHoldingForSell: holding,
+    sellQuantity,
+    setSellQuantity,
+    sellPriceUsd,
+    sellPriceNear,
+    setSellPrice,
+    executeSell,
+    isLoading,
+    error,
+  } = usePortfolioStore()
+
+  const { isConnected, balance, connect, isConnecting } = useWalletStore()
+  
+  const [step, setStep] = useState<'details' | 'confirm' | 'success'>('details')
+  const [txHash, setTxHash] = useState<string | null>(null)
+
+  // Reset on close
+  useEffect(() => {
+    if (!isSellModalOpen) {
+      setStep('details')
+      setTxHash(null)
+    }
+  }, [isSellModalOpen])
+
+  if (!holding) return null
+
+  const credit = holding.credit
+  const platformFee = sellPriceUsd * sellQuantity * 0.02 // 2% fee
+  const earnings = sellPriceUsd * sellQuantity - platformFee
+  const earningsNear = sellPriceNear * sellQuantity - 0.01 // gas fee
+
+  const handleSell = async () => {
+    if (!isConnected) {
+      await connect()
+      return
+    }
+    setStep('confirm')
+  }
+
+  const handleConfirm = async () => {
+    try {
+      const tx = await executeSell()
+      setTxHash(tx.nearTxHash || null)
+      setStep('success')
+    } catch (e) {
+      // Error handled by store
+    }
+  }
+
+  const formatPrice = (price: number) => {
+    return price.toLocaleString(undefined, { 
+      style: 'currency', 
+      currency: 'USD',
+      minimumFractionDigits: 2,
+    })
+  }
+
+  // Convert USD price to NEAR (simplified conversion)
+  const handlePriceChange = (usd: number) => {
+    const near = usd / 5 // Simplified conversion rate
+    setSellPrice(usd, near)
+  }
+
+  return (
+    <AnimatePresence>
+      {isSellModalOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeSellModal}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+          />
+
+          {/* Modal */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+          >
+            <GlassCard 
+              solid
+              className="w-full max-w-md !p-0 pointer-events-auto"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                  <TrendingDown className="w-5 h-5 text-blue-400" />
+                  <h2 className="text-lg font-semibold text-white">
+                    {step === 'success' ? 'Listing Created' : 'Sell Carbon Credits'}
+                  </h2>
+                </div>
+                <button
+                  onClick={closeSellModal}
+                  className="p-2 rounded-lg hover:bg-white/10 transition text-white/70 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-4">
+                {step === 'details' && (
+                  <>
+                    {/* Project Info */}
+                    <div className="mb-4">
+                      <h3 className="font-medium text-white mb-1 line-clamp-1">{credit.projectName}</h3>
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-white/60">
+                        <span className="flex items-center gap-1">
+                          <Building2 className="w-3 h-3" />
+                          {credit.registry.replace('_', ' ').toUpperCase()}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {credit.location.country}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {credit.vintageYear}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Quantity Selector */}
+                    <div className="mb-4">
+                      <label className="block text-xs text-white/70 mb-1.5">
+                        Quantity to Sell
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setSellQuantity(Math.max(1, sellQuantity - 10))}
+                          disabled={sellQuantity <= 1}
+                          className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <input
+                          type="number"
+                          value={sellQuantity}
+                          onChange={(e) => setSellQuantity(Math.max(1, Math.min(holding.quantity, Number(e.target.value))))}
+                          className="flex-1 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-center text-lg font-bold text-white focus:outline-none focus:border-blue-500/50"
+                          min={1}
+                          max={holding.quantity}
+                        />
+                        <button
+                          onClick={() => setSellQuantity(Math.min(holding.quantity, sellQuantity + 10))}
+                          disabled={sellQuantity >= holding.quantity}
+                          className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <p className="text-xs text-white/50 mt-1">
+                        You own: {holding.quantity.toLocaleString()} credits
+                      </p>
+                    </div>
+
+                    {/* Price Setting */}
+                    <div className="mb-4">
+                      <label className="block text-xs text-white/70 mb-1.5">
+                        Price per Credit (USD)
+                      </label>
+                      <div className="relative">
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+                        <input
+                          type="number"
+                          value={sellPriceUsd}
+                          onChange={(e) => handlePriceChange(Number(e.target.value))}
+                          className="w-full pl-9 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50"
+                          min={0}
+                          step={0.01}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between mt-1.5">
+                        <p className="text-xs text-white/50">
+                          Market price: {formatPrice(credit.priceUsd)}
+                        </p>
+                        <button
+                          onClick={() => handlePriceChange(credit.priceUsd)}
+                          className="text-xs text-blue-400 hover:text-blue-300 transition"
+                        >
+                          Use market price
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Earnings Breakdown */}
+                    <div className="bg-white/5 rounded-xl p-3 mb-4">
+                      <div className="space-y-1.5 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-white/60">Price per credit</span>
+                          <span className="text-white">{formatPrice(sellPriceUsd)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-white/60">Quantity</span>
+                          <span className="text-white">× {sellQuantity}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-white/60">Platform fee (2%)</span>
+                          <span className="text-red-400">-{formatPrice(platformFee)}</span>
+                        </div>
+                        <div className="border-t border-white/10 pt-1.5 mt-1.5">
+                          <div className="flex justify-between font-semibold">
+                            <span className="text-white">You receive</span>
+                            <div className="text-right">
+                              <p className="text-green-400">{formatPrice(earnings)}</p>
+                              <p className="text-xs text-white/50">{earningsNear.toFixed(2)} NEAR</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Wallet Status */}
+                    {!isConnected ? (
+                      <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 mb-3">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                          <p className="text-xs text-amber-200">
+                            Connect your NEAR wallet to sell
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mb-3">
+                        <div className="flex items-center gap-2">
+                          <Wallet className="w-4 h-4 text-green-400 shrink-0" />
+                          <p className="text-xs text-green-200">
+                            Wallet connected: {balance.near.toFixed(2)} NEAR
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Error */}
+                    {error && (
+                      <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-3">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                          <p className="text-xs text-red-200">{error}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={closeSellModal}
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 transition font-medium text-sm"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSell}
+                        disabled={sellQuantity < 1 || sellPriceUsd <= 0}
+                        className={clsx(
+                          'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition',
+                          'bg-gradient-to-r from-blue-500 to-cyan-500 text-white',
+                          'hover:from-blue-600 hover:to-cyan-600',
+                          'disabled:opacity-50 disabled:cursor-not-allowed',
+                          'shadow-lg shadow-blue-500/25'
+                        )}
+                      >
+                        {isConnecting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Connecting...
+                          </>
+                        ) : !isConnected ? (
+                          <>
+                            <Wallet className="w-4 h-4" />
+                            Connect Wallet
+                          </>
+                        ) : (
+                          <>
+                            <Tag className="w-4 h-4" />
+                            List for Sale
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {step === 'confirm' && (
+                  <>
+                    <div className="text-center mb-4">
+                      <div className="w-14 h-14 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-3">
+                        <TrendingDown className="w-7 h-7 text-blue-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-white mb-1">
+                        Confirm Listing
+                      </h3>
+                      <p className="text-sm text-white/60">
+                        {sellQuantity} credits at {formatPrice(sellPriceUsd)} each
+                      </p>
+                    </div>
+
+                    <div className="bg-white/5 rounded-xl p-3 mb-4 text-sm">
+                      <div className="flex justify-between mb-1.5">
+                        <span className="text-white/60">Project</span>
+                        <span className="text-white font-medium text-right max-w-[60%] truncate">{credit.projectName}</span>
+                      </div>
+                      <div className="flex justify-between mb-1.5">
+                        <span className="text-white/60">Quantity</span>
+                        <span className="text-white font-medium">{sellQuantity} credits</span>
+                      </div>
+                      <div className="flex justify-between mb-1.5">
+                        <span className="text-white/60">Price per credit</span>
+                        <span className="text-white font-medium">{formatPrice(sellPriceUsd)}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-white/10 pt-1.5 mt-1.5">
+                        <span className="text-white/60">You'll receive</span>
+                        <span className="text-green-400 font-bold">{formatPrice(earnings)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setStep('details')}
+                        disabled={isLoading}
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 transition font-medium text-sm disabled:opacity-50"
+                      >
+                        Back
+                      </button>
+                      <button
+                        onClick={handleConfirm}
+                        disabled={isLoading}
+                        className={clsx(
+                          'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition',
+                          'bg-gradient-to-r from-green-500 to-emerald-500 text-white',
+                          'hover:from-green-600 hover:to-emerald-600',
+                          'disabled:opacity-50 disabled:cursor-not-allowed',
+                          'shadow-lg shadow-green-500/25'
+                        )}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle2 className="w-4 h-4" />
+                            Confirm
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {step === 'success' && (
+                  <>
+                    <div className="text-center mb-4">
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-3"
+                      >
+                        <CheckCircle2 className="w-8 h-8 text-green-400" />
+                      </motion.div>
+                      <h3 className="text-lg font-semibold text-white mb-1">
+                        Credits Listed!
+                      </h3>
+                      <p className="text-sm text-white/60">
+                        Your credits are now available for purchase
+                      </p>
+                    </div>
+
+                    <div className="bg-white/5 rounded-xl p-3 mb-4 text-sm">
+                      <div className="flex justify-between mb-1.5">
+                        <span className="text-white/60">Project</span>
+                        <span className="text-white font-medium text-right max-w-[60%] truncate">{credit.projectName}</span>
+                      </div>
+                      <div className="flex justify-between mb-1.5">
+                        <span className="text-white/60">Listed</span>
+                        <span className="text-white font-medium">{sellQuantity} credits</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-white/60">Price per credit</span>
+                        <span className="text-white font-bold">{formatPrice(sellPriceUsd)}</span>
+                      </div>
+                      {txHash && (
+                        <div className="flex justify-between items-center pt-1.5 mt-1.5 border-t border-white/10">
+                          <span className="text-white/60">Transaction</span>
+                          <a
+                            href={`https://explorer.near.org/transactions/${txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition text-xs"
+                          >
+                            <span className="font-mono">{txHash.slice(0, 8)}...</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={closeSellModal}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 transition font-medium text-sm"
+                    >
+                      Done
+                    </button>
+                  </>
+                )}
+              </div>
+            </GlassCard>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  )
+}

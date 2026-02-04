@@ -1,223 +1,231 @@
-feat(dashboard): major UI/UX overhaul with floating sidebar, detail modal, and filter fixes
+feat(portfolio): add Sell & Retire modals + fix mobile sidebar and navigation
 
-This commit introduces significant UI improvements across the dashboard, focusing on
-professional design patterns, improved interactions, and bug fixes.
+This commit adds Sell and Retire functionality to the portfolio page,
+fixes mobile sidebar behavior, and improves sidebar navigation UX.
 
 ## New Features
 
-### 1. CreditDetailModal - Project Details View
-- **New component** for viewing full project details when clicking credit cards
-- Displays header image with registry badge and verification status
-- Shows project location with map coordinates and "Open in Maps" link
-- Two-column layout: Location/Map | Verification & Standards
-- Co-benefits displayed as colorful badges (Biodiversity, Community, Indigenous Rights, Jobs)
-- Full SDG list with color-coded badges showing goal names
-- Certifications section when available
-- Purchase section with available credits, price, and "Buy Credits" button
-- Watchlist heart button integration
-- Click outside or X button to close
+### 1. SellModal Component (`SellModal.tsx`)
+- **3-step flow**: Details → Confirm → Success
+- Quantity selector with +/- buttons (step by 10)
+- **Custom price setting** with "Use market price" shortcut
+- Earnings breakdown:
+  - Price per credit × Quantity
+  - Platform fee (2%)
+  - Net earnings in USD and NEAR
+- Wallet connection integration
+- Transaction hash linking to NEAR Explorer
+- Updates holdings after successful sell
 
-### 2. Floating Sidebar Design
-- **Sidebar now floats** with 16px margins from top, bottom, and left edges
-- Rounded corners (`rounded-2xl`) for modern card appearance  
-- Deep shadow (`shadow-2xl shadow-black/40`) for depth
-- Mobile sidebar also adopts floating card style when expanded
-- Right sidebar (StepsTracker) matches the floating design
+### 2. RetireModal Component (`RetireModal.tsx`)
+- **Permanent retirement** with warning banner
+- Quantity selector
+- **Environmental impact preview**:
+  - CO₂ tonnes offset
+  - Equivalent cars removed from road/year
+  - Equivalent trees grown over 10 years
+- **Beneficiary details**:
+  - Type: Individual or Organization
+  - Name (appears on certificate)
+- **Reason dropdown**:
+  - Personal Carbon Offset
+  - Corporate Sustainability Goals
+  - Event Carbon Neutrality
+  - Product Carbon Neutrality
+  - Voluntary Climate Action
+  - Other
+- Optional notes field
+- **Certificate generation** on success
+- Impact summary displayed after retirement
 
-### 3. Professional Sidebar Toggle
-- **Logo click toggles sidebar** expansion (previously navigated)
-- Animated logo with wobble on hover and shine sweep effect
-- Expand indicator (chevron) appears on logo hover when collapsed
-- Toggle button shows only when expanded, with gradient background
-- Smooth width transition animations
-
-### 4. Improved Modal Design
-- **BuyModal** redesigned to fit on screen without scrolling
-- Compact layout with reduced padding and margins
-- Click outside modal to close (backdrop click handler)
-- Uses `solid` prop on GlassCard for opaque background
-- Professional three-step flow: Details → Confirm → Success
+### 3. Portfolio Store Updates (`portfolioStore.ts`)
+- **Sell Modal State**:
+  - `isSellModalOpen`, `selectedHoldingForSell`
+  - `sellQuantity`, `sellPriceUsd`, `sellPriceNear`
+- **Retire Modal State**:
+  - `isRetireModalOpen`, `selectedHoldingForRetire`
+  - `retireQuantity`
+- **Actions**:
+  - `openSellModal()`, `closeSellModal()`, `executeSell()`
+  - `openRetireModal()`, `closeRetireModal()`
+  - `setSellQuantity()`, `setSellPrice()`, `setRetireQuantity()`
 
 ## Bug Fixes
 
-### 1. Fixed Filters Not Working
-- Added explicit `credits` state subscription in MarketplaceFilters
-- Wrapped `filteredCredits()` in `useMemo` with proper dependencies
-- Fixed CheckboxItem: changed `<label>` to `<button>` with `onClick` handler
-- Checkboxes now properly toggle filter state on click
+### 1. Fixed Mobile Sidebar Not Working
+**Problem:** Framer Motion's `animate={{ x: 0 }}` was overriding CSS transforms, 
+preventing the sidebar from sliding off-screen on mobile.
 
-### 2. Fixed SDG Tooltip Visibility
-- Implemented React Portal for tooltips to escape `overflow:hidden`
-- Tooltips render to `document.body` and appear above cards
-- Position calculated once on mouse enter (no jittery movement)
-- Shows "SDG {number}: {Full Name}" on hover
+**Solution:**
+- Added `isMobile` state to track viewport size
+- Different animation logic for mobile vs desktop:
+  ```typescript
+  animate={{ 
+    width: isMobile ? 280 : (isExpanded ? 280 : 80),
+    x: isMobile ? (isExpanded ? 0 : -300) : 0,
+  }}
+  ```
+- Mobile: Always 280px wide, slides in/out with x animation
+- Desktop: Toggles width 280/80px, no x movement
+- Added close button (X) inside mobile sidebar header
+- Hamburger button hidden when sidebar is open
+- Mobile overlay with backdrop blur for closing
 
-### 3. Fixed Card Height Inconsistency
-- Added `min-h-14` (56px) to project name for 2-line title space
-- Added `min-h-10` (40px) to methodology name with `line-clamp-2`
-- All credit cards now maintain uniform height
+### 2. Fixed Navigation Active State
+**Problem:** "Marketplace" nav item stayed highlighted when on child routes 
+like `/marketplace/portfolio` because `startsWith('/marketplace/')` matched both.
 
-### 4. Fixed Page Title Alignment
-- Page titles now align with top of sidebar content
-- Desktop: 32px top padding (16px sidebar margin + 16px internal padding)
-- Mobile: 80px top padding for hamburger menu
-- Consistent margin calculations accounting for floating sidebar
+**Solution:**
+```typescript
+// Check if a more specific child route matches
+const hasMoreSpecificMatch = navItems.some(
+  other => other.href !== item.href && 
+           other.href.startsWith(`${item.href}/`) && 
+           (pathname === other.href || pathname.startsWith(`${other.href}/`))
+)
 
-## UI Improvements
+const isActive = isExactMatch || (isChildMatch && !hasMoreSpecificMatch)
+```
+- Parent routes no longer highlight when a child route is active
+- Only the most specific matching route is highlighted
 
-### Card Interaction
-- **Entire credit card is clickable** to open CreditDetailModal
-- "Buy Now" button uses `stopPropagation()` to prevent conflict
-- Removed separate "Details" button (card click replaces it)
-- Cursor changes to pointer on card hover
+### 3. Fixed Icons Not Centered in Collapsed Sidebar
+**Problem:** Icons were left-aligned with `px-3` padding in collapsed state.
 
-### Layout Reorganization (CreditCard)
-- Jobs Created section moved before SDGs
-- Bottom section split 50/50: Tonnage (left) | Price (right)
-- Tonnage shows leaf icon, quantity, and "tonnes CO₂" label
-- Price aligned right with USD and NEAR values
+**Solution:**
+```typescript
+// Nav items
+isExpanded ? 'gap-3 px-3 text-left' : 'justify-center px-2'
 
-### GlassCard Solid Mode
-- New `solid` prop for overlay/modal panels
-- Uses opaque `bg-gray-900` instead of transparent glass
-- Applied to mobile filters, BuyModal, and CreditDetailModal
-- Prevents background content showing through overlays
+// Notifications button
+isExpanded ? 'gap-3 px-3' : 'justify-center px-2'
 
-### Mobile Experience
-- Mobile hamburger menu with animated icon transitions (Menu ↔ X)
-- Mobile filter overlay uses solid background
-- Floating sidebar style preserved on mobile when expanded
+// User profile
+isExpanded ? 'gap-3 px-3 justify-between' : 'justify-center px-2'
+```
+- When collapsed: `justify-center` centers the icon
+- When expanded: Normal left-aligned layout with gap
 
 ## Files Changed
 
-### New Files (1)
-- `src/components/marketplace/CreditDetailModal.tsx` - Full project details modal
+### New Files (2)
+- `src/components/marketplace/SellModal.tsx` - Sell credits modal
+- `src/components/marketplace/RetireModal.tsx` - Retire credits modal
 
-### Modified Files (8)
-- `src/components/layout/Sidebar.tsx`
-  - Logo click toggles sidebar expansion
-  - Floating card design with margins and rounded corners
-  - Professional toggle button with animations
-  - Mobile menu button improvements
-
-- `src/app/(dashboard)/layout.tsx`
-  - Updated margin calculations for floating sidebar
-  - Added 32px top padding for desktop content alignment
-  - Right sidebar adopts floating card style
-
-- `src/components/marketplace/CreditCard.tsx`
-  - Entire card clickable for details view
-  - SDG Portal tooltips
-  - Consistent min-heights for title/methodology
-  - Layout reorganization
-
-- `src/components/marketplace/BuyModal.tsx`
-  - Compact layout without scroll
-  - Click outside to close
-  - Uses solid GlassCard
-
-- `src/components/marketplace/MarketplaceFilters.tsx`
-  - Fixed checkbox click handlers
-  - Added credits subscription for reactivity
-  - Support for solid prop
-
-- `src/components/shared/GlassCard.tsx`
-  - Added solid prop for opaque backgrounds
-
-- `src/types/components.ts`
-  - Added solid?: boolean to GlassCardProps
+### Modified Files (4)
+- `src/lib/stores/portfolioStore.ts`
+  - Added sell/retire modal state
+  - Added sell/retire actions
+  - `executeSell()` creates transaction and updates holdings
+  
+- `src/app/(dashboard)/marketplace/portfolio/page.tsx`
+  - Imported SellModal and RetireModal
+  - Wired up Sell/Retire buttons (table and grid views)
+  - Rendered modals at bottom of component
 
 - `src/components/marketplace/index.ts`
-  - Export CreditDetailModal
+  - Export SellModal and RetireModal
+
+- `src/components/layout/Sidebar.tsx`
+  - Added `isMobile` state tracking
+  - Fixed mobile slide animation
+  - Added mobile close button
+  - Fixed navigation active state logic
+  - Centered icons when collapsed
 
 ## Technical Details
 
-### Sidebar Margin Calculation
+### Sell Flow
+```
+1. User clicks "Sell" on holding
+2. openSellModal(holding) sets state
+3. User sets quantity and price
+4. Platform fee calculated (2%)
+5. User confirms → executeSell()
+6. Transaction created, holdings updated
+7. Success screen with tx hash
+```
+
+### Retire Flow
+```
+1. User clicks "Retire" on holding
+2. openRetireModal(holding) sets state
+3. User sets quantity, beneficiary, reason
+4. Impact preview shown (CO₂, cars, trees)
+5. User confirms → retireCredits()
+6. Certificate generated, holdings reduced
+7. Success screen with certificate ID
+```
+
+### Impact Calculations
 ```typescript
-// Content margins account for floating sidebar
-const leftMargin = isExpanded ? 312 : 112  // 16px + width + 16px gap
-const rightMargin = showRightSidebar ? 336 : 0
-return { marginLeft, marginRight, paddingTop: 32 }  // 32px aligns with sidebar content
+const impactCo2 = retireQuantity              // 1 credit = 1 tonne CO₂
+const impactCars = retireQuantity / 4.6       // EPA: avg car = 4.6 tonnes/year
+const impactTrees = retireQuantity * 16.5     // Trees needed to absorb same CO₂
 ```
 
-### Portal-Based Tooltips
-```typescript
-function SDGBadge({ sdg }: { sdg: number }) {
-  const handleMouseEnter = () => {
-    const rect = badgeRef.current.getBoundingClientRect()
-    setPosition({ top: rect.top - 8, left: rect.left + rect.width / 2 })
-    setIsHovered(true)
-  }
-  
-  return (
-    <>
-      <span ref={badgeRef} onMouseEnter={handleMouseEnter} ... />
-      {isHovered && position && createPortal(<Tooltip />, document.body)}
-    </>
-  )
-}
+### Mobile Sidebar Behavior
+```
+┌─────────────────────────────────────┐
+│ [☰] Hamburger    (when closed)      │
+│                                     │
+│ Tap hamburger → sidebar slides in   │
+│ Tap X or overlay → sidebar out      │
+│ Nav click → closes + navigates      │
+└─────────────────────────────────────┘
 ```
 
-### Click Outside to Close Pattern
-```tsx
-{/* Backdrop - click closes modal */}
-<motion.div onClick={onClose} className="fixed inset-0 bg-black/70 z-50" />
+## Portfolio Actions (Before → After)
 
-{/* Modal container - pointer-events-none prevents backdrop interference */}
-<motion.div className="fixed inset-0 z-50 pointer-events-none">
-  <GlassCard className="pointer-events-auto">
-    {/* Modal content receives clicks */}
-  </GlassCard>
-</motion.div>
+### Before
+```
+┌─────────────────────────────────────┐
+│ Holdings Table                      │
+│ ─────────────────────────────────── │
+│ Project    │ Value │ Actions       │
+│ Solar...   │ $500  │ [Sell][Retire]│ ← Buttons did nothing
+└─────────────────────────────────────┘
 ```
 
-## Visual Changes
-
-### Before (Old Sidebar)
+### After
 ```
-┌─────────────────────────────────────────────────────┐
-│ Full-height sidebar                                 │
-│ Touches all edges                                   │
-│ No rounded corners                                  │
-└─────────────────────────────────────────────────────┘
-```
-
-### After (Floating Sidebar)
-```
-     16px margin
-    ↓
-   ┌────────────────────────┐  ← 16px margin
-   │  ╭───────────────────╮ │
-   │  │ DMRV Logo    [◀]  │ │  ← Rounded 2xl
-   │  │─────────────────────│ │
-   │  │ Dashboard         │ │
-   │  │ Projects          │ │
-   │  │ ...               │ │
-   │  │                   │ │  ← Shadow 2xl
-   │  │ User Profile      │ │
-   │  ╰───────────────────╯ │
-   └────────────────────────┘  ← 16px margin
+┌─────────────────────────────────────┐
+│ Holdings Table                      │
+│ ─────────────────────────────────── │
+│ Project    │ Value │ Actions       │
+│ Solar...   │ $500  │ [Sell][Retire]│ ← Opens modal
+│                                     │
+│ ┌─────────────────────────────────┐ │
+│ │ 🏷️ Sell Carbon Credits         │ │
+│ │ ─────────────────────────────── │ │
+│ │ Quantity: [-] 10 [+]           │ │
+│ │ Price: $42.50 [Use market]     │ │
+│ │ You receive: $416.50           │ │
+│ │ [Cancel] [List for Sale]       │ │
+│ └─────────────────────────────────┘ │
+└─────────────────────────────────────┘
 ```
 
 ## Impact
 
 **User Experience:**
-- ✅ Professional floating sidebar matches modern design patterns
-- ✅ Click card for full details, separate button for quick buy
-- ✅ Filters work correctly with immediate feedback
-- ✅ SDG tooltips provide context without leaving cards
-- ✅ Modals are compact and don't require scrolling
-- ✅ Page content aligns properly with sidebar
+- ✅ Sell credits with custom pricing
+- ✅ Retire credits with certificate generation
+- ✅ Environmental impact visualization
+- ✅ Mobile sidebar works correctly
+- ✅ Navigation highlights correct item
+- ✅ Icons centered in collapsed sidebar
+
+**Portfolio Management:**
+- ✅ Holdings update after sell/retire
+- ✅ Transactions recorded
+- ✅ Retirement certificates generated
+- ✅ Impact metrics calculated
 
 **Accessibility:**
-- ✅ Keyboard-accessible modal close (click backdrop)
-- ✅ Proper button elements for checkboxes
-- ✅ Tooltips provide SDG context for numbered badges
-
-**Performance:**
-- ✅ Tooltip position calculated once on hover
-- ✅ useMemo prevents unnecessary filter recalculations
-- ✅ Portal-based tooltips avoid layout thrashing
+- ✅ Mobile-friendly with touch targets
+- ✅ Click outside to close modals
+- ✅ Clear visual feedback on actions
 
 ## Breaking Changes
 None - all changes are backwards compatible

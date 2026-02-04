@@ -9,7 +9,7 @@
  * Responsive: hidden on mobile with hamburger toggle.
  */
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import clsx from 'clsx'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -75,14 +75,17 @@ export function Sidebar() {
   const { isExpanded, toggle, collapse } = useSidebarStore()
   const { user, logout } = useAuthStore()
   const { mode, setMode } = useAppModeStore()
+  const [isMobile, setIsMobile] = useState(false)
   
   // Get navigation items based on current mode
   const navItems = mode === 'dmrv' ? dmrvNavItems : marketplaceNavItems
   
-  // Close sidebar on mobile when route changes
+  // Track mobile state and collapse sidebar on mobile by default
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) {
+      const mobile = window.innerWidth < 768
+      setIsMobile(mobile)
+      if (mobile) {
         collapse()
       }
     }
@@ -117,48 +120,33 @@ export function Sidebar() {
   
   return (
     <>
-      {/* Mobile Menu Button - Fixed top left */}
-      <motion.button
-        onClick={toggle}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="md:hidden fixed top-4 left-4 z-50 w-12 h-12 rounded-xl glass flex items-center justify-center text-white shadow-lg shadow-black/30 border border-white/10"
-        aria-label="Toggle menu"
-      >
-        <AnimatePresence mode="wait">
-          {isExpanded ? (
-            <motion.div
-              key="close"
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <X className="w-6 h-6" />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="menu"
-              initial={{ rotate: 90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: -90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Menu className="w-6 h-6" />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.button>
-      
-      {/* Mobile Overlay */}
+      {/* Mobile Menu Button - Fixed top left, hidden when sidebar is open */}
       <AnimatePresence>
-        {isExpanded && (
+        {!isExpanded && (
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            onClick={toggle}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="md:hidden fixed top-4 left-4 z-50 w-12 h-12 rounded-xl glass flex items-center justify-center text-white shadow-lg shadow-black/30 border border-white/10"
+            aria-label="Open menu"
+          >
+            <Menu className="w-6 h-6" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+      
+      {/* Mobile Overlay - closes sidebar when clicked */}
+      <AnimatePresence>
+        {isMobile && isExpanded && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={collapse}
-            className="md:hidden fixed inset-0 bg-black/50 z-30"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30"
           />
         )}
       </AnimatePresence>
@@ -167,31 +155,38 @@ export function Sidebar() {
       <motion.aside
         initial={false}
         animate={{ 
-          width: isExpanded ? 280 : 80,
-          x: 0,
+          width: isMobile ? 280 : (isExpanded ? 280 : 80),
+          x: isMobile ? (isExpanded ? 0 : -300) : 0,
         }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         className={clsx(
-          'fixed left-4 top-4 bottom-4 z-40 flex flex-col',
-          // Mobile: hidden when collapsed, show when expanded
-          'max-md:left-0 max-md:top-0 max-md:bottom-0 max-md:translate-x-[-100%]',
-          isExpanded && 'max-md:translate-x-0 max-md:left-4 max-md:top-4 max-md:bottom-4'
+          'fixed z-40 flex flex-col',
+          // Desktop: floating with margins
+          'md:left-4 md:top-4 md:bottom-4',
+          // Mobile: full height, slides in from left
+          'max-md:left-0 max-md:top-0 max-md:bottom-0'
         )}
-        style={{
-          transform: undefined, // Let framer-motion handle this
-        }}
       >
         <GlassCard 
-          className="flex-1 flex flex-col !rounded-2xl overflow-hidden !p-0 shadow-2xl shadow-black/40"
+          className={clsx(
+            'flex-1 flex flex-col overflow-hidden !p-0 shadow-2xl shadow-black/40',
+            // Desktop: rounded corners
+            'md:!rounded-2xl',
+            // Mobile: no rounded corners (full height)
+            'max-md:!rounded-none'
+          )}
           variant="strong"
         >
           {/* Logo */}
           <div className="p-4 flex items-center justify-between border-b border-white/10">
             <motion.button 
-              onClick={toggle}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-3 group"
+              onClick={isMobile ? undefined : toggle}
+              whileHover={isMobile ? undefined : { scale: 1.02 }}
+              whileTap={isMobile ? undefined : { scale: 0.98 }}
+              className={clsx(
+                'flex items-center gap-3 group',
+                !isMobile && 'cursor-pointer'
+              )}
             >
               <motion.div 
                 className={clsx(
@@ -228,8 +223,8 @@ export function Sidebar() {
                   </motion.span>
                 )}
               </AnimatePresence>
-              {/* Expand indicator when collapsed */}
-              {!isExpanded && (
+              {/* Expand indicator when collapsed (desktop only) */}
+              {!isExpanded && !isMobile && (
                 <motion.div
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -239,8 +234,10 @@ export function Sidebar() {
                 </motion.div>
               )}
             </motion.button>
+            
+            {/* Desktop: collapse button */}
             <AnimatePresence>
-              {isExpanded && (
+              {isExpanded && !isMobile && (
                 <motion.button
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -255,6 +252,21 @@ export function Sidebar() {
                 </motion.button>
               )}
             </AnimatePresence>
+            
+            {/* Mobile: close button */}
+            {isMobile && isExpanded && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                onClick={collapse}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition"
+                aria-label="Close menu"
+              >
+                <X className="w-5 h-5" />
+              </motion.button>
+            )}
           </div>
           
           {/* Mode Switcher */}
@@ -298,7 +310,20 @@ export function Sidebar() {
           <nav className="flex-1 py-4 overflow-y-auto">
             <ul className="space-y-1 px-3">
               {navItems.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
+                // Check if this is the exact route or a child route
+                // But exclude parent routes when a more specific child route matches
+                const isExactMatch = pathname === item.href
+                const isChildMatch = pathname.startsWith(`${item.href}/`)
+                
+                // For routes like '/marketplace', only match exactly - not when on '/marketplace/portfolio'
+                // This prevents parent nav items from staying highlighted when on child pages
+                const hasMoreSpecificMatch = navItems.some(
+                  other => other.href !== item.href && 
+                           other.href.startsWith(`${item.href}/`) && 
+                           (pathname === other.href || pathname.startsWith(`${other.href}/`))
+                )
+                
+                const isActive = isExactMatch || (isChildMatch && !hasMoreSpecificMatch)
                 const Icon = item.icon
                 
                 return (
@@ -306,7 +331,9 @@ export function Sidebar() {
                     <button
                       onClick={() => handleNavClick(item.href)}
                       className={clsx(
-                        'w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 text-left',
+                        'w-full flex items-center py-3 rounded-xl transition-all duration-200',
+                        // When collapsed: center icon, when expanded: left-align with gap
+                        isExpanded ? 'gap-3 px-3 text-left' : 'justify-center px-2',
                         isActive
                           ? mode === 'dmrv'
                             ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/10 text-white border border-green-500/30'
@@ -350,7 +377,8 @@ export function Sidebar() {
           <div className="p-3 border-t border-white/10">
             {/* Notifications */}
             <button className={clsx(
-              'w-full flex items-center gap-3 px-3 py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition mb-2 relative',
+              'w-full flex items-center py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition mb-2 relative',
+              isExpanded ? 'gap-3 px-3' : 'justify-center px-2'
             )}>
               <Bell className="w-5 h-5 flex-shrink-0" />
               {isExpanded && <span className="flex-1 text-left">Notifications</span>}
@@ -366,10 +394,13 @@ export function Sidebar() {
             
             {/* User Profile */}
             <div className={clsx(
-              'flex items-center gap-3 px-3 py-3 rounded-xl bg-white/5',
-              isExpanded ? 'justify-between' : 'justify-center'
+              'flex items-center py-3 rounded-xl bg-white/5',
+              isExpanded ? 'gap-3 px-3 justify-between' : 'justify-center px-2'
             )}>
-              <div className="flex items-center gap-3">
+              <div className={clsx(
+                'flex items-center',
+                isExpanded ? 'gap-3' : ''
+              )}>
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
                   <User className="w-4 h-4 text-white" />
                 </div>

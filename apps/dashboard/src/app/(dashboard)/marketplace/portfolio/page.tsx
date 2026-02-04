@@ -28,7 +28,7 @@ import {
 import clsx from 'clsx'
 import { usePortfolioStore } from '@/lib/stores'
 import { GlassCard } from '@/components/shared'
-import { PortfolioStats, WalletConnect } from '@/components/marketplace'
+import { PortfolioStats, WalletConnect, SellModal, RetireModal } from '@/components/marketplace'
 import { 
   mockPortfolioHoldings, 
   mockPortfolioSummary, 
@@ -59,6 +59,8 @@ export default function PortfolioPage() {
     setImpactMetrics,
     holdingsView,
     setHoldingsView,
+    openSellModal,
+    openRetireModal,
   } = usePortfolioStore()
 
   const [activeTab, setActiveTab] = useState<'holdings' | 'transactions' | 'impact'>('holdings')
@@ -279,10 +281,16 @@ export default function PortfolioPage() {
                           </td>
                           <td className="px-4 py-4">
                             <div className="flex items-center gap-2">
-                              <button className="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 text-sm hover:bg-blue-500/30 transition">
+                              <button 
+                                onClick={() => openSellModal(holding)}
+                                className="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 text-sm hover:bg-blue-500/30 transition"
+                              >
                                 Sell
                               </button>
-                              <button className="px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 text-sm hover:bg-green-500/30 transition">
+                              <button 
+                                onClick={() => openRetireModal(holding)}
+                                className="px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 text-sm hover:bg-green-500/30 transition"
+                              >
                                 Retire
                               </button>
                             </div>
@@ -317,10 +325,16 @@ export default function PortfolioPage() {
                       </div>
                       <p className="text-lg font-semibold text-white">{formatCurrency(holding.currentValueUsd)}</p>
                       <div className="flex gap-2 mt-3">
-                        <button className="flex-1 px-3 py-2 rounded-lg bg-blue-500/20 text-blue-400 text-sm hover:bg-blue-500/30 transition">
+                        <button 
+                          onClick={() => openSellModal(holding)}
+                          className="flex-1 px-3 py-2 rounded-lg bg-blue-500/20 text-blue-400 text-sm hover:bg-blue-500/30 transition"
+                        >
                           Sell
                         </button>
-                        <button className="flex-1 px-3 py-2 rounded-lg bg-green-500/20 text-green-400 text-sm hover:bg-green-500/30 transition">
+                        <button 
+                          onClick={() => openRetireModal(holding)}
+                          className="flex-1 px-3 py-2 rounded-lg bg-green-500/20 text-green-400 text-sm hover:bg-green-500/30 transition"
+                        >
                           Retire
                         </button>
                       </div>
@@ -469,6 +483,10 @@ export default function PortfolioPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Modals */}
+      <SellModal />
+      <RetireModal />
     </div>
   )
 }
