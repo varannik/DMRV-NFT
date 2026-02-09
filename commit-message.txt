@@ -1,234 +1,173 @@
-feat(portfolio): add Sell & Retire modals + fix mobile sidebar and navigation
+feat(marketplace): wire up Trading Desk create-listing form + add Marketplace SRS
 
-This commit adds Sell and Retire functionality to the portfolio page,
-fixes mobile sidebar behavior, and improves sidebar navigation UX.
+Implements fully functional listing creation on the Trading Desk page and
+adds a comprehensive Software Requirements Specification for the entire
+Marketplace module.
 
-## New Features
+## New Documentation
 
-### 1. SellModal Component (`SellModal.tsx`)
-- **3-step flow**: Details → Confirm → Success
-- Quantity selector with +/- buttons (step by 10)
-- **Custom price setting** with "Use market price" shortcut
-- Earnings breakdown:
-  - Price per credit × Quantity
-  - Platform fee (2%)
-  - Net earnings in USD and NEAR
-- Wallet connection integration
-- Transaction hash linking to NEAR Explorer
-- Updates holdings after successful sell
+### Marketplace SRS (`apps/dashboard/MARKETPLACE_SRS.md`)
+- **14-section** Software Requirements Specification covering the full
+  Marketplace module (`/marketplace/*`)
+- 40+ user stories with acceptance criteria across all 6 pages
+  (Browse, Trading, Portfolio, Analytics, Explorer, Registries)
+- 23 REST API endpoint specifications
+- Complete type reference (14 TypeScript interfaces)
+- NEAR blockchain integration spec (NEP-141, smart contract methods)
+- Non-functional requirements: performance, security, accessibility,
+  compliance (ICROA, CORSIA, GDPR, SOC 2)
+- Resource plan: 10-person team structure, tooling, ~$1.9M annual budget
+- 25-week (6-month) project timeline with 13-sprint breakdown
+- 10-item risk assessment matrix with mitigation strategies
+- QA strategy, deployment pipeline, post-launch support plan
+- Current implementation status matrix (all 14 features tracked)
 
-### 2. RetireModal Component (`RetireModal.tsx`)
-- **Permanent retirement** with warning banner
-- Quantity selector
-- **Environmental impact preview**:
-  - CO₂ tonnes offset
-  - Equivalent cars removed from road/year
-  - Equivalent trees grown over 10 years
-- **Beneficiary details**:
-  - Type: Individual or Organization
-  - Name (appears on certificate)
-- **Reason dropdown**:
-  - Personal Carbon Offset
-  - Corporate Sustainability Goals
-  - Event Carbon Neutrality
-  - Product Carbon Neutrality
-  - Voluntary Climate Action
-  - Other
-- Optional notes field
-- **Certificate generation** on success
-- Impact summary displayed after retirement
+## Trading Desk Enhancements (`trading/page.tsx`)
 
-### 3. Portfolio Store Updates (`portfolioStore.ts`)
-- **Sell Modal State**:
-  - `isSellModalOpen`, `selectedHoldingForSell`
-  - `sellQuantity`, `sellPriceUsd`, `sellPriceNear`
-- **Retire Modal State**:
-  - `isRetireModalOpen`, `selectedHoldingForRetire`
-  - `retireQuantity`
-- **Actions**:
-  - `openSellModal()`, `closeSellModal()`, `executeSell()`
-  - `openRetireModal()`, `closeRetireModal()`
-  - `setSellQuantity()`, `setSellPrice()`, `setRetireQuantity()`
+### 1. Functional Create Listing Form
+**Before:** Form inputs were static placeholders with no state or handlers.
+Clicking "Create Listing" did nothing.
 
-## Bug Fixes
+**After:** Fully wired form that creates listings and adds them to state.
 
-### 1. Fixed Mobile Sidebar Not Working
-**Problem:** Framer Motion's `animate={{ x: 0 }}` was overriding CSS transforms, 
-preventing the sidebar from sliding off-screen on mobile.
+- **Credit selection** — Radio buttons bound to `selectedCreditId` state;
+  selected credit highlights with blue border (`bg-blue-500/10`)
+- **Listing type toggle** — `fixed | auction | negotiable` buttons with
+  active state styling; defaults to `fixed`
+- **Dual-currency pricing** — USD and NEAR inputs with auto-conversion
+  using `NEAR_USD_RATE` (1 NEAR ≈ $4.25 USD); changing one updates the other
+- **Quantity input** — Bound to state with `min="1"` and `step="1"`
+- **Duration selector** — Controlled `<select>` for 7/14/30/60 days
+- **Form validation** — Submit disabled until credit selected, price > 0,
+  and quantity > 0; visual disabled state (`bg-white/10 text-white/40
+  cursor-not-allowed`); validation hint text shown when invalid
+- **Create handler** — `handleCreateListing()` builds a `MarketplaceListing`
+  object from form state, prepends to listings array, resets form, and
+  switches to "My Listings" tab
 
-**Solution:**
-- Added `isMobile` state to track viewport size
-- Different animation logic for mobile vs desktop:
-  ```typescript
-  animate={{ 
-    width: isMobile ? 280 : (isExpanded ? 280 : 80),
-    x: isMobile ? (isExpanded ? 0 : -300) : 0,
-  }}
-  ```
-- Mobile: Always 280px wide, slides in/out with x animation
-- Desktop: Toggles width 280/80px, no x movement
-- Added close button (X) inside mobile sidebar header
-- Hamburger button hidden when sidebar is open
-- Mobile overlay with backdrop blur for closing
+### 2. Dynamic Fee Estimate Panel
+**Before:** Static `$0.00` values.
 
-### 2. Fixed Navigation Active State
-**Problem:** "Marketplace" nav item stayed highlighted when on child routes 
-like `/marketplace/portfolio` because `startsWith('/marketplace/')` matched both.
+**After:** Real-time calculation based on form inputs.
 
-**Solution:**
 ```typescript
-// Check if a more specific child route matches
-const hasMoreSpecificMatch = navItems.some(
-  other => other.href !== item.href && 
-           other.href.startsWith(`${item.href}/`) && 
-           (pathname === other.href || pathname.startsWith(`${other.href}/`))
-)
-
-const isActive = isExactMatch || (isChildMatch && !hasMoreSpecificMatch)
+const totalValue = usdPrice * qty
+const platformFee = totalValue * 0.02     // 2% platform fee
+const nearGasFee = 0.01                   // Estimated NEAR gas
+const netProceeds = totalValue - platformFee
 ```
-- Parent routes no longer highlight when a child route is active
-- Only the most specific matching route is highlighted
 
-### 3. Fixed Icons Not Centered in Collapsed Sidebar
-**Problem:** Icons were left-aligned with `px-3` padding in collapsed state.
+- Listing Value, Platform Fee, NEAR Gas Fee, and Net Proceeds update
+  live as user types price/quantity
+- Net Proceeds displayed in green (`text-green-400`)
 
-**Solution:**
-```typescript
-// Nav items
-isExpanded ? 'gap-3 px-3 text-left' : 'justify-center px-2'
-
-// Notifications button
-isExpanded ? 'gap-3 px-3' : 'justify-center px-2'
-
-// User profile
-isExpanded ? 'gap-3 px-3 justify-between' : 'justify-center px-2'
-```
-- When collapsed: `justify-center` centers the icon
-- When expanded: Normal left-aligned layout with gap
+### 3. Required Field Indicators
+- Added red asterisk (`*`) to required fields: "Select Credits to Sell",
+  "Price per Credit", "Quantity to List"
+- NEAR input shows Ⓝ symbol on right side with proper padding (`pr-8`)
+- Exchange rate hint below price inputs
 
 ## Files Changed
 
-### New Files (2)
-- `src/components/marketplace/SellModal.tsx` - Sell credits modal
-- `src/components/marketplace/RetireModal.tsx` - Retire credits modal
+### New Files (1)
+- `apps/dashboard/MARKETPLACE_SRS.md` — Full marketplace SRS document
 
-### Modified Files (4)
-- `src/lib/stores/portfolioStore.ts`
-  - Added sell/retire modal state
-  - Added sell/retire actions
-  - `executeSell()` creates transaction and updates holdings
-  
-- `src/app/(dashboard)/marketplace/portfolio/page.tsx`
-  - Imported SellModal and RetireModal
-  - Wired up Sell/Retire buttons (table and grid views)
-  - Rendered modals at bottom of component
-
-- `src/components/marketplace/index.ts`
-  - Export SellModal and RetireModal
-
-- `src/components/layout/Sidebar.tsx`
-  - Added `isMobile` state tracking
-  - Fixed mobile slide animation
-  - Added mobile close button
-  - Fixed navigation active state logic
-  - Centered icons when collapsed
+### Modified Files (1)
+- `apps/dashboard/src/app/(dashboard)/marketplace/trading/page.tsx`
+  - Added 80 lines of state + handlers (form state, validation,
+    USD↔NEAR conversion, listing creation)
+  - Wired all form inputs to state with controlled components
+  - Added listing type active state toggle
+  - Made fee estimate panel dynamic with live calculations
+  - Added required field markers and validation hint
+  - Changed submit button to conditional disabled/enabled styling
 
 ## Technical Details
 
-### Sell Flow
+### Create Listing Flow
 ```
-1. User clicks "Sell" on holding
-2. openSellModal(holding) sets state
-3. User sets quantity and price
-4. Platform fee calculated (2%)
-5. User confirms → executeSell()
-6. Transaction created, holdings updated
-7. Success screen with tx hash
-```
-
-### Retire Flow
-```
-1. User clicks "Retire" on holding
-2. openRetireModal(holding) sets state
-3. User sets quantity, beneficiary, reason
-4. Impact preview shown (CO₂, cars, trees)
-5. User confirms → retireCredits()
-6. Certificate generated, holdings reduced
-7. Success screen with certificate ID
+1. User selects credit from holdings (radio button)
+2. User picks listing type (fixed/auction/negotiable)
+3. User enters price in USD or NEAR (auto-converts)
+4. User sets quantity and duration
+5. Form validates: credit + price + quantity required
+6. User clicks "Create Listing"
+7. handleCreateListing() builds MarketplaceListing object
+8. New listing prepended to myListings via setMyListings()
+9. Form resets to defaults
+10. Tab switches to "My Listings" showing new listing
 ```
 
-### Impact Calculations
+### USD ↔ NEAR Conversion
 ```typescript
-const impactCo2 = retireQuantity              // 1 credit = 1 tonne CO₂
-const impactCars = retireQuantity / 4.6       // EPA: avg car = 4.6 tonnes/year
-const impactTrees = retireQuantity * 16.5     // Trees needed to absorb same CO₂
+// USD → NEAR
+const handleUsdChange = (value: string) => {
+  setPriceUsd(value)
+  setPriceNear((parseFloat(value) / NEAR_USD_RATE).toFixed(2))
+}
+
+// NEAR → USD
+const handleNearChange = (value: string) => {
+  setPriceNear(value)
+  setPriceUsd((parseFloat(value) * NEAR_USD_RATE).toFixed(2))
+}
 ```
 
-### Mobile Sidebar Behavior
-```
-┌─────────────────────────────────────┐
-│ [☰] Hamburger    (when closed)      │
-│                                     │
-│ Tap hamburger → sidebar slides in   │
-│ Tap X or overlay → sidebar out      │
-│ Nav click → closes + navigates      │
-└─────────────────────────────────────┘
-```
-
-## Portfolio Actions (Before → After)
+## Trading Desk (Before → After)
 
 ### Before
 ```
 ┌─────────────────────────────────────┐
-│ Holdings Table                      │
+│ Create New Listing                  │
 │ ─────────────────────────────────── │
-│ Project    │ Value │ Actions       │
-│ Solar...   │ $500  │ [Sell][Retire]│ ← Buttons did nothing
+│ Select Credits: ○ Solar  ○ Forest  │ ← No selection state
+│ Listing Type: [fixed][auction]      │ ← No active state
+│ Price: [$___] [NEAR___]            │ ← No binding
+│ Quantity: [____]                    │ ← No binding
+│ Duration: [7 days ▾]               │ ← No binding
+│ [  Create Listing  ]               │ ← Always enabled, no-op
+│                                     │
+│ Fee Estimate:                       │
+│   Platform Fee: $0.00               │ ← Static zeros
+│   Gas Fee: ~0.01 Ⓝ                 │
+│   Net Proceeds: $0.00              │ ← Static zeros
 └─────────────────────────────────────┘
 ```
 
 ### After
 ```
 ┌─────────────────────────────────────┐
-│ Holdings Table                      │
+│ Create New Listing                  │
 │ ─────────────────────────────────── │
-│ Project    │ Value │ Actions       │
-│ Solar...   │ $500  │ [Sell][Retire]│ ← Opens modal
+│ Select Credits: ● Solar  ○ Forest  │ ← Blue highlight on selected
+│ Listing Type: [▪fixed][auction]     │ ← Active state with border
+│ Price: [$42.50] [10.00 Ⓝ]         │ ← Auto-converts USD ↔ NEAR
+│ 1 NEAR ≈ $4.25 USD                │ ← Exchange rate hint
+│ Quantity: [100] *                   │ ← Required field
+│ Duration: [7 days ▾]               │ ← Controlled select
+│ [  Create Listing  ]               │ ← Enabled (blue gradient)
 │                                     │
-│ ┌─────────────────────────────────┐ │
-│ │ 🏷️ Sell Carbon Credits         │ │
-│ │ ─────────────────────────────── │ │
-│ │ Quantity: [-] 10 [+]           │ │
-│ │ Price: $42.50 [Use market]     │ │
-│ │ You receive: $416.50           │ │
-│ │ [Cancel] [List for Sale]       │ │
-│ └─────────────────────────────────┘ │
+│ Fee Estimate:                       │
+│   Listing Value: $4,250.00          │ ← Live calculation
+│   Platform Fee: -$85.00             │ ← 2% of listing value
+│   Gas Fee: ~0.01 Ⓝ                 │
+│   Net Proceeds: $4,165.00          │ ← Green text, live total
 └─────────────────────────────────────┘
 ```
 
 ## Impact
 
-**User Experience:**
-- ✅ Sell credits with custom pricing
-- ✅ Retire credits with certificate generation
-- ✅ Environmental impact visualization
-- ✅ Mobile sidebar works correctly
-- ✅ Navigation highlights correct item
-- ✅ Icons centered in collapsed sidebar
+**Trading Desk:**
+- ✅ Users can now create functional listings from the form
+- ✅ Dual-currency pricing with live conversion
+- ✅ Real-time fee estimation
+- ✅ Form validation prevents incomplete submissions
+- ✅ New listings appear immediately in "My Listings" tab
 
-**Portfolio Management:**
-- ✅ Holdings update after sell/retire
-- ✅ Transactions recorded
-- ✅ Retirement certificates generated
-- ✅ Impact metrics calculated
-
-**Accessibility:**
-- ✅ Mobile-friendly with touch targets
-- ✅ Click outside to close modals
-- ✅ Clear visual feedback on actions
+**Documentation:**
+- ✅ Complete SRS for marketplace module
+- ✅ Grounded in actual codebase (types, stores, components)
+- ✅ Ready for backend team to implement API layer
 
 ## Breaking Changes
-None - all changes are backwards compatible
-
-## Build Status
-✅ Passes TypeScript compilation (only pre-existing style warnings)
+None — all changes are backwards compatible

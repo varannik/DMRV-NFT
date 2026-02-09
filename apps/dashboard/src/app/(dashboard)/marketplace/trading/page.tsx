@@ -46,6 +46,86 @@ export default function TradingDeskPage() {
 
   const [selectedTab, setSelectedTab] = useState<'sell' | 'listings' | 'orderbook'>('listings')
   const [isInitialized, setIsInitialized] = useState(false)
+  const [listingType, setListingType] = useState<'fixed' | 'auction' | 'negotiable'>('fixed')
+  
+  // Form state
+  const [selectedCreditId, setSelectedCreditId] = useState<string>('')
+  const [priceUsd, setPriceUsd] = useState<string>('')
+  const [priceNear, setPriceNear] = useState<string>('')
+  const [quantity, setQuantity] = useState<string>('')
+  const [duration, setDuration] = useState<string>('7')
+  
+  // Mock NEAR/USD exchange rate (in production, fetch from API)
+  const NEAR_USD_RATE = 4.25 // 1 NEAR = $4.25 USD
+  
+  // Form validation
+  const isFormValid = 
+    selectedCreditId !== '' &&
+    parseFloat(priceUsd) > 0 &&
+    parseInt(quantity) > 0
+  
+  // Handle creating a new listing
+  const handleCreateListing = () => {
+    if (!isFormValid) return
+    
+    // Find the selected credit from holdings
+    const selectedHolding = holdings.find(h => h.credit.id === selectedCreditId)
+    if (!selectedHolding) return
+    
+    // Calculate expiration date
+    const expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + parseInt(duration))
+    
+    // Create new listing
+    const newListing = {
+      id: `listing-${Date.now()}`,
+      credit: selectedHolding.credit,
+      quantity: parseInt(quantity),
+      priceUsd: parseFloat(priceUsd),
+      priceNear: parseFloat(priceNear),
+      listingType: listingType,
+      status: 'active' as const,
+      createdAt: new Date().toISOString(),
+      expiresAt: expiresAt.toISOString(),
+      views: 0,
+      watchers: 0,
+      offers: 0,
+    }
+    
+    // Add to listings
+    setMyListings([newListing, ...myListings])
+    
+    // Reset form
+    setSelectedCreditId('')
+    setPriceUsd('')
+    setPriceNear('')
+    setQuantity('')
+    setDuration('7')
+    setListingType('fixed')
+    
+    // Switch to listings tab to show the new listing
+    setSelectedTab('listings')
+  }
+  
+  const handleUsdChange = (value: string) => {
+    setPriceUsd(value)
+    if (value && !isNaN(parseFloat(value))) {
+      const nearValue = parseFloat(value) / NEAR_USD_RATE
+      setPriceNear(nearValue.toFixed(2))
+    } else {
+      setPriceNear('')
+    }
+  }
+  
+  const handleNearChange = (value: string) => {
+    setPriceNear(value)
+    if (value && !isNaN(parseFloat(value))) {
+      const usdValue = parseFloat(value) * NEAR_USD_RATE
+      setPriceUsd(usdValue.toFixed(2))
+    } else {
+      setPriceUsd('')
+    }
+  }
 
   // Initialize data
   useEffect(() => {
@@ -271,16 +351,24 @@ export default function TradingDeskPage() {
             <div className="space-y-4">
               {/* Select Credits */}
               <div>
-                <label className="block text-sm text-white/60 mb-2">Select Credits to Sell</label>
+                <label className="block text-sm text-white/60 mb-2">Select Credits to Sell <span className="text-red-400">*</span></label>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {holdings.map((holding) => (
                     <label
                       key={holding.credit.id}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition"
+                      className={clsx(
+                        'flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition',
+                        selectedCreditId === holding.credit.id
+                          ? 'bg-blue-500/10 border-blue-500/30'
+                          : 'bg-white/5 border-white/10 hover:bg-white/10'
+                      )}
                     >
                       <input
                         type="radio"
                         name="credit"
+                        value={holding.credit.id}
+                        checked={selectedCreditId === holding.credit.id}
+                        onChange={(e) => setSelectedCreditId(e.target.value)}
                         className="w-4 h-4 text-blue-500"
                       />
                       <div className="flex-1">
@@ -299,10 +387,17 @@ export default function TradingDeskPage() {
               <div>
                 <label className="block text-sm text-white/60 mb-2">Listing Type</label>
                 <div className="grid grid-cols-3 gap-2">
-                  {['fixed', 'auction', 'negotiable'].map((type) => (
+                  {(['fixed', 'auction', 'negotiable'] as const).map((type) => (
                     <button
                       key={type}
-                      className="px-3 py-2 rounded-lg bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition text-sm capitalize"
+                      type="button"
+                      onClick={() => setListingType(type)}
+                      className={clsx(
+                        'px-3 py-2 rounded-lg transition text-sm capitalize',
+                        listingType === type
+                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                          : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+                      )}
                     >
                       {type === 'fixed' ? 'Fixed Price' : type}
                     </button>
@@ -312,33 +407,46 @@ export default function TradingDeskPage() {
 
               {/* Price */}
               <div>
-                <label className="block text-sm text-white/60 mb-2">Price per Credit</label>
+                <label className="block text-sm text-white/60 mb-2">Price per Credit <span className="text-red-400">*</span></label>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50">$</span>
                     <input
                       type="number"
+                      min="0"
+                      step="0.01"
                       placeholder="0.00"
+                      value={priceUsd}
+                      onChange={(e) => handleUsdChange(e.target.value)}
                       className="w-full pl-7 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50"
                     />
                   </div>
                   <div className="relative flex-1">
                     <input
                       type="number"
-                      placeholder="NEAR"
-                      className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={priceNear}
+                      onChange={(e) => handleNearChange(e.target.value)}
+                      className="w-full pl-4 pr-8 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50">Ⓝ</span>
                   </div>
                 </div>
+                <p className="text-xs text-white/40 mt-1">1 NEAR ≈ ${NEAR_USD_RATE.toFixed(2)} USD</p>
               </div>
 
               {/* Quantity */}
               <div>
-                <label className="block text-sm text-white/60 mb-2">Quantity to List</label>
+                <label className="block text-sm text-white/60 mb-2">Quantity to List <span className="text-red-400">*</span></label>
                 <input
                   type="number"
+                  min="1"
+                  step="1"
                   placeholder="Enter quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
                   className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50"
                 />
               </div>
@@ -346,7 +454,11 @@ export default function TradingDeskPage() {
               {/* Duration */}
               <div>
                 <label className="block text-sm text-white/60 mb-2">Duration</label>
-                <select className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 appearance-none cursor-pointer">
+                <select 
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500/50 appearance-none cursor-pointer"
+                >
                   <option value="7" className="bg-gray-900">7 days</option>
                   <option value="14" className="bg-gray-900">14 days</option>
                   <option value="30" className="bg-gray-900">30 days</option>
@@ -355,9 +467,25 @@ export default function TradingDeskPage() {
               </div>
 
               {/* Submit */}
-              <button className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-medium hover:from-blue-600 hover:to-cyan-600 transition shadow-lg shadow-blue-500/25">
+              <button 
+                disabled={!isFormValid}
+                onClick={handleCreateListing}
+                className={clsx(
+                  'w-full px-4 py-3 rounded-xl font-medium transition shadow-lg',
+                  isFormValid
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 shadow-blue-500/25 cursor-pointer'
+                    : 'bg-white/10 text-white/40 cursor-not-allowed shadow-none'
+                )}
+              >
                 Create Listing
               </button>
+              
+              {/* Validation hint */}
+              {!isFormValid && (
+                <p className="text-xs text-white/40 text-center">
+                  Please fill in all required fields marked with <span className="text-red-400">*</span>
+                </p>
+              )}
             </div>
           </GlassCard>
 
@@ -365,20 +493,35 @@ export default function TradingDeskPage() {
           <div className="space-y-4">
             <GlassCard>
               <h3 className="text-lg font-semibold text-white mb-4">Fee Estimate</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-white/60">Platform Fee (2%)</span>
-                  <span className="text-white">$0.00</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">NEAR Gas Fee (est.)</span>
-                  <span className="text-white">~0.01 Ⓝ</span>
-                </div>
-                <div className="border-t border-white/10 pt-3 flex justify-between font-semibold">
-                  <span className="text-white">Net Proceeds (est.)</span>
-                  <span className="text-white">$0.00</span>
-                </div>
-              </div>
+              {(() => {
+                const usdPrice = parseFloat(priceUsd) || 0
+                const qty = parseInt(quantity) || 0
+                const totalValue = usdPrice * qty
+                const platformFee = totalValue * 0.02
+                const nearGasFee = 0.01
+                const netProceeds = totalValue - platformFee
+                
+                return (
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-white/60">Listing Value</span>
+                      <span className="text-white">{formatCurrency(totalValue)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-white/60">Platform Fee (2%)</span>
+                      <span className="text-white">-{formatCurrency(platformFee)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-white/60">NEAR Gas Fee (est.)</span>
+                      <span className="text-white">~{nearGasFee} Ⓝ</span>
+                    </div>
+                    <div className="border-t border-white/10 pt-3 flex justify-between font-semibold">
+                      <span className="text-white">Net Proceeds (est.)</span>
+                      <span className="text-green-400">{formatCurrency(netProceeds)}</span>
+                    </div>
+                  </div>
+                )
+              })()}
             </GlassCard>
 
             <GlassCard>
