@@ -77,11 +77,14 @@ export function CreditDetailModal({
     })
   }
 
-  // Generate Google Maps embed URL
-  const mapUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${credit.location.coordinates.lat},${credit.location.coordinates.lng}&zoom=6`
+  // Generate Google Maps embed URL (use coordinates when available, else country)
+  const coords = credit.location.coordinates
+  const mapQuery = coords ? `${coords.lat},${coords.lng}` : encodeURIComponent(credit.location.country)
+  const mapUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${mapQuery}&zoom=6`
   
   // Fallback static map image
-  const staticMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${credit.location.coordinates.lat},${credit.location.coordinates.lng}&zoom=5&size=400x200&maptype=terrain&markers=color:green%7C${credit.location.coordinates.lat},${credit.location.coordinates.lng}`
+  const staticMapCenter = coords ? `${coords.lat},${coords.lng}` : encodeURIComponent(credit.location.country)
+  const staticMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${staticMapCenter}&zoom=5&size=400x200&maptype=terrain${coords ? `&markers=color:green%7C${coords.lat},${coords.lng}` : ''}`
 
   return (
     <AnimatePresence>
@@ -186,15 +189,19 @@ export function CreditDetailModal({
                       <div className="h-40 bg-gradient-to-br from-blue-900/50 to-green-900/50 flex items-center justify-center relative">
                         <div className="text-center">
                           <MapPin className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                          <p className="text-white/70 text-sm">
-                            {credit.location.coordinates.lat.toFixed(4)}°, {credit.location.coordinates.lng.toFixed(4)}°
-                          </p>
+                          {coords ? (
+                            <p className="text-white/70 text-sm">
+                              {coords.lat.toFixed(4)}°, {coords.lng.toFixed(4)}°
+                            </p>
+                          ) : null}
                           <p className="text-white text-sm font-medium mt-1">
-                            {credit.location.region}, {credit.location.country}
+                            {[credit.location.region, credit.location.country].filter(Boolean).join(', ')}
                           </p>
                         </div>
                         <a
-                          href={`https://www.google.com/maps?q=${credit.location.coordinates.lat},${credit.location.coordinates.lng}`}
+                          href={coords
+                            ? `https://www.google.com/maps?q=${coords.lat},${coords.lng}`
+                            : `https://www.google.com/maps?q=${encodeURIComponent(credit.location.country)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-1 rounded bg-white/10 text-white/70 hover:text-white text-xs transition"
