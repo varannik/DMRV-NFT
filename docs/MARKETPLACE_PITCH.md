@@ -9,7 +9,7 @@
 
 ## The Problem: A $2 Billion Market Running on Spreadsheets
 
-The voluntary carbon market hit **$2B in 2024** and is projected to reach **$50B by 2030** (McKinsey, Ecosystem Marketplace). Yet the market infrastructure looks like it belongs in 2005:
+The voluntary carbon market hit **$2B in 2024** and is projected to reach **up to $50B by 2030** ([McKinsey/TSVCM](https://www.mckinsey.com/capabilities/sustainability/our-insights/a-blueprint-for-scaling-voluntary-carbon-markets-to-meet-the-climate-challenge), [Ecosystem Marketplace SOVCM 2024](https://www.ecosystemmarketplace.com/publications/2024-state-of-the-voluntary-carbon-markets-sovcm/)). Yet the market infrastructure looks like it belongs in 2005:
 
 **Credits are invisible.** Over 8 disconnected registries (Verra, Gold Standard, ACR, CAR, and more) each maintain their own databases. There is no unified view. A corporate buyer looking for mangrove restoration credits must search each registry individually, compare inconsistent data formats, and negotiate via email.
 
@@ -229,7 +229,11 @@ The voluntary carbon market is on an exponential trajectory:
 | 2026 (projected) | $5B | +108% |
 | 2030 (projected) | $50B | +900% |
 
-Sources: Ecosystem Marketplace, McKinsey, BloombergNEF, TSVCM
+Sources:
+- [Ecosystem Marketplace — *State of the Voluntary Carbon Market 2024*](https://www.ecosystemmarketplace.com/publications/2024-state-of-the-voluntary-carbon-markets-sovcm/)
+- [McKinsey / TSVCM — *A Blueprint for Scaling Voluntary Carbon Markets*](https://www.mckinsey.com/capabilities/sustainability/our-insights/a-blueprint-for-scaling-voluntary-carbon-markets-to-meet-the-climate-challenge)
+- [BloombergNEF — *Long-Term Carbon Credit Supply Outlook 2025*](https://about.bnef.com/insights/commodities/long-term-carbon-credit-supply-outlook-2025/)
+- [TSVCM Final Report (IIF)](https://www.iif.com/portals/1/files/tsvcm_report.pdf) | Successor body: [ICVCM](https://icvcm.org)
 
 ### Serviceable Addressable Market (SAM)
 

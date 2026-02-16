@@ -79,6 +79,7 @@ export default function TradingDeskPage() {
     // Create new listing
     const newListing = {
       id: `listing-${Date.now()}`,
+      sellerId: 'demo-user.near',
       credit: selectedHolding.credit,
       quantity: parseInt(quantity),
       priceUsd: parseFloat(priceUsd),
