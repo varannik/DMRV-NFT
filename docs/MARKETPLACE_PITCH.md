@@ -554,18 +554,25 @@ This section summarizes workload characteristics relevant to AWS capacity planni
 
 ## 9. Business Model & Revenue
 
-### 9.1 Revenue Streams
+### 9.1 Revenue Streams (Year 1 Base Case, ~$209K)
 
-| Stream | Mechanism | Projected Year 1 |
-|---|---|---|
-| **Trading Fee** | 2% per transaction (buyer side) | $200K (at $10M volume) |
-| **Listing Fee** | $0 standard; $50/mo premium placement | $60K |
-| **Retirement Certificate** | $5 per certificate (includes NEAR gas) | $30K |
-| **Registry API Access** | Enterprise plan for bulk API access | $100K |
-| **Data & Analytics** | Premium analytics subscription ($99/mo) | $60K |
-| **SaaS Subscriptions** | Starter / Professional / Enterprise tiers | Included above |
-| **Year 1 Total** | | **~$450K** |
-| **Year 2 Total** (10x volume) | | **~$3–5M** |
+| Stream | Mechanism | Assumption | Projected Year 1 |
+|---|---|---|---|
+| **Trading Fee** | 1% per transaction (buyer side) | 50–100 corporate buyers; **$10M GMV** | **$100K** |
+| **Listing Fee** | **$0.10 per tonne** listed | 20 projects × avg **15,000 t** = **300,000 t** listed | **$30K** |
+| **Retirement Certificate** | On-chain proof of retirement; **$10/certificate** | **5,000** retirements (**1% of traded volume**, tonne-equivalent basis) | **$50K** |
+| **Data & Analytics** | **$49/mo** SME; **$299/mo** enterprise | **5 SME + 2 enterprise** (mid-year starts) | **$5K** |
+| **DMRV Issuance Fee** | **$0.08 per token** minted (1 token = 1 t CO₂) | 20 projects × 15,000 t = **300,000 tokens** | **$24K** |
+| | | **Total** | **~$209K** |
+
+**Year 2 (illustrative):** Same fee schedule; at **~2.5–3×** Year 1 activity on GMV, listed tonnes, minted tokens, and retirements → **~$525K–$630K** (not including optional registry API or enterprise bundles).
+
+**Notes**
+
+- **Trading fee** scales linearly with GMV at 1%; $10M GMV is the core Year 1 commercial hypothesis.
+- **Retirements:** 5,000 × $10 = $50K; **1% of traded volume** should be validated against your modeled tonnes (e.g. $10M GMV ÷ blended **$/t** ≈ tonnes traded → 1% ≈ retirement count).
+- **Analytics** revenue is back-weighted (mid-year subscriber starts); full-year run-rate the following year is higher at the same seat count.
+- **Registry API access**, enterprise SaaS bundles, and white-label fees are **additive** in Year 2+ as pipeline matures.
 
 ### 9.2 SaaS Subscription Tiers
 
@@ -580,10 +587,10 @@ This section summarizes workload characteristics relevant to AWS capacity planni
 | Milestone | Timeline | Revenue Impact |
 |---|---|---|
 | Beta Launch (Testnet) | Month 6 | 100 beta users; validation, no revenue |
-| Mainnet Launch | Month 7 | Revenue starts (trading fees + certificates) |
-| 2,500 MAU | Month 12 | ~$450K ARR |
-| $1M Monthly Volume | Month 15 | Trading fee covers operating costs |
-| Break-Even | Month 18 | Revenue run-rate covers infrastructure + skeleton team |
+| Mainnet Launch | Month 7 | Revenue starts (trading, listing, issuance, certificates, analytics) |
+| Year 1 base case | Month 12 | **~$209K ARR** (assumptions in Section 9.1) |
+| $10M annual GMV trajectory | Month 12–15 | **$100K** of Year 1 from 1% trading fee alone; full $209K includes listings, mints, retirements, analytics |
+| Break-Even | Month 18–24 | Revenue run-rate covers AWS steady-state + lean ops (varies with headcount; **AWS spend is covered well before** full break-even at ~$2.1K–$4.5K/mo) |
 
 ---
 
@@ -721,7 +728,7 @@ For smart contract changes:
 
 **24-month total projected AWS spend: ~$78,000** — within the $80K budget ceiling.
 
-At the Growth and Scale phases, trading fee revenue ($200K+ ARR at $10M volume) covers AWS costs and the platform becomes self-sustaining on infrastructure spend.
+At the Growth and Scale phases, **Year 1 base-case revenue (~$209K ARR)** comfortably covers steady-state **AWS spend (~$25K–$55K/year** depending on phase and Reserved/Spot mix); trading fee at **1% on $10M GMV ($100K)** alone nearly covers a full year of projected AWS infrastructure before other streams.
 
 ### 12.3 Cost Optimization Strategy
 

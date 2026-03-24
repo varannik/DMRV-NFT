@@ -1,55 +1,31 @@
-docs(marketplace): restructure pitch for AWS Activate and $80K credit ask
+docs(marketplace): refresh Year 1 revenue model in AWS marketplace pitch
 
-Rewrites `docs/MARKETPLACE_PITCH.md` from an investor-facing $2M seed narrative
-into an expert-review-ready **AWS Activate / startup credits** proposal. Keeps
-business context (Section 9 revenue streams, NEAR rationale in appendices) but
-anchors funding on **under $80K** in AWS infrastructure over 24 months.
+Updates **Section 9 (Business Model & Revenue)** and dependent copy in
+`docs/MARKETPLACE_PITCH.md` so the pitch matches the new **~$209K Year 1**
+base case and fee mechanics. The document remains the **AWS Activate**
+proposal with the **under $80K** infrastructure ask in Section 12.
 
-## docs/MARKETPLACE_PITCH.md
+## Revenue model (Section 9.1)
 
-### Document framing
-- Title: **AWS Activate Program Proposal** (not generic "startup funding")
-- Executive brief updated: ask is **up to $80K in AWS credits**, not equity funding
-- Build status language: backend/blockchain "requires AWS infrastructure" (not "needs funding")
+Four-column table: **Stream | Mechanism | Assumption | Projected Year 1**
 
-### AWS workload (for reviewer utility)
-- Service inventory: ECS/Fargate, API Gateway, RDS PostgreSQL, ElastiCache,
-  S3, EventBridge, SQS, Secrets Manager, CloudWatch, X-Ray, VPC, CloudFront,
-  Route 53, Terraform state
-- Architecture and data-flow ASCII diagrams (public/private subnets, NEAR + registries)
-- Microservices catalog mapped to AWS dependencies; EventBridge event taxonomy
-- Security, multi-tenant isolation, compliance posture, DR topology (us-east-1 / eu-west-1)
-- Functional requirements summary aligned to `MARKETPLACE_SRS.md` workload patterns
+| Stream | Key inputs |
+|--------|------------|
+| **Trading fee** | **1%** buyer-side; 50–100 corporate buyers; **$10M GMV** → **$100K** |
+| **Listing fee** | **$0.10 / tonne** listed; 20 projects × 15k t avg = **300k t** → **$30K** |
+| **Retirement certificates** | **$10** each; **5,000** retirements (1% of traded volume, tonne basis) → **$50K** |
+| **Data & analytics** | **$49/mo** SME, **$299/mo** enterprise; **5 SME + 2 enterprise** (mid-year) → **$5K** |
+| **DMRV issuance** | **$0.08 / token** (1 token = 1 t CO₂); **300k** tokens → **$24K** |
 
-### Section 12 — Budget & AWS Resource Forecast (replaced $2M table)
-- **Total AWS ask: under $80K** over 24 months (cumulative forecast ~$78K)
-- Steady-state monthly line items (~$2,115/mo) retained and reorganized
-- Phase table: Dev → Beta → Launch → Growth → Scale with **cumulative AWS spend**
-- **Cost optimization**: Spot, Reserved Instances, S3 tiering, log retention
-- **The Ask**: ~$75K Activate credits + in-kind SA review, Well-Architected,
-  partner intros, TAM; rationale for AWS investment
+- **Year 1 total: ~$209K** (replaces prior ~$450K / mixed legacy streams).
+- **Year 2 (illustrative):** ~**$525K–$630K** at 2.5–3× activity; registry API and enterprise bundles called out as **Year 2+**.
 
-### Section 10
-- "What Needs Funding" renamed to **"What's Next — and Where AWS Credits Apply"**
-  with AWS services per workstream
+## Other edits in the same file
 
-### Removed / not in this document anymore
-- Full-company **$2M seed** budget table, contingency totals, 18-month runway math
-- Any "needs funding" / seed-round framing in navigation and body
+- **Section 9.3 (Unit economics):** milestones aligned to **$209K ARR**, **$10M GMV**, and **1%** trading fee; break-even wording vs **AWS** spend.
+- **Section 12:** narrative tying **~$209K** revenue and **$100K** trading component to **AWS** cost coverage (vs old “$200K+ at $10M volume” line).
+- **Notes under 9.1:** GMV ↔ $/t validation for retirement “1% of volume”; analytics back-weighting; optional additive streams.
 
-## DMRV-NFT.pptx
+## Breaking changes
 
-- Updated (binary) — slide deck refreshed in line with the new pitch positioning
-
-## Impact
-
-**For AWS reviewers:** Single document maps product, architecture from
-`dmrv_saa_s_architecture_near_nft_design.md`, requirements hooks from SRS, and
-a **credible AWS-only spend forecast** under an $80K ceiling.
-
-**For the repo:** Pitch doc is consistent with Activate-style asks; investor
-round economics are no longer the headline in Section 12.
-
-## Breaking Changes
-
-None — documentation and presentation asset only; no application code changes.
+None — documentation only; no application code changes.
