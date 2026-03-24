@@ -1,142 +1,55 @@
-docs(marketplace): add investor funding pitch with NEAR blockchain strategy
+docs(marketplace): restructure pitch for AWS Activate and $80K credit ask
 
-Adds a comprehensive investor-facing funding pitch document for the
-Marketplace module, including a rigorous justification for choosing
-NEAR Protocol over ERC-1155/Ethereum and full project management
-operating model.
+Rewrites `docs/MARKETPLACE_PITCH.md` from an investor-facing $2M seed narrative
+into an expert-review-ready **AWS Activate / startup credits** proposal. Keeps
+business context (Section 9 revenue streams, NEAR rationale in appendices) but
+anchors funding on **under $80K** in AWS infrastructure over 24 months.
 
-## New Documentation
+## docs/MARKETPLACE_PITCH.md
 
-### Marketplace Pitch (`docs/MARKETPLACE_PITCH.md`)
-- **571-line** investor funding proposal for a $2M seed round
-- Structured as a complete pitch deck in markdown — problem,
-  solution, product demo, technology, market, traction, financials
+### Document framing
+- Title: **AWS Activate Program Proposal** (not generic "startup funding")
+- Executive brief updated: ask is **up to $80K in AWS credits**, not equity funding
+- Build status language: backend/blockchain "requires AWS infrastructure" (not "needs funding")
 
-### Key Sections
+### AWS workload (for reviewer utility)
+- Service inventory: ECS/Fargate, API Gateway, RDS PostgreSQL, ElastiCache,
+  S3, EventBridge, SQS, Secrets Manager, CloudWatch, X-Ray, VPC, CloudFront,
+  Route 53, Terraform state
+- Architecture and data-flow ASCII diagrams (public/private subnets, NEAR + registries)
+- Microservices catalog mapped to AWS dependencies; EventBridge event taxonomy
+- Security, multi-tenant isolation, compliance posture, DR topology (us-east-1 / eu-west-1)
+- Functional requirements summary aligned to `MARKETPLACE_SRS.md` workload patterns
 
-**1. Problem Statement**
-- $2B voluntary carbon market with fragmented registries
-- Opaque pricing, broken trust, unverifiable retirement
-- Small participants locked out by lot sizes and broker fees
+### Section 12 — Budget & AWS Resource Forecast (replaced $2M table)
+- **Total AWS ask: under $80K** over 24 months (cumulative forecast ~$78K)
+- Steady-state monthly line items (~$2,115/mo) retained and reorganized
+- Phase table: Dev → Beta → Launch → Growth → Scale with **cumulative AWS spend**
+- **Cost optimization**: Spot, Reserved Instances, S3 tiering, log retention
+- **The Ask**: ~$75K Activate credits + in-kind SA review, Well-Architected,
+  partner intros, TAM; rationale for AWS investment
 
-**2. Solution & Competitive Analysis**
-- End-to-end pipeline: Measurement → Verification → Tokenization
-  → Trading → Retirement (5 stages; competitors cover 1-2)
-- Comparison table vs Toucan, KlimaDAO, CBL/Xpansiv, Flowcarbon,
-  Carbonplace — DMRV is the only platform covering all 5 stages
+### Section 10
+- "What Needs Funding" renamed to **"What's Next — and Where AWS Credits Apply"**
+  with AWS services per workstream
 
-**3. Product Demo (What's Built)**
-- All 7 marketplace modules described: Browse, Trading Desk,
-  Portfolio, Retirement & Impact, Analytics, NEAR Explorer,
-  Registry Hub
-- Emphasizes this is production-grade code, not mockups
+### Removed / not in this document anymore
+- Full-company **$2M seed** budget table, contingency totals, 18-month runway math
+- Any "needs funding" / seed-round framing in navigation and body
 
-**4. Why NEAR Protocol — And Not Ethereum/ERC-1155**
-This is the centerpiece addition. Addresses the #1 investor question
-head-on with 5 structural reasons:
+## DMRV-NFT.pptx
 
-  1. **Human-readable identity** — Retirement certificates show
-     `acme-corp.near` instead of `0x2b8c...`; audit-grade prose
-     vs machine logs for compliance officers
-
-  2. **Rich on-chain metadata at viable cost** — MRV hash, registry
-     serial, methodology, tonnage stored directly on-chain for ~$0.03;
-     ERC-1155 pushes metadata off-chain to IPFS, weakening the
-     chain-of-custody guarantee
-
-  3. **Multi-tenant sub-accounts** — NEAR's `tenant.dmrv.near`
-     hierarchy mirrors the PostgreSQL multi-tenant schema with
-     protocol-level access control via function-call access keys
-
-  4. **Predictable gas fees** — Trading Desk shows live fee estimates;
-     NEAR gas doesn't spike with congestion like Ethereum L2s
-
-  5. **No bridge risk** — Retirement (permanent burn) happens on a
-     sharded L1 with no L2 bridge dependency; cites Ronin ($625M),
-     Wormhole ($320M), Nomad ($190M) exploits
-
-- Acknowledges NEAR's smaller ecosystem but frames it as advantage:
-  < 5 carbon competitors on NEAR vs 50+ on Polygon; NEAR Foundation
-  concentrated grant support; category leadership opportunity
-- Confirms multi-chain expansion path: ERC-1155 on Polygon planned
-  for Phase 2 (Month 18) with no frontend rewrite needed
-
-**5. Competitive Landscape (Enhanced)**
-- Added specific competitor failures: Flowcarbon raised $70M and
-  paused token launch; KlimaDAO token lost 98%; Toucan faced
-  whitelisting exploits
-- Positions DMRV as a different infrastructure approach, not
-  just another "bridge credits to Polygon" project
-
-**6. Market Opportunity & Revenue Model**
-- TAM: $50B by 2030 (McKinsey, BloombergNEF)
-- SAM: ~$1B today, growing to ~$10B by 2030
-- 5 revenue streams projecting ~$450K Year 1, ~$3-5M Year 2
-
-**7. Use of Funds ($2M Seed Round)**
-- Detailed budget: 63% engineering, 15% product/design, 2.5%
-  security audits, 12.7% contingency
-- 10 milestones from Month 3 (Backend API) to Month 18
-  (EVM expansion + break-even)
-
-**8. How We Work: Process, Requirements & Team Operations**
-New section covering operational maturity:
-
-- **Requirements Engineering** — References existing SRS (40+ user
-  stories), data schema (43 tables), API specs (23 endpoints);
-  describes feature pipeline for post-launch work
-- **Project Management** — Agile/Scrum, 2-week sprints, 12-13
-  sprints to launch, ceremony schedule (standups, planning,
-  reviews, retros, grooming, architecture reviews)
-- **Working Hours** — Core hours 10AM-4PM, flex around that,
-  40-hour weeks, remote-first, no-meeting days Mon/Wed,
-  async-first communication (Slack, Linear, GitHub, Loom, Notion)
-- **Reporting Cadence** — Sprint burndowns (real-time), sprint
-  demo recordings (bi-weekly to investors), monthly progress
-  reports, quarterly KPI reviews
-- **Quality Gates** — PR → lint → tests → review → staging → E2E
-  → production; stricter pipeline for smart contract changes
-- **Bug Severity SLAs** — P0: 1hr response / 4hr resolution;
-  P1: 4hr / 24hr; P2: 1 day / 1 sprint; P3: 1 week / backlog
-- **Definition of Done** — 8-point checklist including TypeScript
-  strict mode, 80% test coverage, cross-browser testing, a11y,
-  staging deploy, PO acceptance
-
-**9. FAQ Section (6 Questions)**
-- Why not ERC-1155 on Polygon?
-- Can you expand to Ethereum later?
-- Is the NEAR developer pool too small?
-- What about institutional custody?
-- How do you ensure the project stays on schedule?
-- Is the team remote?
-
-**10. 6-Month Roadmap & Team Plan**
-- Visual month-by-month roadmap (Foundation → Backend → Blockchain
-  → Security → Launch)
-- 10-person team roster with hiring priority timeline
-- Phase 2 callout: EVM expansion at Month 18
-
-## Files Changed
-
-### New Files (1)
-- `docs/MARKETPLACE_PITCH.md` — Investor funding pitch (571 lines)
+- Updated (binary) — slide deck refreshed in line with the new pitch positioning
 
 ## Impact
 
-**For Investors:**
-- ✅ Complete pitch document ready for funding conversations
-- ✅ NEAR vs ERC-1155 question addressed proactively with 5
-  structural arguments
-- ✅ Competitor failures cited (Flowcarbon, KlimaDAO, Toucan)
-- ✅ Operational maturity demonstrated (Agile process, working
-  hours, quality gates, bug SLAs)
-- ✅ Multi-chain expansion path preserves optionality
+**For AWS reviewers:** Single document maps product, architecture from
+`dmrv_saa_s_architecture_near_nft_design.md`, requirements hooks from SRS, and
+a **credible AWS-only spend forecast** under an $80K ceiling.
 
-**For the Team:**
-- ✅ Working model defined (core hours, no-meeting days, remote)
-- ✅ Sprint ceremony schedule documented
-- ✅ Quality gates and Definition of Done established
-- ✅ Reporting cadence to investors formalized
+**For the repo:** Pitch doc is consistent with Activate-style asks; investor
+round economics are no longer the headline in Section 12.
 
 ## Breaking Changes
-None — documentation only, no code changes
+
+None — documentation and presentation asset only; no application code changes.
